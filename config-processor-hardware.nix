@@ -70,7 +70,9 @@ let
         ]
         ++ map (vm: importvm vms.${vm}) (builtins.attrNames vms)
         ++ (import "${ghafOS}/modules/module-list.nix")
-        ++ extraModules;
+        ++ (import ./modules/fmo-module-list.nix)
+        ++ extraModules
+        ++ (if lib.hasAttr "extraModules" sysconf then sysconf.extraModules else []);
     };
   in {
     inherit hostConfiguration;
