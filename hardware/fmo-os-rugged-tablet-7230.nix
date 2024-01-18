@@ -1,0 +1,116 @@
+# Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# fmo-os-rugged-tablet-7230 computer -target
+{
+  sysconf = {
+    name = "fmo-os-rugged-tablet-7230";
+    systemPackages = [
+      "vim"
+      "tcpdump"
+      "gpsd"
+    ]; # systemPackages
+
+    vms = {
+      netvm = {
+        enable = true;
+        name = "netvm";
+        macaddr = "02:00:00:01:01:01";
+        ipaddr = "192.168.101.1";
+        systemPackages = [
+          "vim"
+          "tcpdump"
+        ]; # systemPackages
+        extraModules = [
+        {
+          networking = {
+            nat.enable = true;
+            wireless = {
+              enable = true;
+            };
+            networkmanager = {
+              enable = true;
+              unmanaged = [
+                "ethint0"
+              ];
+            };
+          }; # networking
+
+          services = {
+            udev = {
+              extraRules = ''
+                # Rename network devices
+                SUBSYSTEM=="net", ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idProduct}=="a4a2", ATTRS{idVendor}=="0525", NAME="mesh0"
+                SUBSYSTEM=="net", ACTION=="add", DRIVERS=="e1000e", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x8086", NAME="eth0"
+              '';
+            };
+            avahi = {
+              enable = true;
+              nssmdns = true;
+              reflector = true;
+            };
+          }; # services
+
+          microvm = {
+            devices = [
+              {
+                bus = "pci";
+                path = "0000:00:14.3";
+              }
+            ]; # microvm.devices
+
+            shares = [
+              {
+                source = "/var/netvm/netconf";
+                mountPoint = "/etc/NetworkManager/system-connections";
+                tag = "netconf";
+                proto = "virtiofs";
+                socket = "netconf.sock";
+              }
+            ]; # microvm.shares
+          }; # microvm
+
+          # For WLAN firmwares
+          hardware.enableRedistributableFirmware = true;
+        }]; # extraModules
+      }; # netvm
+
+      dockervm = {
+        enable = true;
+        name = "dockervm";
+        macaddr = "02:00:00:01:01:02";
+        ipaddr = "192.168.101.11";
+        defaultgw = "192.168.101.1";
+        systemPackages = [
+          "vim"
+          "tcpdump"
+          "gpsd"
+        ]; # systemPackages
+        extraModules = [
+        {
+          microvm = {
+            mem = 4096;
+            vcpu = 2;
+            volumes = [{
+              image = "/var/tmp/dockervm.img";
+              mountPoint = "/var/lib/docker";
+              size = 51200;
+              autoCreate = true;
+              fsType = "ext4";
+            }];# microvm.volumes
+            shares = [
+              {
+                source = "/var/fogdata";
+                mountPoint = "/var/lib/fogdata";
+                tag = "fogdatafs";
+                proto = "virtiofs";
+                socket = "fogdata.sock";
+              }
+            ]; # microvm.shares
+          };# microvm
+         networking.firewall.enable = false;
+        }]; # extraModules
+      }; # dockervm
+    }; # vms
+  }; # system
+}
