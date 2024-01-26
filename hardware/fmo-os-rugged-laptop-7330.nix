@@ -11,6 +11,13 @@
       "gpsd"
     ]; # systemPackages
 
+    extraModules = [
+      {
+        # Add NVMe support into initrd to be able to boot from it
+        boot.initrd.availableKernelModules = [ "nvme" "ahci" ];
+      }
+    ]; # extraModules;
+
     vms = {
       netvm = {
         enable = true;
