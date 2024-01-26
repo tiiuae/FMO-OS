@@ -6,4 +6,5 @@
   ./includeOSS
   ./simple-installer
   ./profiles/installer.nix
+  ./portforwarding-service
 ]
