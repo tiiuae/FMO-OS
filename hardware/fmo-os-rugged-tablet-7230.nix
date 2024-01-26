@@ -50,12 +50,39 @@
                 SUBSYSTEM=="net", ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idProduct}=="a4a2", ATTRS{idVendor}=="0525", NAME="mesh0"
                 SUBSYSTEM=="net", ACTION=="add", DRIVERS=="e1000e", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x8086", NAME="eth0"
               '';
-            };
+            }; # services.udev
+
             avahi = {
               enable = true;
               nssmdns = true;
               reflector = true;
-            };
+            }; # services.avahi
+
+            portforwarding-service = {
+              enable = true;
+              ipaddress = "192.168.100.12";
+              ipaddress-path = "/etc/NetworkManager/system-connections/ip-address";
+              configuration = [
+                {
+                  dip = "192.168.101.11";
+                  dport = "4222";
+                  sport = "4222";
+                  proto = "tcp";
+                }
+                {
+                  dip = "192.168.101.11";
+                  dport = "7222";
+                  sport = "7222";
+                  proto = "tcp";
+                }
+                {
+                  dip = "192.168.101.11";
+                  dport = "4223";
+                  sport = "4223";
+                  proto = "tcp";
+                }
+              ];
+            }; # services.portforwarding-service;
           }; # services
 
           microvm = {

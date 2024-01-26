@@ -92,7 +92,7 @@
         microvm.qemu.bios.enable = false;
         microvm.storeDiskType = "squashfs";
 
-        imports = (import "${ghafOS}/modules/module-list.nix");
+        imports = (import "${ghafOS}/modules/module-list.nix") ++ (import ../../fmo-module-list.nix);
       })
       addSystemPackages
     ];
