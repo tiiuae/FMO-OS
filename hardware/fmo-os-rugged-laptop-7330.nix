@@ -9,7 +9,18 @@
       "vim"
       "tcpdump"
       "gpsd"
+      "chromium"
     ]; # systemPackages
+
+    launchers = [
+      {
+        app = "weston-terminal";
+      }
+      {
+        app = "chromium";
+        extraArgs = "192.168.101.11";
+      }
+    ]; # launchers;
 
     extraModules = [
       {

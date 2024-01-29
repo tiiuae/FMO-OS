@@ -25,6 +25,7 @@ let
     };
   };
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) sysconf.systemPackages;};
+  addCustomLaunchers = (import ./utils/launchers.nix {inherit sysconf;});
 
   formatModule = nixos-generators.nixosModules.raw-efi;
   target = variant: extraModules: let
@@ -58,6 +59,7 @@ let
             );
           }
 
+          addCustomLaunchers
           addSystemPackages
           formatModule
 
