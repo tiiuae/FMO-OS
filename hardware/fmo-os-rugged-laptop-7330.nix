@@ -173,7 +173,13 @@
               }
             ]; # microvm.shares
           };# microvm
-         networking.firewall.enable = false;
+          services = {
+            fmo-hostname-service = {
+              enable = true;
+              hostname-path = "/var/lib/fogdata/hostname";
+            }; # services.fmo-hostnam-service
+          }; # services
+          networking.firewall.enable = false;
         }]; # extraModules
       }; # dockervm
     }; # vms
