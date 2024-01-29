@@ -153,7 +153,7 @@
         ]; # systemPackages
         extraModules = [
         {
-          users.users."ghaf".extraGroups = ["dialout"];
+          users.users."ghaf".extraGroups = ["docker" "dialout"];
           microvm = {
             mem = 4096;
             vcpu = 2;
@@ -185,6 +185,16 @@
               enable = true;
               hostname-path = "/var/lib/fogdata/hostname";
             }; # services.fmo-hostnam-service
+            fmo-dci = {
+              enable = true;
+              compose-path = "/var/lib/fogdata/docker-compose.yml";
+              pat-path = "/var/lib/fogdata/PAT.pat";
+              preloaded-images = "tii-offline-map-data-loader.tar.gz";
+            }; # services.fmo-dci
+            avahi = {
+              enable = true;
+              nssmdns = true;
+            }; # services.avahi
           }; # services
           networking.firewall.enable = false;
         }]; # extraModules

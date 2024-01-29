@@ -4,6 +4,7 @@
 #
 [
   ./includeOSS
+  ./fmo-dci-service
   ./simple-installer
   ./fmo-hostname-service
   ./profiles/installer.nix
