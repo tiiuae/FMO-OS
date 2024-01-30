@@ -153,9 +153,16 @@
         ]; # systemPackages
         extraModules = [
         {
+          users.users."ghaf".extraGroups = ["dialout"];
           microvm = {
             mem = 4096;
             vcpu = 2;
+            devices = [
+              {
+                bus = "usb";
+                path = "vendorid=0x1546,productid=0x01a9";
+              }
+            ]; # microvm.devices
             volumes = [{
               image = "/var/tmp/dockervm.img";
               mountPoint = "/var/lib/docker";
