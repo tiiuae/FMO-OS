@@ -5,6 +5,7 @@
 [
   ./includeOSS
   ./simple-installer
+  ./fmo-hostname-service
   ./profiles/installer.nix
   ./portforwarding-service
 ]
