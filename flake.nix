@@ -64,6 +64,10 @@
             cfg.options;
         };
 
+        hydraJobs = {
+          inherit (self) packages;
+        };
+
         formatter = pkgs.alejandra;
       }))
     ]
