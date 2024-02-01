@@ -21,21 +21,22 @@
         networking = {
           wireless.enable = false;
           networkmanager.enable = true;
-        };
+        }; # networking
 
         services = {
           avahi.enable = true;
           avahi.nssmdns = true;
-        };
+        }; # services  
       }
     ]; # extraModules
 
     installer = {
-      name = "simple-installer";
+      name = "pterm-installer";
       enable = true;
       run_on_boot = true;
       welcome_msg = "Welcome to FMO-OS installer";
-    };
+      mount_path = "/home/ghaf/root";
+    }; # installer
 
     # OS to include
     oss = [

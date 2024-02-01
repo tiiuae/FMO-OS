@@ -133,9 +133,16 @@
         ]; # systemPackages
         extraModules = [
         {
+          users.users."ghaf".extraGroups = ["docker" "dialout"];
           microvm = {
             mem = 4096;
             vcpu = 2;
+            devices = [
+              {
+                bus = "usb";
+                path = "vendorid=0x1546,productid=0x01a9";
+              }
+            ]; # microvm.devices
             volumes = [{
               image = "/var/tmp/dockervm.img";
               mountPoint = "/var/lib/docker";
@@ -153,7 +160,23 @@
               }
             ]; # microvm.shares
           };# microvm
-         networking.firewall.enable = false;
+          services = {
+            fmo-hostname-service = {
+              enable = true;
+              hostname-path = "/var/lib/fogdata/hostname";
+            }; # services.fmo-hostnam-service
+            fmo-dci = {
+              enable = true;
+              compose-path = "/var/lib/fogdata/docker-compose.yml";
+              pat-path = "/var/lib/fogdata/PAT.pat";
+              preloaded-images = "tii-offline-map-data-loader.tar.gz";
+            }; # services.fmo-dci
+            avahi = {
+              enable = true;
+              nssmdns = true;
+            }; # services.avahi
+          }; # services
+          networking.firewall.enable = false;
         }]; # extraModules
       }; # dockervm
     }; # vms
