@@ -26,7 +26,17 @@
         services = {
           avahi.enable = true;
           avahi.nssmdns = true;
-        };
+
+          registration-agent-laptop ={
+            enable = true;
+            certs_path = "/home/ghaf/root/var/fogdata/certs";
+            config_path = "/home/ghaf/root/var/fogdata";
+            token_path = "/home/ghaf/root/var/fogdata";
+            hostname_path = "/home/ghaf/root/var/fogdata";
+            ip_path = "/home/ghaf/root/var/fogdata";
+            post_install_path = "/var/lib/fogdata/certs";
+          }; # registration-agent-laptop
+        }; # services
       }
     ]; # extraModules
 
@@ -36,6 +46,11 @@
       run_on_boot = true;
       welcome_msg = "Welcome to FMO-OS installer";
       mount_path = "/home/ghaf/root";
+      custom_script_path = "registration-agent-laptop";
+      custom_script_env_path = [
+        "/home/ghaf/root/var/fogdata"
+        "/home/ghaf/root/var/fogdata/certs"
+      ];
     }; # installer
 
     # OS to include
