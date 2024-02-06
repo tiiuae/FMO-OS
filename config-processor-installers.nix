@@ -18,15 +18,10 @@ let
   oss_list_path = "/etc/${oss_list_name}";
 
   installerApp = inst_app: let
-    installers = {
-      simple-installer = {
-        enable = inst_app.enable;
-        run_on_boot = inst_app.run_on_boot;
-        oss_path = lib.mkDefault "${oss_list_path}";
-        welcome_msg = inst_app.welcome_msg;
-      };
-    };
-  in installers.${inst_app.name};
+    installers = (builtins.removeAttrs inst_app ["name"]) //
+                { oss_path = lib.mkDefault "${oss_list_path}"; };
+  in installers;
+  
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) sysconf.systemPackages;};
 
   formatModule = nixos-generators.nixosModules.iso;
