@@ -3,6 +3,7 @@
 #
 #
 [
+  ./custom-packages
   ./includeOSS
   ./fmo-dci-service
   ./simple-installer
@@ -10,4 +11,6 @@
   ./fmo-hostname-service
   ./profiles/installer.nix
   ./portforwarding-service
+  ./registration-agent-laptop
+  ../utils/write-to-file
 ]
