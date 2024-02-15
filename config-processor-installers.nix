@@ -67,6 +67,7 @@ let
           addSystemPackages
 
           {
+            isoImage.compressImage = true;
             isoImage.squashfsCompression = "lz4"; 
           }
         ]
