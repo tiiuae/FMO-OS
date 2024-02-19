@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: 2023-2024 TII (SSRC) and the Ghaf contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: build
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+  pull_request_target:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-yml-check:
+    uses: ./.github/workflows/build-yml-check.yml
+  build_target:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    name: Build FMO-OS
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+        
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      # To use this repository's private action,
+      # you must check out the repository
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+      - name: Build
+        id: build
+        uses: ./.github/actions/build-action
+        with:
+          build_target: 'fmo-os-installer-debug'
+          CACHIX_TOKEN: ${{ secrets.CACHIX_TOKEN }}
+          RA_TOKEN: ${{ secrets.RA_TOKEN }}
+      - name: Prepare artifactory for upload
+        uses: "jfrog/setup-jfrog-cli@v2"
+      - name: Push to artifactory
+        uses: ./.github/actions/upload-action
+        with:
+          JFROG_UNAME: ${{ secrets.JFROG_UNAME }}
+          JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
+          JFROG_URL: ${{ secrets.JFROG_URL }}
+          input-paths:  |
+            ${{ github.workspace }}/${{ steps.build.outputs.outimg }}:tii-fmo-os/
+
