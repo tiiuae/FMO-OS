@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2022-2024 TII (SSRC) and the Ghaf contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: 'Build FMO-OS image'
+description: 'Build an FMO-OS image'
+
+inputs:
+  build_target:
+    description: 'Build target name'
+    required: true
+  CACHIX_TOKEN:
+    description: 'cachix binary cache token'
+    required: true
+  RA_TOKEN:
+    description: 'RA deployment token'
+    required: true
+outputs:
+  outimg:
+    description: 'Result image path in workdir'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.build_target }}
+    - ${{ inputs.CACHIX_TOKEN }}
+    - ${{ inputs.RA_TOKEN }}
+
