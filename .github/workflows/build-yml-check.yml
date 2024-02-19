@@ -1,0 +1,60 @@
+# SPDX-FileCopyrightText: 2023-2024 TII (SSRC) and the Ghaf contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+on:
+  workflow_call:
+    outputs:
+      result:
+        value: ${{ jobs.check.outputs.result }}
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.set-output.outputs.result }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check if build.yml is modified
+        id: build-yml-changed
+        uses: tj-actions/changed-files@v40
+        with:
+          files: .github/**
+      - name: Set output
+        id: set-output
+        run: |
+          # Not changed
+          if [ "${{ steps.build-yml-changed.outputs.any_changed }}" != "true" ];
+          then
+            echo "result=not-changed"
+            echo "result=not-changed" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Changed from external PR
+          if [ "${{ github.event_name }}" = "pull_request_target" ] && \
+             [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ];
+          then
+            echo "::error::" \
+                  "You are trying to edit workflow or action file" \
+                  "This step will fail to notify the team about that accident" \
+                  "Files changed during this event: ${{ steps.changed-files-yaml.outputs.test_all_changed_files }}"
+            echo "result=changed-from-fork"
+            echo "result=changed-from-fork" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+          # Changed from internal PR
+          echo "::error::" \
+                "You are trying to edit workflow or action file" \
+                "This step will fail to notify the team about that accident" \
+                "Files changed during this event: ${{ steps.changed-files-yaml.outputs.test_all_changed_files }}"
+          echo "result=changed-from-internal"
+          echo "result=changed-from-internal" >> "$GITHUB_OUTPUT"
+          exit 1
