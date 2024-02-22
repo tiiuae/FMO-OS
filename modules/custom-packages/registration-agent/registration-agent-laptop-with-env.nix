@@ -10,33 +10,38 @@ let
 in
 pkgs.writeScriptBin "registration-agent-laptop" ''
       #${pkgs.bash}/bin/bash
-      function usage() {
-        echo "Usage: $0 [-e <absolute-path-to-env-file>]"; exit 1;
+        echo "Usage: $0 register/provision [-e <absolute-path-to-env-file>]"; exit 1;
       }
-      while getopts ":e:" o; do
-          case "''${o}" in
-              e)
-                  env=''${OPTARG}
-                  ;;
-
-              *)
-                  usage
-                  ;;
-          esac
+      
+      
+      COMMAND=$1
+      ENV=$2
+      ENV_PATH=$3
+      
+      
+      RED='\033[0;31m'
+      GREEN='\033[0;32m'
+      NC='\033[0m'
+      
+      while [[ "$COMMAND" != "register" ]] && [[ "$COMMAND" != "provision" ]]; do
+          usage
       done
-      shift $((OPTIND-1))
-
-      if [ -z "''${env}" ]
-      then
-        if [ -f /home/ghaf/.env ]
-        then 
-          env=/home/ghaf/.env
+      
+      while [[ ! -z "$ENV" ]]  && ([[ "$ENV" != "-e" ]] || [[ -z "$ENV_PATH" ]]); do
+          usage
+      done
+      
+      if [ ! -z "$ENV" ]; then
+        if  [[ -f "$ENV_PATH" ]]; then
+          env=$ENV_PATH
         else
-          env=${env_path}/.env
+          echo -e "''${RED}Environment file \"$ENV_PATH\" does not exist''${NC}"
         fi
+      else
+        env=${env_path}/.env
       fi
 
-      echo "Use environment variables located at ''${env}"
+      echo -e "Use environment variables located at ''${GREEN}$env''${NC} and option ''${GREEN}$COMMAND''${NC}"
       export $(cat "''${env}")
-      ${registrationAgentOrig}/bin/registration-agent-laptop-orig
+      ${registrationAgentOrig}/bin/registration-agent-laptop-orig $COMMAND
       ''

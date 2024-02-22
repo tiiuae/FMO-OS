@@ -45,6 +45,12 @@ in
       default = "";
     };
 
+    custom_script_arguments = mkOption {
+      type = types.str;
+      description = "Script arguments";
+      default = "";
+    };
+
     custom_script_env_path = mkOption {
       type = types.listOf types.str;
       description = "Folders created for custom script to run";
@@ -59,7 +65,7 @@ in
         name = "ghaf-installer";
         src = builtins.fetchGit {
           url = "git@github.com:tiiuae/FMO-OS-Installer.git";
-          rev = "4b05908e816d6ee22409c74b22ec8e8189b2cf8c";
+          rev = "b34ae1945c511d70fbd244d759415f51a0c4353d";
           ref = "refs/heads/main";
         };
         vendorSha256 = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
@@ -70,8 +76,8 @@ in
           "-X 'ghaf-installer/screen.mountPoint=${cfg.mount_path}'"
           "-X 'ghaf-installer/screen.sourceDir=${installerGoScript.src.outPath}'"
         ] ++ lib.optionals (cfg.custom_script_path != "") [
-          "-X ghaf-installer/screen.folderPaths=${scriptEnvPath}"
-          "-X ghaf-installer/screen.customScript=${pkgs.${cfg.custom_script_path}}/bin/${cfg.custom_script_path}"
+          "-X 'ghaf-installer/screen.folderPaths=${scriptEnvPath}'"
+          "-X 'ghaf-installer/screen.customScript=${pkgs.${cfg.custom_script_path}}/bin/${cfg.custom_script_path} ${cfg.custom_script_arguments}'"
         ];
       };
   in {

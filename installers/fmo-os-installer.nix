@@ -47,6 +47,7 @@
       welcome_msg = "Welcome to FMO-OS installer";
       mount_path = "/home/ghaf/root";
       custom_script_path = "registration-agent-laptop";
+      custom_script_arguments = "register";
       custom_script_env_path = [
         "/home/ghaf/root/var/fogdata"
         "/home/ghaf/root/var/fogdata/certs"
