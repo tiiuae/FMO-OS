@@ -31,6 +31,13 @@
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
+          udev = {
+            extraRules = ''
+              # Add usb to kvm group
+              SUBSYSTEM=="usb", ATTR{idVendor}=="0525", ATTR{idProduct}=="a4a2", GROUP+="kvm"
+              SUBSYSTEM=="usb", ATTR{idVendor}=="1546", ATTR{idProduct}=="01a9", GROUP+="kvm"
+            '';
+          }; # services.udev
         }; # services
       }
     ]; # extraModules;
@@ -110,6 +117,14 @@
               }
             ]; # microvm.devices
 
+            # WAR: Default microvm's way to passthrough usb devices is not working
+            # Lets use qemu.extraArgs for that
+            qemu.extraArgs = [
+              "-usb"
+              "-device"
+              "usb-host,vendorid=0x0525,productid=0xa4a2"
+            ]; # microvm.qemu.extraArgs
+
             shares = [
               {
                 source = "/var/netvm/netconf";
@@ -143,12 +158,13 @@
           microvm = {
             mem = 4096;
             vcpu = 2;
-            devices = [
-              {
-                bus = "usb";
-                path = "vendorid=0x1546,productid=0x01a9";
-              }
-            ]; # microvm.devices
+            # WAR: Default microvm's way to passthrough usb devices is not working
+            # Lets use qemu.extraArgs for that
+            qemu.extraArgs = [
+              "-usb"
+              "-device"
+              "usb-host,vendorid=0x1546,productid=0x01a9"
+            ]; # microvm.qemu.extraArgs
             volumes = [{
               image = "/var/tmp/dockervm.img";
               mountPoint = "/var/lib/docker";
