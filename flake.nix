@@ -73,9 +73,12 @@
     ]
     ++ map generateHwConfig [
       (import ./hardware/fmo-os-rugged-laptop-7330.nix)
+      (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
       (import ./hardware/fmo-os-rugged-tablet-7230.nix)
+      (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
     ]
     ++ map generateInstConfig [
       (import ./installers/fmo-os-installer.nix)
+      (import ./installers/fmo-os-installer-public.nix)
     ]);
 }

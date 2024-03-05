@@ -58,7 +58,7 @@ in
       installerGoScript = pkgs.buildGo120Module {
         name = "ghaf-installer";
         src = builtins.fetchGit {
-          url = "git@github.com:tiiuae/FMO-OS-Installer.git";
+          url = "https://github.com/tiiuae/FMO-OS-Installer.git";
           rev = "4b05908e816d6ee22409c74b22ec8e8189b2cf8c";
           ref = "refs/heads/main";
         };

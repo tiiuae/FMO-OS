@@ -13,16 +13,23 @@
   sysconf,
 }:
 let
+  updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
+
   oss = sysconf.oss;
   oss_list_name = "installer_os_list";
   oss_list_path = "/etc/${oss_list_name}";
+
+  installerconf = if lib.hasAttr "extend" sysconf
+               then updateAttrs false (import (lib.path.append ./installers sysconf.extend) ).sysconf sysconf
+               else sysconf;
+
 
   installerApp = inst_app: let
     installers = (builtins.removeAttrs inst_app ["name"]) //
                 { oss_path = lib.mkDefault "${oss_list_path}"; };
   in installers;
   
-  addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) sysconf.systemPackages;};
+  addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) installerconf.systemPackages;};
 
   formatModule = nixos-generators.nixosModules.iso;
   installer = variant: extraModules: let
@@ -60,7 +67,7 @@ let
           }
 
           {
-            installer.${sysconf.installer.name} = installerApp sysconf.installer;
+            installer.${installerconf.installer.name} = installerApp installerconf.installer;
           }
 
           formatModule
@@ -73,10 +80,10 @@ let
         ++ (import ./modules/fmo-module-list.nix)
         ++ (import "${ghafOS}/modules/module-list.nix")
         ++ extraModules
-        ++ (if lib.hasAttr "extraModules" sysconf then sysconf.extraModules else []);
+        ++ (if lib.hasAttr "extraModules" installerconf then installerconf.extraModules else []);
     };
   in {
-    name = "${sysconf.name}-${variant}";
+    name = "${installerconf.name}-${variant}";
     inherit installerImgCfg system;
     installerImgDrv = installerImgCfg.config.system.build.${installerImgCfg.config.formatAttr};
   };
