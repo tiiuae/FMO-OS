@@ -5,6 +5,7 @@
 #
 _: {
   nixpkgs.overlays = [
+    (import ./libsecret)
     (import ./nmLauncher)
     (import ./registration-agent)
     (import ./squeekboard)
