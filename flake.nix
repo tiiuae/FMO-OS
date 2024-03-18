@@ -45,25 +45,9 @@
   in
     # Combine list of attribute sets together
     lib.foldr lib.recursiveUpdate {} ([
-      # Documentation
       (flake-utils.lib.eachSystem systems (system: let
         pkgs = nixpkgs.legacyPackages.${system};
       in {
-        packages.doc = pkgs.callPackage "${ghafOS}/docs" {
-          revision = lib.version;
-          options = let
-            cfg = nixpkgs.lib.nixosSystem {
-              inherit system;
-              modules =
-                lib.ghaf.modules
-                ++ [
-                  microvm.nixosModules.host 
-                ];
-            };
-          in
-            cfg.options;
-        };
-
         hydraJobs = {
           inherit (self) packages;
         };
