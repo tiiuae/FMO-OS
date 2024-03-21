@@ -55,14 +55,14 @@ in
   config.environment = mkIf (cfg.enable) (
     let
       scriptEnvPath = builtins.concatStringsSep ";" cfg.custom_script_env_path;
-      installerGoScript = pkgs.buildGo120Module {
+      installerGoScript = pkgs.buildGoModule {
         name = "ghaf-installer";
         src = builtins.fetchGit {
           url = "https://github.com/tiiuae/FMO-OS-Installer.git";
           rev = "4b05908e816d6ee22409c74b22ec8e8189b2cf8c";
           ref = "refs/heads/main";
         };
-        vendorSha256 = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
+        vendorHash = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
         proxyVendor=true;
         ldflags = [
           "-X 'ghaf-installer/global.OSSfile=${cfg.oss_path}'"

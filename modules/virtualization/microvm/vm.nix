@@ -1,6 +1,7 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 {
+  self,
   ghafOS,
   vmconf,
 }:{
@@ -13,6 +14,9 @@
   configHost = config;
   vmBaseConfiguration = {
     imports = [
+      ghafOS.nixosModules.common
+      self.nixosModules.fmo-services
+
       ({lib, ...}: {
         ghaf = {
           users.accounts.enable = lib.mkDefault configHost.ghaf.users.accounts.enable;
@@ -28,8 +32,6 @@
         nixpkgs.buildPlatform.system = configHost.nixpkgs.buildPlatform.system;
         nixpkgs.hostPlatform.system = configHost.nixpkgs.hostPlatform.system;
 
-        microvm.hypervisor = "qemu";
-
         networking = {
           enableIPv6 = false;
           interfaces.ethint0.useDHCP = false;
@@ -39,26 +41,30 @@
           useNetworkd = true;
         };
 
-        microvm.interfaces = [
-          {
-            type = "tap";
-            id = "vm-${vmconf.name}";
-            mac = "${vmconf.macaddr}";
-          }
-        ];
+        microvm = {
+          hypervisor = "qemu";
+          storeDiskType = "squashfs";
+          interfaces = [
+            {
+              type = "tap";
+              id = "tap-${vmconf.name}";
+              mac = "${vmconf.macaddr}";
+            }
+          ]; # microvm.interfaces
 
-        microvm.shares = [
-          # Use host's /nix/store to reduce size of the image
-          # WAR: to enable -M q35 option need to share any fs or pcie devices
-          # WAR: otherwise machine is not able to start, why?
-          {
-            tag = "ro-store";
-            source = "/nix/store";
-            mountPoint = "/nix/.ro-store";
-         }
-        ]; # microvm.shares
-        microvm.writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
+          shares = [
+            # Use host's /nix/store to reduce size of the image
+            # WAR: to enable -M q35 option need to share any fs or pcie devices
+            # WAR: otherwise machine is not able to start, why?
+            {
+              tag = "ro-store";
+              source = "/nix/store";
+              mountPoint = "/nix/.ro-store";
+           }
+          ]; # microvm.shares
 
+          writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
+        };
         networking.nat = {
           enable = lib.mkDefault false;
           internalInterfaces = lib.mkDefault ["ethint0"];
@@ -88,11 +94,6 @@
             linkConfig.ActivationPolicy = "always-up";
           };
         };
-
-        microvm.qemu.bios.enable = false;
-        microvm.storeDiskType = "squashfs";
-
-        imports = (import "${ghafOS}/modules/module-list.nix") ++ (import ../../fmo-module-list.nix);
       })
       addSystemPackages
     ];

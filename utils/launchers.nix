@@ -13,11 +13,13 @@ let
     extraArgs = if lib.hasAttr "extraArgs" descr then descr.extraArgs else "";
     launcers_description = {
       weston-terminal = {
-       path = "${pkgs.weston}/bin/weston-terminal ${extraArgs}";
-       icon = "${pkgs.weston}/share/weston/icon_terminal.png";
+        name = "terminal";
+        path = "${pkgs.weston}/bin/weston-terminal ${extraArgs}";
+        icon = "${pkgs.weston}/share/weston/icon_terminal.png";
       };
 
       chromium = {
+        name = "chromium";
         path = "${pkgs.chromium}/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland ${extraArgs}";
         icon = "${pkgs.chromium}/share/icons/hicolor/24x24/apps/chromium.png";
       };
@@ -26,6 +28,6 @@ let
     launcers_description."${descr.app}"
   );
 in {
-  ghaf.graphics.weston.enableDemoApplications = lib.mkIf (lib.hasAttr "launchers" sysconf) (lib.mkForce false);
-  ghaf.graphics.weston.launchers = lib.mkIf (lib.hasAttr "launchers" sysconf) (map get_launcer sysconf.launchers);
+  ghaf.graphics.enableDemoApplications = lib.mkIf (lib.hasAttr "launchers" sysconf) (lib.mkForce false);
+  ghaf.graphics.launchers = lib.mkIf (lib.hasAttr "launchers" sysconf) (lib.mkForce (map get_launcer sysconf.launchers));
 }

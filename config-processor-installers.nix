@@ -31,7 +31,6 @@ let
   
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) installerconf.systemPackages;};
 
-  formatModule = nixos-generators.nixosModules.iso;
   installer = variant: extraModules: let
     system = "x86_64-linux";
 
@@ -42,7 +41,11 @@ let
       specialArgs = {inherit lib; inherit ghafOS;};
       modules =
         [
-          (import "${ghafOS}/modules/host")
+          nixos-generators.nixosModules.iso
+          ghafOS.nixosModules.host
+          ghafOS.nixosModules.common
+          self.nixosModules.installer
+
           ({modulesPath, lib, config, ...}: {
             imports = [ (modulesPath + "/profiles/all-hardware.nix") ];
 
@@ -70,15 +73,12 @@ let
             installer.${installerconf.installer.name} = installerApp installerconf.installer;
           }
 
-          formatModule
           addSystemPackages
 
           {
             isoImage.squashfsCompression = "lz4"; 
           }
         ]
-        ++ (import ./modules/fmo-module-list.nix)
-        ++ (import "${ghafOS}/modules/module-list.nix")
         ++ extraModules
         ++ (if lib.hasAttr "extraModules" installerconf then installerconf.extraModules else []);
     };
@@ -87,13 +87,15 @@ let
     inherit installerImgCfg system;
     installerImgDrv = installerImgCfg.config.system.build.${installerImgCfg.config.formatAttr};
   };
-  debugModules = [(import "${ghafOS}/modules/development/usb-serial.nix") {ghaf.development.usb-serial.enable = true;}];
+  debugModules = [{ghaf.development.usb-serial.enable = true;}];
   targets = [
     (installer "debug" debugModules)
     (installer "release" [])
   ];
 in {
-  packages = lib.foldr lib.recursiveUpdate {} (map ({name, system, installerImgDrv, ...}: {
-    ${system}.${name} = installerImgDrv;
-  }) targets);
+  flake = {
+    packages = lib.foldr lib.recursiveUpdate {} (map ({name, system, installerImgDrv, ...}: {
+      ${system}.${name} = installerImgDrv;
+    }) targets);
+  };
 }

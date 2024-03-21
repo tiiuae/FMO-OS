@@ -23,7 +23,7 @@ let
   system = "x86_64-linux";
   vms = targetconf.vms;
 
-  importvm = vmconf: (import ./modules/virtualization/microvm/vm.nix {inherit ghafOS vmconf;});
+  importvm = vmconf: (import ./modules/virtualization/microvm/vm.nix {inherit self ghafOS vmconf;});
   enablevm = vm: {
     virtualization.microvm.${vm.name} = {
       enable = true;
@@ -33,7 +33,6 @@ let
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) targetconf.systemPackages;};
   addCustomLaunchers = (import ./utils/launchers.nix {sysconf = targetconf;});
 
-  formatModule = nixos-generators.nixosModules.raw-efi;
   target = variant: extraModules: let
     hostConfiguration = lib.nixosSystem {
       inherit system;
@@ -41,8 +40,16 @@ let
       modules =
         [
           microvm.nixosModules.host
-          (import "${ghafOS}/modules/host")
-          (import "${ghafOS}/modules/virtualization/microvm/microvm-host.nix")
+          nixos-generators.nixosModules.raw-efi
+          ghafOS.nixosModules.host
+          ghafOS.nixosModules.desktop
+          #ghafOS.nixosModules.microvm
+          ghafOS.nixosModules.common
+
+          self.nixosModules.fmo-services
+
+          (import "${ghafOS}/modules/microvm/networking.nix")
+          (import "${ghafOS}/modules/microvm/virtualization/microvm/microvm-host.nix")
           {
             ghaf = lib.mkMerge (
               [
@@ -50,6 +57,7 @@ let
                   hardware.x86_64.common.enable = true;
 
                   virtualization.microvm-host.enable = true;
+                  virtualization.microvm-host.hostNetworkSupport = true;
                   host.networking.enable = true;
 
                   # Enable all the default UI applications
@@ -67,7 +75,6 @@ let
 
           addCustomLaunchers
           addSystemPackages
-          formatModule
 
           {
             boot.kernelParams = [
@@ -77,8 +84,6 @@ let
           }
         ]
         ++ map (vm: importvm vms.${vm}) (builtins.attrNames vms)
-        ++ (import "${ghafOS}/modules/module-list.nix")
-        ++ (import ./modules/fmo-module-list.nix)
         ++ extraModules
         ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
     };
@@ -87,16 +92,18 @@ let
     name = "${name}-${variant}";
     package = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
   };
-  debugModules = [(import "${ghafOS}/modules/development/usb-serial.nix") {ghaf.development.usb-serial.enable = true;}];
+  debugModules = [{ghaf.development.usb-serial.enable = true;}];
   targets = [
     (target "debug" debugModules)
     (target "release" [])
   ];
 in {
-  nixosConfigurations =
-    builtins.listToAttrs (map (t: lib.nameValuePair t.name t.hostConfiguration) targets);
-  packages = {
-    x86_64-linux =
-      builtins.listToAttrs (map (t: lib.nameValuePair t.name t.package) targets);
+  flake = {
+    nixosConfigurations =
+      builtins.listToAttrs (map (t: lib.nameValuePair t.name t.hostConfiguration) targets);
+    packages = {
+      x86_64-linux =
+        builtins.listToAttrs (map (t: lib.nameValuePair t.name t.package) targets);
+    };
   };
 }

@@ -12,7 +12,7 @@ let
   };
 
 in
-buildGo121Module {
+pkgs.buildGoModule {
   name = "registration-agent-laptop";
   src = builtins.fetchGit {
     url = "git@github.com:tiiuae/registration-agent-laptop.git";
@@ -21,7 +21,7 @@ buildGo121Module {
   };
   tags = [ "prod" ];
   patches = [./remove-test.patch];
-  vendorSha256 = "sha256-fg7af7xLvn4kVlg24i14nGLAGBLuSfr6ttKmI6Guz3U=";
+  vendorHash = "sha256-fg7af7xLvn4kVlg24i14nGLAGBLuSfr6ttKmI6Guz3U=";
   proxyVendor=true;
 
 

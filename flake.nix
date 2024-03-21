@@ -18,67 +18,95 @@
     ghafOS.url = "github:tiiuae/ghaf";
   };
 
-  outputs = {
-    self,
-    ghafOS,
-  }: let
+  outputs = inputs @ {ghafOS, self,...}: let 
+
     # Retrieve inputs from Ghaf
     nixpkgs = ghafOS.inputs.nixpkgs;
+    flake-parts = ghafOS.inputs.flake-parts;
     flake-utils = ghafOS.inputs.flake-utils;
     nixos-generators = ghafOS.inputs.nixos-generators;
     nixos-hardware = ghafOS.inputs.nixos-hardware;
     microvm = ghafOS.inputs.microvm;
-
-    systems = with flake-utils.lib.system; [
-      x86_64-linux
-    ];
-
     lib = nixpkgs.lib.extend (final: _prev: {
-      ghaf = import "${ghafOS}/lib" {
-        inherit self;
-        lib = final;
-      };
+       ghaf = import "${ghafOS}/lib" {
+         inherit self;
+         lib = final;
+       };
     });
 
     generateHwConfig = import ./config-processor-hardware.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
     generateInstConfig = import ./config-processor-installers.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
-  in
-    # Combine list of attribute sets together
-    lib.foldr lib.recursiveUpdate {} ([
-      # Documentation
-      (flake-utils.lib.eachSystem systems (system: let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in {
-        packages.doc = pkgs.callPackage "${ghafOS}/docs" {
-          revision = lib.version;
-          options = let
-            cfg = nixpkgs.lib.nixosSystem {
-              inherit system;
-              modules =
-                lib.ghaf.modules
-                ++ [
-                  microvm.nixosModules.host 
-                ];
-            };
-          in
-            cfg.options;
-        };
+  in 
+    flake-parts.lib.mkFlake
+    { 
+      inherit inputs;
+    }{
+      # Toggle this to allow debugging in the repl
+      # see:https://flake.parts/debug
+      debug = false;
 
-        hydraJobs = {
-          inherit (self) packages;
-        };
+      systems = [
+        "x86_64-linux"
+      ];
 
-        formatter = pkgs.alejandra;
-      }))
-    ]
-    ++ map generateHwConfig [
+      imports = [
+        ./modules/flake-module.nix
+      ]
+      ++ map generateHwConfig [
       (import ./hardware/fmo-os-rugged-laptop-7330.nix)
       (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
       (import ./hardware/fmo-os-rugged-tablet-7230.nix)
       (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
-    ]
-    ++ map generateInstConfig [
-      (import ./installers/fmo-os-installer.nix)
-      (import ./installers/fmo-os-installer-public.nix)
-    ]);
+      ]
+      ++ map generateInstConfig [
+        (import ./installers/fmo-os-installer.nix)
+        (import ./installers/fmo-os-installer-public.nix)
+      ];
+    
+    flake.lib = nixpkgs.lib.extend (final: _prev: {
+       ghaf = import "${ghafOS}/lib" {
+         inherit self;
+         lib = final;
+       };
+    });
+  #in
+  #  # Combine list of attribute sets together
+  #  lib.foldr lib.recursiveUpdate {} ([
+  #    # Documentation
+  #    (flake-utils.lib.eachSystem systems (system: let
+  #      pkgs = nixpkgs.legacyPackages.${system};
+  #    in {
+  #      packages.doc = pkgs.callPackage "${ghafOS}/docs" {
+  #        revision = lib.version;
+  #        options = let
+  #          cfg = nixpkgs.lib.nixosSystem {
+  #            inherit system;
+  #            modules =
+  #              lib.ghaf.modules
+  #              ++ [
+  #                microvm.nixosModules.host 
+  #              ];
+  #          };
+  #        in
+  #          cfg.options;
+  #      };
+
+  #      hydraJobs = {
+  #        inherit (self) packages;
+  #      };
+
+  #      formatter = pkgs.alejandra;
+  #    }))
+  #  ]
+  #  ++ map generateHwConfig [
+  #    (import ./hardware/fmo-os-rugged-laptop-7330.nix)
+  #    (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
+  #    (import ./hardware/fmo-os-rugged-tablet-7230.nix)
+  #    (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
+  #  ]
+  #  ++ map generateInstConfig [
+  #    (import ./installers/fmo-os-installer.nix)
+  #    (import ./installers/fmo-os-installer-public.nix)
+  #  ]);
+    };
 }
