@@ -43,7 +43,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
       - name: Extract tag version
         id: tag
-        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Build
         id: build
         uses: ./.github/actions/build-action
@@ -60,5 +60,5 @@ jobs:
           JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
           JFROG_URL: ${{ secrets.JFROG_URL }}
           input-paths:  |
-            ${{ github.workspace }}/${{ steps.build.outputs.outimg }}:tii-fmo-os/releases/FMO-OS_inst_$TAG_VERSION.iso
+            ${{ github.workspace }}/${{ steps.build.outputs.outimg }}:tii-fmo-os/releases/FMO-OS_inst_${{ steps.tag.outputs.TAG_VERSION }}.iso
 
