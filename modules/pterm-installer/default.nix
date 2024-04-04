@@ -54,12 +54,15 @@ in
 
   config.environment = mkIf (cfg.enable) (
     let
-      scriptEnvPath = builtins.concatStringsSep ";" cfg.custom_script_env_path;
+      scriptEnvPath = (builtins.concatStringsSep ";"
+            ((lib.optional config.services.registration-agent-laptop.enable
+            (config.services.registration-agent-laptop.env_path + "/.env"))
+             ++ cfg.custom_script_env_path));
       installerGoScript = pkgs.buildGo120Module {
         name = "ghaf-installer";
         src = builtins.fetchGit {
           url = "https://github.com/tiiuae/FMO-OS-Installer.git";
-          rev = "de9496619e122f584bea7f35dbe911fb6deeba6d";
+          rev = "cbdcb3d9721dedec6671dd3d2a35649954881a7f";
           ref = "refs/heads/main";
         };
         vendorSha256 = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
