@@ -70,7 +70,6 @@ in
                       else cfg.file-info.${filename}.owner;
               src-data = (if (builtins.typeOf src == "set") then "${src.outPath}" 
                           else "${src}") ;
-              # Needing adding file name when not directory
               des = if ("${src}" == "") 
                     then ( cfg.file-info.${filename}.des-path )
                     else (if (builtins.readFileType src-data == "directory") 
@@ -79,6 +78,9 @@ in
               mindepth = (if ("${src}" == "") 
                         then ( "0")
                         else (if (builtins.readFileType src-data == "directory") then "1" else "0"));
+              priority = (if ("${src}" == "" ||  builtins.readFileType src-data == "directory")
+                        then (0)
+                        else 1);
 
             in {
               services.${filename} = {  
@@ -95,12 +97,12 @@ in
                     PERMISSION="${permission}"
                     if [ "$EXECUTE_ONCE" == "true" ]
                     then
-                    	FLAG="/var/log/$FILE_NAME.log"
-                    	if [[ -f $FLAG ]]; then
-                    		exit
-                    	else
-                    		touch "$FLAG"
-                    	fi
+                      FLAG="/var/log/$FILE_NAME.log"
+                      if [[ -f $FLAG ]]; then
+                        exit
+                      else
+                        echo $(uptime) > "$FLAG"
+                      fi
                     fi
 
                     if [ ! -d "$DES" ]
@@ -114,8 +116,9 @@ in
                     fi
                     exit
                   '';
-                serviceConfig = 
-                   { Type = "oneshot";};
+                serviceConfig = if (priority == 0)
+                                then { Type = "oneshot";}
+                                else { Type = "idle";};
                 
                 wantedBy = [ "multi-user.target" ]; 
                 enable = true;
