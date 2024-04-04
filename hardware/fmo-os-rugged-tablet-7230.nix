@@ -14,11 +14,14 @@
 
     launchers = [
       {
-        app = "weston-terminal";
+        app = "terminal";
       }
       {
         app = "chromium";
         extraArgs = "192.168.101.11";
+      }
+      {
+        app = "nmLauncher";
       }
     ]; # launchers;
 

@@ -3,12 +3,15 @@
 #
 #
 [
+  ./app-launchers
   ./custom-packages
+  ./graphics
   ./includeOSS
   ./fmo-dci-service
   ./simple-installer
   ./pterm-installer
   ./fmo-hostname-service
+  ./profiles/applications.nix
   ./profiles/installer.nix
   ./portforwarding-service
   ./registration-agent-laptop
