@@ -8,7 +8,7 @@ let
   mkPortForwardingRule = {dip, sport, dport, proto}: ''
     echo "Apply a new port forwarding: $IP:${sport} to ${dip}:${dport}"
     ${pkgs.iptables}/bin/iptables -I INPUT -p ${proto} --dport ${sport} -j ACCEPT
-    ${pkgs.iptables}/bin/iptables -t nat -I PREROUTING -p tcp -d $IP --dport ${sport} -j DNAT --to-destination ${dip}:${dport}
+    ${pkgs.iptables}/bin/iptables -t nat -I PREROUTING -p ${proto} -d $IP --dport ${sport} -j DNAT --to-destination ${dip}:${dport}
 
   '';
 
