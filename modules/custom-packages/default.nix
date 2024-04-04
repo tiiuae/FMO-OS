@@ -5,6 +5,10 @@
 #
 _: {
   nixpkgs.overlays = [
+    # WAR: libsecret should be removed when the upstream error is fixed
+    (import ./libsecret)
+    (import ./nmLauncher)
     (import ./registration-agent)
+    (import ./squeekboard)
   ];
 }

@@ -31,7 +31,7 @@ let
     };
   };
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) targetconf.systemPackages;};
-  addCustomLaunchers = (import ./utils/launchers.nix {sysconf = targetconf;});
+  addCustomLaunchers =  { ghaf.graphics.app-launchers.enabled-launchers = targetconf.launchers; };
 
   formatModule = nixos-generators.nixosModules.raw-efi;
   target = variant: extraModules: let
