@@ -17,9 +17,14 @@ in {
       type = types.str;
       description = "Path to docker-compose's .yml file";
     };
-   preloaded-images = mkOption {
+    preloaded-images = mkOption {
       type = types.str;
       description = "Preloaded docker images file names separated by spaces";
+    };
+    docker-url = mkOption {
+      type = types.str;
+      default = "";
+      description = "Path to docker url file";
     };
   };
 
@@ -36,9 +41,13 @@ in {
         PAT=$(${pkgs.gawk}/bin/gawk '{print $2}' ${cfg.pat-path} || echo "")
         DCPATH=$(echo ${cfg.compose-path} )
         PRELOAD_PATH=$(echo ${preload_path})
-
-        echo "Login ghcr.io"
-        echo $PAT | ${pkgs.docker}/bin/docker login ghcr.io -u $USR --password-stdin || echo "login to ghcr.io failed continue as is"
+        DOCKER_URL=$(echo ${cfg.docker-url})
+        if [ -z "$DOCKER_URL" ]; then
+          DOCKER_URL="cr.airoplatform.com"
+        fi
+        
+        echo "Login $DOCKER_URL"
+        echo $PAT | ${pkgs.docker}/bin/docker login $DOCKER_URL -u $USR --password-stdin || echo "login to $DOCKER_URL failed continue as is"
 
         echo "Load preloaded docker images"
         for FNAME in ${cfg.preloaded-images}; do
