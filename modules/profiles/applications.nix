@@ -23,7 +23,7 @@ in
     };
 
     config.ghaf.graphics = mkIf cfg.enable {
-      weston.enable = lib.mkDefault (cfg.compositor == "weston");
+      weston.enable = lib.mkForce (cfg.compositor == "weston");
       sway.enable = cfg.compositor == "sway";
       app-launchers.enableAppLaunchers = true;
     };
