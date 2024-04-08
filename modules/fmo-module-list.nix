@@ -16,4 +16,6 @@
   ./portforwarding-service
   ./registration-agent-laptop
   ../utils/write-to-file
+  ./fmo-psk-distribution-host
+  ./fmo-psk-distribution-vm
 ]

@@ -22,6 +22,7 @@
       }
       {
         app = "nmLauncher";
+        extraArgs = "192.168.101.1 ghaf";
       }
     ]; # launchers;
 
@@ -31,6 +32,9 @@
         boot.initrd.availableKernelModules = [ "nvme" "ahci" ];
 
         services = {
+          fmo-psk-distribution-service-host = {
+              enable = true;
+          };
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
@@ -84,6 +88,10 @@
               nssmdns = true;
               reflector = true;
             }; # services.avahi
+
+            fmo-psk-distribution-service-vm = {
+              enable = true;
+            };
 
             portforwarding-service = {
               enable = true;
@@ -156,9 +164,15 @@
                 proto = "virtiofs";
                 socket = "netconf.sock";
               }
+              {
+                tag = "ssh-public-key";
+                source = "/run/ssh-public-key";
+                mountPoint = "/run/ssh-public-key";
+              }
             ]; # microvm.shares
           }; # microvm
 
+          fileSystems."/run/ssh-public-key".options = ["ro"];
           # For WLAN firmwares
           hardware.enableRedistributableFirmware = true;
         }]; # extraModules
