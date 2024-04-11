@@ -16,18 +16,26 @@
 
   inputs = rec {
     ghafOS.url = "github:tiiuae/ghaf";
+
+    # Format all the things with treefmt.
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "ghafOS/nixpkgs";
+    };
   };
 
   outputs = {
     self,
     ghafOS,
+    treefmt-nix,
+    ...
   }: let
     # Retrieve inputs from Ghaf
-    nixpkgs = ghafOS.inputs.nixpkgs;
-    flake-utils = ghafOS.inputs.flake-utils;
-    nixos-generators = ghafOS.inputs.nixos-generators;
-    nixos-hardware = ghafOS.inputs.nixos-hardware;
-    microvm = ghafOS.inputs.microvm;
+    inherit (ghafOS.inputs) nixpkgs;
+    inherit (ghafOS.inputs) flake-utils;
+    inherit (ghafOS.inputs) nixos-generators;
+    inherit (ghafOS.inputs) nixos-hardware;
+    inherit (ghafOS.inputs) microvm;
 
     systems = with flake-utils.lib.system; [
       x86_64-linux
@@ -42,26 +50,30 @@
 
     generateHwConfig = import ./config-processor-hardware.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
     generateInstConfig = import ./config-processor-installers.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
+
   in
     # Combine list of attribute sets together
     lib.foldr lib.recursiveUpdate {} ([
       (flake-utils.lib.eachSystem systems (system: let
         pkgs = nixpkgs.legacyPackages.${system};
+
+        # Evaluate treefmt config for each system
+        treefmt = import ./treefmt.nix {inherit self lib pkgs system treefmt-nix;};
       in {
+        formatter = treefmt.config.build.wrapper;
+
         hydraJobs = {
           packages = {
             x86_64-linux = {
-              fmo-os-installer-public-debug = self.packages.x86_64-linux.fmo-os-installer-public-debug;
-              fmo-os-installer-public-release = self.packages.x86_64-linux.fmo-os-installer-public-release;
-              fmo-os-rugged-laptop-7330-public-debug = self.packages.x86_64-linux.fmo-os-rugged-laptop-7330-public-debug;
-              fmo-os-rugged-laptop-7330-public-release = self.packages.x86_64-linux.fmo-os-rugged-laptop-7330-public-release;
-              fmo-os-rugged-tablet-7230-public-debug = self.packages.x86_64-linux.fmo-os-rugged-tablet-7230-public-debug;
-              fmo-os-rugged-tablet-7230-public-release = self.packages.x86_64-linux.fmo-os-rugged-tablet-7230-public-release;
+              inherit (self.packages.x86_64-linux) fmo-os-installer-public-debug;
+              inherit (self.packages.x86_64-linux) fmo-os-installer-public-release;
+              inherit (self.packages.x86_64-linux) fmo-os-rugged-laptop-7330-public-debug;
+              inherit (self.packages.x86_64-linux) fmo-os-rugged-laptop-7330-public-release;
+              inherit (self.packages.x86_64-linux) fmo-os-rugged-tablet-7230-public-debug;
+              inherit (self.packages.x86_64-linux) fmo-os-rugged-tablet-7230-public-release;
             };
           };
         };
-
-        formatter = pkgs.alejandra;
       }))
     ]
     ++ map generateHwConfig [
