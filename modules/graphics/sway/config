@@ -194,4 +194,4 @@ bindsym $mod+c exec grim  -g "$(slurp)" /tmp/$(date +'%H:%M:%S.png')
 exec dbus-sway-environment
 exec configure-gtk
 exec_always nwg-panel
-#exec_always squeekboard
+exec_always lisgd
