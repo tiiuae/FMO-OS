@@ -130,26 +130,6 @@ in
         };
 
         systemd = {
-          # Service that reads wireless interface and write to .env
-          services.fmo-registration-agent-network-interface = {
-            description = "Get network interface for registration-agent-laptop environment-variable";
-            after = [
-               "fmo-registration-agent-laptop.service"
-               "fmo-registration-agent-certs.service"
-               "fmo-registration-agent-config.service"
-               "fmo-registration-agent-token.service"
-               "fmo-registration-agent-hostname.service"
-            ];
-            requires = ["fmo-registration-agent-laptop.service"];
-            script = ''
-              sleep 5
-              echo NETWORK_INTERFACE=$(ls -A /sys/class/ieee80211/*/device/net/ 2>/dev/null) >> ${cfg.env_path}/.env
-            '';
-            serviceConfig.Type = "idle";
-            wantedBy = [ "multi-user.target" ];
-            enable = true;
-          };
-
           # Service that execute registration-agent binary on boot
           services.fmo-registration-agent-execution = mkIf (cfg.run_on_boot) {
             description = "Execute registration agent on boot for registration phase";
