@@ -22,6 +22,7 @@
       }
       {
         app = "nmLauncher";
+        extraArgs = "192.168.101.1 ghaf";
       }
     ]; # launchers;
 
@@ -85,6 +86,10 @@
               reflector = true;
             }; # services.avahi
 
+            fmo-psk-distribution-service-vm = {
+              enable = true;
+            };
+
             portforwarding-service = {
               enable = true;
               ipaddress = "192.168.100.12";
@@ -136,9 +141,15 @@
                 proto = "virtiofs";
                 socket = "netconf.sock";
               }
+              {
+                tag = "ssh-public-key";
+                source = "/run/ssh-public-key";
+                mountPoint = "/run/ssh-public-key";
+              }
             ]; # microvm.shares
           }; # microvm
 
+          fileSystems."/run/ssh-public-key".options = ["ro"];
           # For WLAN firmwares
           hardware.enableRedistributableFirmware = true;
         }]; # extraModules
