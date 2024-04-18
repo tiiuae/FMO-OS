@@ -62,7 +62,8 @@
     "modules-right": [
       "tray",
       "executor-cpu",
-      "executor-memory"
+      "executor-memory",
+      "keyboard-layout"
     ],
     "name": "panel-top",
     "output": "All",
@@ -152,7 +153,8 @@
       "angle": 0.0,
       "sigrt": 34,
       "use-sigrt": false
-    }
+    },
+    "keyboard-layout": {}
   },
   {
     "brightness-slider": {

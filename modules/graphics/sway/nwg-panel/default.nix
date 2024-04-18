@@ -79,16 +79,6 @@
 
   panelConfigFile =  pkgs.writeTextDir "config" panelConfig;
 
-  panelAppWrapped = pkgs.symlinkJoin {
-    name = "nwg-panel";
-    paths = [ pkgs.nwg-panel ];
-    buildInputs = [ pkgs.makeWrapper ];
-    postBuild = ''
-      wrapProgram $out/bin/nwg-panel \
-        --add-flags "-s /etc/xdg/nwg-panel/style.css -c /etc/xdg/nwg-panel/config "
-    '';
-  };
-
 in {
 
   config =  lib.mkIf cfg.enable {
@@ -107,7 +97,7 @@ in {
     environment.systemPackages = with pkgs;
       [
         gopsuinfo
-        panelAppWrapped
+        nwg-panel
         brightnessctl
         nwg-bar
       ];

@@ -32,6 +32,10 @@ output * bg @wallpaper@ fill
 input "3823:49156:EETI8082:00_0EEF:C004" {
     map_to_output eDP-1
 }
+
+input type:keyboard {
+    xkb_layout us,fi
+}
 #
 # You can get the names of your inputs by running: swaymsg -t get_inputs
 # Read `man 5 sway-input` for more information about this section.
