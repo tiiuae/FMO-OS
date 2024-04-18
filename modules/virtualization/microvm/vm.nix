@@ -3,10 +3,9 @@
 {
   ghafOS,
   vmconf,
-}:{
+}: {
   config,
   lib,
-  pkgs,
   ...
 }: let
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = lib.mkIf (lib.hasAttr "systemPackages" vmconf) (map (app: pkgs.${app}) vmconf.systemPackages);};
@@ -55,7 +54,7 @@
             tag = "ro-store";
             source = "/nix/store";
             mountPoint = "/nix/.ro-store";
-         }
+          }
         ]; # microvm.shares
         microvm.writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
@@ -75,16 +74,17 @@
           networks."10-ethint0" = {
             matchConfig.MACAddress = "${vmconf.macaddr}";
             addresses = [
-              {                          
-                # IP-address for debugging subnet                                      
-                addressConfig.Address = "${vmconf.ipaddr}/24";                           
-              }                          
-            ];             
-            routes =  lib.mkIf (lib.hasAttr "defaultgw" vmconf)
-            [                
-              { routeConfig.Gateway = "${vmconf.defaultgw}"; }                               
+              {
+                # IP-address for debugging subnet
+                addressConfig.Address = "${vmconf.ipaddr}/24";
+              }
             ];
-            linkConfig.RequiredForOnline = "routable";                                 
+            routes =
+              lib.mkIf (lib.hasAttr "defaultgw" vmconf)
+              [
+                {routeConfig.Gateway = "${vmconf.defaultgw}";}
+              ];
+            linkConfig.RequiredForOnline = "routable";
             linkConfig.ActivationPolicy = "always-up";
           };
         };

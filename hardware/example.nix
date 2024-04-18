@@ -26,31 +26,32 @@
           "tcpdump"
         ]; # systemPackages
         extraModules = [
-        {
-          networking = {
-            nat.enable = true;
-            wireless = {
-              enable = true;
-            };
-            networkmanager = {
-              enable = true;
-              unmanaged = [
-                "ethint0"
-              ];
-            };
-          }; # networking
+          {
+            networking = {
+              nat.enable = true;
+              wireless = {
+                enable = true;
+              };
+              networkmanager = {
+                enable = true;
+                unmanaged = [
+                  "ethint0"
+                ];
+              };
+            }; # networking
 
-          microvm.devices = [
-            {
-              bus = "pci";
-              # Add yours network device here
-              path = "0000:72:00.0";
-            }
-          ]; # microvm.devices
+            microvm.devices = [
+              {
+                bus = "pci";
+                # Add yours network device here
+                path = "0000:72:00.0";
+              }
+            ]; # microvm.devices
 
-          # For WLAN firmwares
-          hardware.enableRedistributableFirmware = true;
-        }]; # extraModules
+            # For WLAN firmwares
+            hardware.enableRedistributableFirmware = true;
+          }
+        ]; # extraModules
       }; # netvm
 
       # The docker apps VM
@@ -65,29 +66,32 @@
           "tcpdump"
         ]; # systemPackages
         extraModules = [
-        {
-          microvm = {
-            mem = 4096;
-            vcpu = 2;
-            volumes = [{
-              image = "/var/tmp/dockervm.img";
-              mountPoint = "/var/lib/docker";
-              size = 51200;
-              autoCreate = true;
-              fsType = "ext4";
-            }];# microvm.volumes
-            shares = [
-              {
-                source = "/var/datashare";
-                mountPoint = "/var/lib/datashare";
-                tag = "datasharefs";
-                proto = "virtiofs";
-                socket = "datashare.sock";
-              }
-            ]; # microvm.shares
-          };# microvm
-         networking.firewall.enable = false;
-        }]; # extraModules
+          {
+            microvm = {
+              mem = 4096;
+              vcpu = 2;
+              volumes = [
+                {
+                  image = "/var/tmp/dockervm.img";
+                  mountPoint = "/var/lib/docker";
+                  size = 51200;
+                  autoCreate = true;
+                  fsType = "ext4";
+                }
+              ]; # microvm.volumes
+              shares = [
+                {
+                  source = "/var/datashare";
+                  mountPoint = "/var/lib/datashare";
+                  tag = "datasharefs";
+                  proto = "virtiofs";
+                  socket = "datashare.sock";
+                }
+              ]; # microvm.shares
+            }; # microvm
+            networking.firewall.enable = false;
+          }
+        ]; # extraModules
       }; # dockervm
 
       # Dummy VM
@@ -98,9 +102,10 @@
         ipaddr = "192.168.101.12";
         defaultgw = "192.168.101.1";
         extraModules = [
-        {
-         networking.firewall.enable = false;
-        }]; # extraModules
+          {
+            networking.firewall.enable = false;
+          }
+        ]; # extraModules
       }; # dummyvm
     }; # vms
   }; # system

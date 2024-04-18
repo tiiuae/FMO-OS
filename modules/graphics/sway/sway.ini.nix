@@ -8,13 +8,12 @@
 }: let
   cfg = config.ghaf.graphics.sway;
   sway_config = pkgs.substituteAll {
-                  dir = "share";
-                  isExecutable = false;
-                  pname = "config";
-                  src = ./config;
-                  wallpaper = "${../assets/wallpaper.jpg}";
-                };
-
+    dir = "share";
+    isExecutable = false;
+    pname = "config";
+    src = ./config;
+    wallpaper = "${../assets/wallpaper.jpg}";
+  };
 in {
   imports = [
     ./lisgd
@@ -24,7 +23,7 @@ in {
   config = lib.mkIf cfg.enable {
     services.writeToFile = {
       enable = true;
-      enabledFiles = [ "config-folder" "sway-config" ];
+      enabledFiles = ["config-folder" "sway-config"];
       file-info = {
         config-folder = {
           des-path = "${config.users.users.ghaf.home}/.config";
@@ -40,6 +39,5 @@ in {
         };
       };
     };
-
   };
 }

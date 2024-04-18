@@ -1,8 +1,11 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{ config, pkgs, lib, ... }:
-let
-
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   cfg = config.ghaf.graphics.sway;
   # bash script to let dbus know about important env variables and
   # propagate them to relevent services run at the end of sway config
@@ -41,16 +44,12 @@ let
       gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled true
     '';
   };
-
-in
-{
-
+in {
   options.ghaf.graphics.sway = {
     enable = lib.mkEnableOption "sway";
   };
 
   config = lib.mkIf cfg.enable {
-
     ghaf.graphics.window-manager-common.enable = true;
 
     xdg.icons.enable = true;
@@ -67,7 +66,7 @@ in
       gsettings-desktop-schemas
       dracula-theme # gtk theme
       yaru-remix-theme
-      gnome3.adwaita-icon-theme  # default gnome cursors
+      gnome3.adwaita-icon-theme # default gnome cursors
       swaylock
       swayidle
       grim # screenshot functionality
@@ -86,71 +85,71 @@ in
       pulse.enable = true;
     };
 
-  # xdg-desktop-portal works by exposing a series of D-Bus interfaces
-  # known as portals under a well-known name
-  # (org.freedesktop.portal.Desktop) and object path
-  # (/org/freedesktop/portal/desktop).
-  # The portal interfaces include APIs for file access, opening URIs,
-  # printing and others.
-  services.dbus = {
-    enable = true;
-    packages = [ pkgs.squeekboard ];
-  };
-
-  xdg.portal = {
-    enable = true;
-    # gtk portal needed to make gtk apps happy
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-  };
-
-  # enable sway window manager
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-    extraPackages = with pkgs; [
-      foot
-      xwayland
-      mako
-      kanshi
-      swaybg
-      wofi
-      dmenu
-    ];
-  };
-
-  # configuring sway itself (assmung a display manager starts it)
-  systemd.user.targets.sway-session = {
-    description = "Sway compositor session";
-    documentation = [ "man:systemd.special(7)" ];
-    bindsTo = [ "graphical-session.target" ];
-    wants = [ "graphical-session-pre.target" ];
-    after = [ "graphical-session-pre.target" ];
-  };
-
-  # Sway service
-  services.greetd = {
-    enable = true;
-    settings = rec {
-      initial_session = {
-        command = "${pkgs.sway}/bin/sway";
-        user = "ghaf";
-      };
-      default_session = initial_session;
+    # xdg-desktop-portal works by exposing a series of D-Bus interfaces
+    # known as portals under a well-known name
+    # (org.freedesktop.portal.Desktop) and object path
+    # (/org/freedesktop/portal/desktop).
+    # The portal interfaces include APIs for file access, opening URIs,
+    # printing and others.
+    services.dbus = {
+      enable = true;
+      packages = [pkgs.squeekboard];
     };
-  };
 
-  systemd.user.services.kanshi = {
-    description = "Kanshi output autoconfig ";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    serviceConfig = {
-      # kanshi doesn't have an option to specifiy config file yet, so it looks
-      # at .config/kanshi/config
-      ExecStart = ''
-      ${pkgs.kanshi}/bin/kanshi
-      '';
-      RestartSec = 5;
-      Restart = "always";
+    xdg.portal = {
+      enable = true;
+      # gtk portal needed to make gtk apps happy
+      extraPortals = [pkgs.xdg-desktop-portal-gtk];
+    };
+
+    # enable sway window manager
+    programs.sway = {
+      enable = true;
+      wrapperFeatures.gtk = true;
+      extraPackages = with pkgs; [
+        foot
+        xwayland
+        mako
+        kanshi
+        swaybg
+        wofi
+        dmenu
+      ];
+    };
+
+    # configuring sway itself (assmung a display manager starts it)
+    systemd.user.targets.sway-session = {
+      description = "Sway compositor session";
+      documentation = ["man:systemd.special(7)"];
+      bindsTo = ["graphical-session.target"];
+      wants = ["graphical-session-pre.target"];
+      after = ["graphical-session-pre.target"];
+    };
+
+    # Sway service
+    services.greetd = {
+      enable = true;
+      settings = rec {
+        initial_session = {
+          command = "${pkgs.sway}/bin/sway";
+          user = "ghaf";
+        };
+        default_session = initial_session;
+      };
+    };
+
+    systemd.user.services.kanshi = {
+      description = "Kanshi output autoconfig ";
+      wantedBy = ["graphical-session.target"];
+      partOf = ["graphical-session.target"];
+      serviceConfig = {
+        # kanshi doesn't have an option to specifiy config file yet, so it looks
+        # at .config/kanshi/config
+        ExecStart = ''
+          ${pkgs.kanshi}/bin/kanshi
+        '';
+        RestartSec = 5;
+        Restart = "always";
       };
     };
   };

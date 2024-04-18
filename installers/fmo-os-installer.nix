@@ -27,7 +27,7 @@
           avahi.enable = true;
           avahi.nssmdns = true;
 
-          registration-agent-laptop ={
+          registration-agent-laptop = {
             enable = true;
             certs_path = "/home/ghaf/root/var/fogdata/certs";
             config_path = "/home/ghaf/root/var/fogdata";

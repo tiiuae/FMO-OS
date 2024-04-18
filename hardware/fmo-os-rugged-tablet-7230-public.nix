@@ -7,23 +7,25 @@
     extend = "./fmo-os-rugged-tablet-7230.nix";
     name = "fmo-os-rugged-tablet-7230-public";
     extraModules = [
-    {
-      services = {
-        registration-agent-laptop = {
-          enable = false;
-        }; # services.registration-agent-laptop
-      }; # services
-    }]; # extraModules;
+      {
+        services = {
+          registration-agent-laptop = {
+            enable = false;
+          }; # services.registration-agent-laptop
+        }; # services
+      }
+    ]; # extraModules;
     vms = {
       dockervm = {
         extraModules = [
-        {
-          services = {
-            registration-agent-laptop = {
-              enable = false;
-            }; # services.registration-agent-laptop
-          }; # services
-        }]; # extraModules
+          {
+            services = {
+              registration-agent-laptop = {
+                enable = false;
+              }; # services.registration-agent-laptop
+            }; # services
+          }
+        ]; # extraModules
       }; # dockervm
     }; # vms
   }; # sysconf
