@@ -34,19 +34,21 @@ in {
     # Allow to execute reboot and shutdown without password
     security.sudo = {
       enable = true;
-      extraRules = [{
-        commands = [
-          {
-            command = "${config.system.path}/bin/shutdown";
-            options = [ "NOPASSWD" ];
-          }
-          {
-            command = "${pkgs.systemd}/bin/shutdown";
-            options = [ "NOPASSWD" ];
-          }
-        ];
-        users = [ "ghaf" ];
-      }];
+      extraRules = [
+        {
+          commands = [
+            {
+              command = "${config.system.path}/bin/shutdown";
+              options = ["NOPASSWD"];
+            }
+            {
+              command = "${pkgs.systemd}/bin/shutdown";
+              options = ["NOPASSWD"];
+            }
+          ];
+          users = ["ghaf"];
+        }
+      ];
     };
 
     systemd.user.targets."ghaf-session" = {

@@ -1,12 +1,16 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{ lib, pkgs, config, ... }:
-with lib;
-let
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.services.fmo-psk-distribution-service-vm;
 in {
   options.services.fmo-psk-distribution-service-vm = {
-    enable   = mkEnableOption "fmo-psk-distribution-service-vm";
+    enable = mkEnableOption "fmo-psk-distribution-service-vm";
 
     ipaddress-path = mkOption {
       type = types.str;

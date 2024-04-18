@@ -8,19 +8,16 @@
 }: let
   cfg = config.ghaf.graphics.sway;
 
-  lisgd = pkgs.lisgd.overrideAttrs (oldAttrs: {
-        postPatch = ''
-          cp ${./config} config.def.h
-        '';
-     });
-
+  lisgd = pkgs.lisgd.overrideAttrs (_oldAttrs: {
+    postPatch = ''
+      cp ${./config} config.def.h
+    '';
+  });
 in {
-
-  config =  lib.mkIf cfg.enable {
-
+  config = lib.mkIf cfg.enable {
     users.users."ghaf".extraGroups = ["input"];
     environment.systemPackages = [
-        lisgd
-      ];
+      lisgd
+    ];
   };
 }

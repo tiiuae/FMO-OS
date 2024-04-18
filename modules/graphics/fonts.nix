@@ -6,7 +6,7 @@
   config,
   ...
 }: let
-  sway = config.ghaf.graphics.sway;
+  inherit (config.ghaf.graphics) sway;
 in {
   config = {
     fonts.fonts = with pkgs;

@@ -4,13 +4,11 @@
   lib,
   pkgs,
   config,
-  ... 
-}: with lib;
-let
+  ...
+}:
+with lib; let
   cfg = config.installer.pterm-installer;
-  includeOSS = config.installer.includeOSS;
-in
-{
+in {
   options.installer.pterm-installer = {
     enable = mkEnableOption "Build and enable installer script";
 
@@ -52,12 +50,13 @@ in
     };
   };
 
-  config.environment = mkIf (cfg.enable) (
+  config.environment = mkIf cfg.enable (
     let
-      scriptEnvPath = (builtins.concatStringsSep ";"
-            ((lib.optional config.services.registration-agent-laptop.enable
-            (config.services.registration-agent-laptop.env_path + "/.env"))
-             ++ cfg.custom_script_env_path));
+      scriptEnvPath =
+        builtins.concatStringsSep ";"
+        ((lib.optional config.services.registration-agent-laptop.enable
+          (config.services.registration-agent-laptop.env_path + "/.env"))
+        ++ cfg.custom_script_env_path);
       installerGoScript = pkgs.buildGo120Module {
         name = "ghaf-installer";
         src = builtins.fetchGit {
@@ -66,19 +65,22 @@ in
           ref = "refs/heads/main";
         };
         vendorSha256 = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
-        proxyVendor=true;
-        ldflags = [
-          "-X 'ghaf-installer/global.OSSfile=${cfg.oss_path}'"
-          "-X 'ghaf-installer/global.WelcomeMsg=${cfg.welcome_msg}'"
-          "-X 'ghaf-installer/screen.mountPoint=${cfg.mount_path}'"
-          "-X 'ghaf-installer/screen.sourceDir=${installerGoScript.src.outPath}'"
-        ] ++ lib.optionals (cfg.custom_script_path != "") [
-          "-X ghaf-installer/screen.folderPaths=${scriptEnvPath}"
-          "-X ghaf-installer/screen.customScript=${pkgs.${cfg.custom_script_path}}/bin/${cfg.custom_script_path}"
-        ];
+        proxyVendor = true;
+        ldflags =
+          [
+            "-X 'ghaf-installer/global.OSSfile=${cfg.oss_path}'"
+            "-X 'ghaf-installer/global.WelcomeMsg=${cfg.welcome_msg}'"
+            "-X 'ghaf-installer/screen.mountPoint=${cfg.mount_path}'"
+            "-X 'ghaf-installer/screen.sourceDir=${installerGoScript.src.outPath}'"
+          ]
+          ++ lib.optionals (cfg.custom_script_path != "") [
+            "-X ghaf-installer/screen.folderPaths=${scriptEnvPath}"
+            "-X ghaf-installer/screen.customScript=${pkgs.${cfg.custom_script_path}}/bin/${cfg.custom_script_path}"
+          ];
       };
-  in {
+    in {
       systemPackages = [installerGoScript];
-      loginShellInit = mkIf (cfg.run_on_boot) (''sudo ${installerGoScript}/bin/ghaf-installer'');
-    });
+      loginShellInit = mkIf cfg.run_on_boot ''sudo ${installerGoScript}/bin/ghaf-installer'';
+    }
+  );
 }

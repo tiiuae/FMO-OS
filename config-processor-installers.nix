@@ -6,45 +6,47 @@
   lib,
   ghafOS,
   nixos-generators,
-  nixos-hardware,
   nixpkgs,
-  microvm,
-}: {
-  sysconf,
-}:
-let
-  updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
+}: {sysconf}: let
+  inherit ((import ./utils/updateAttrs.nix)) updateAttrs;
 
-  oss = sysconf.oss;
+  inherit (sysconf) oss;
   oss_list_name = "installer_os_list";
   oss_list_path = "/etc/${oss_list_name}";
 
-  installerconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./installers sysconf.extend) ).sysconf sysconf
-               else sysconf;
-
+  installerconf =
+    if lib.hasAttr "extend" sysconf
+    then updateAttrs false (import (lib.path.append ./installers sysconf.extend)).sysconf sysconf
+    else sysconf;
 
   installerApp = inst_app: let
-    installers = (builtins.removeAttrs inst_app ["name"]) //
-                { oss_path = lib.mkDefault "${oss_list_path}"; };
-  in installers;
-  
+    installers =
+      (builtins.removeAttrs inst_app ["name"])
+      // {oss_path = lib.mkDefault "${oss_list_path}";};
+  in
+    installers;
+
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) installerconf.systemPackages;};
 
   formatModule = nixos-generators.nixosModules.iso;
   installer = variant: extraModules: let
     system = "x86_64-linux";
 
-    pkgs = import nixpkgs {inherit system;};
-
     installerImgCfg = lib.nixosSystem {
       inherit system;
-      specialArgs = {inherit lib; inherit ghafOS;};
+      specialArgs = {
+        inherit lib;
+        inherit ghafOS;
+      };
       modules =
         [
           (import "${ghafOS}/modules/host")
-          ({modulesPath, lib, config, ...}: {
-            imports = [ (modulesPath + "/profiles/all-hardware.nix") ];
+          ({
+            modulesPath,
+            config,
+            ...
+          }: {
+            imports = [(modulesPath + "/profiles/all-hardware.nix")];
 
             nixpkgs.hostPlatform.system = system;
             nixpkgs.config.allowUnfree = true;
@@ -60,9 +62,12 @@ let
             installer.includeOSS = {
               enable = lib.mkDefault true;
               oss_list_fname = lib.mkDefault "${oss_list_name}";
-              systems = map (os: rec {
-                name = "${os}-${variant}";
-                image = self.nixosConfigurations.${name};}) oss;
+              systems =
+                map (os: rec {
+                  name = "${os}-${variant}";
+                  image = self.nixosConfigurations.${name};
+                })
+                oss;
             };
           }
 
@@ -74,13 +79,17 @@ let
           addSystemPackages
 
           {
-            isoImage.squashfsCompression = "lz4"; 
+            isoImage.squashfsCompression = "lz4";
           }
         ]
         ++ (import ./modules/fmo-module-list.nix)
         ++ (import "${ghafOS}/modules/module-list.nix")
         ++ extraModules
-        ++ (if lib.hasAttr "extraModules" installerconf then installerconf.extraModules else []);
+        ++ (
+          if lib.hasAttr "extraModules" installerconf
+          then installerconf.extraModules
+          else []
+        );
     };
   in {
     name = "${installerconf.name}-${variant}";
@@ -93,7 +102,13 @@ let
     (installer "release" [])
   ];
 in {
-  packages = lib.foldr lib.recursiveUpdate {} (map ({name, system, installerImgDrv, ...}: {
-    ${system}.${name} = installerImgDrv;
-  }) targets);
+  packages = lib.foldr lib.recursiveUpdate {} (map ({
+      name,
+      system,
+      installerImgDrv,
+      ...
+    }: {
+      ${system}.${name} = installerImgDrv;
+    })
+    targets);
 }

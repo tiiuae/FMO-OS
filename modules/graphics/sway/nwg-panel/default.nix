@@ -7,91 +7,87 @@
   ...
 }: let
   cfg = config.ghaf.graphics.sway;
-  mkLauncherModule = (launcher:
-    "button-${lib.strings.toLower launcher.name}");
+  mkLauncherModule = launcher: "button-${lib.strings.toLower launcher.name}";
 
-  mkLauncher = (launcher:
-    {
-    "button-${lib.strings.toLower launcher.name}" =  {
-          command =  "${launcher.path}";
-          icon = "${launcher.icon}";
-          label = "";
-          label-position = "bottom";
-          tooltip = "${launcher.name}";
-          css-name = "";
-          icon-size = 36;
-        };
-    });
+  mkLauncher = launcher: {
+    "button-${lib.strings.toLower launcher.name}" = {
+      command = "${launcher.path}";
+      icon = "${launcher.icon}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "${launcher.name}";
+      css-name = "";
+      icon-size = 36;
+    };
+  };
 
   mkLaunchers = builtins.map mkLauncher;
   mkLauncherModules = builtins.map mkLauncherModule;
 
   # Read config for top and bottom panel
-  panelTopConfig = builtins.elemAt (builtins.fromJSON ( builtins.readFile ./config)) 0;
-  panelBottomConfig = builtins.elemAt (builtins.fromJSON ( builtins.readFile ./config)) 1;
+  panelTopConfig = builtins.elemAt (builtins.fromJSON (builtins.readFile ./config)) 0;
+  panelBottomConfig = builtins.elemAt (builtins.fromJSON (builtins.readFile ./config)) 1;
 
   # Create launchers for app-launchers and place them in module-left
   launcherIcons = builtins.foldl' lib.recursiveUpdate {} (mkLaunchers config.ghaf.graphics.app-launchers.launchers);
 
   # Create power button and place it in module-right
-  powerIcons =  {
+  powerIcons = {
     button-power = {
-        command =  "nwg-bar";
-        icon = "${../../assets/system-shutdown-symbolic.svg}";
-        label = "";
-        label-position = "bottom";
-        tooltip = "Power Menu";
-        css-name = "";
-        icon-size = 36;
-      };
+      command = "nwg-bar";
+      icon = "${../../assets/system-shutdown-symbolic.svg}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Power Menu";
+      css-name = "";
+      icon-size = 36;
+    };
   };
 
   # Create power button and place it in module-right
-  keyboardIcons =  {
+  keyboardIcons = {
     button-keyboard = {
-        command =  "squeekboard-control";
-        icon = "${../../assets/keyboard.png}";
-        label = "";
-        label-position = "bottom";
-        tooltip = "Keyboard";
-        css-name = "";
-        icon-size = 36;
-      };
+      command = "squeekboard-control";
+      icon = "${../../assets/keyboard.png}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Keyboard";
+      css-name = "";
+      icon-size = 36;
+    };
   };
 
-
   panel-top-modules = {
-    modules-left = (mkLauncherModules config.ghaf.graphics.app-launchers.launchers);
+    modules-left = mkLauncherModules config.ghaf.graphics.app-launchers.launchers;
   };
 
   panel-bottom-modules = {
-    modules-left = [ "button-keyboard" "sway-taskbar"];
-    modules-right = [ "button-power" ];
+    modules-left = ["button-keyboard" "sway-taskbar"];
+    modules-right = ["button-power"];
   };
 
   panelConfig = builtins.toJSON [
-                  (panelTopConfig // launcherIcons
-                    // panel-top-modules)
+    (panelTopConfig
+      // launcherIcons
+      // panel-top-modules)
 
-                  (panelBottomConfig // powerIcons // keyboardIcons
-                    // panel-bottom-modules)
-                  ];
-
-  panelConfigFile =  pkgs.writeTextDir "config" panelConfig;
+    (panelBottomConfig
+      // powerIcons
+      // keyboardIcons
+      // panel-bottom-modules)
+  ];
 
   panelAppWrapped = pkgs.symlinkJoin {
     name = "nwg-panel";
-    paths = [ pkgs.nwg-panel ];
-    buildInputs = [ pkgs.makeWrapper ];
+    paths = [pkgs.nwg-panel];
+    buildInputs = [pkgs.makeWrapper];
     postBuild = ''
       wrapProgram $out/bin/nwg-panel \
         --add-flags "-s /etc/xdg/nwg-panel/style.css -c /etc/xdg/nwg-panel/config "
     '';
   };
-
 in {
-
-  config =  lib.mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     environment.etc."xdg/nwg-panel/config" = {
       text = panelConfig;
       # The UNIX file mode bits
@@ -104,13 +100,11 @@ in {
       mode = "0644";
     };
 
-    environment.systemPackages = with pkgs;
-      [
-        gopsuinfo
-        panelAppWrapped
-        brightnessctl
-        nwg-bar
-      ];
-
+    environment.systemPackages = with pkgs; [
+      gopsuinfo
+      panelAppWrapped
+      brightnessctl
+      nwg-bar
+    ];
   };
 }

@@ -2,42 +2,40 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 {
-  self,
   lib,
   ghafOS,
   nixos-generators,
-  nixos-hardware,
-  nixpkgs,
   microvm,
-}: {
-  sysconf,
-}:
-let
-  updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
+}: {sysconf}: let
+  inherit ((import ./utils/updateAttrs.nix)) updateAttrs;
 
-  targetconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./hardware sysconf.extend) ).sysconf sysconf
-               else sysconf;
+  targetconf =
+    if lib.hasAttr "extend" sysconf
+    then updateAttrs false (import (lib.path.append ./hardware sysconf.extend)).sysconf sysconf
+    else sysconf;
 
-  name = targetconf.name;
+  inherit (targetconf) name;
   system = "x86_64-linux";
-  vms = targetconf.vms;
+  inherit (targetconf) vms;
 
   importvm = vmconf: (import ./modules/virtualization/microvm/vm.nix {inherit ghafOS vmconf;});
   enablevm = vm: {
     virtualization.microvm.${vm.name} = {
       enable = true;
-      extraModules = vm.extraModules;
+      inherit (vm) extraModules;
     };
   };
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) targetconf.systemPackages;};
-  addCustomLaunchers =  { ghaf.graphics.app-launchers.enabled-launchers = targetconf.launchers; };
+  addCustomLaunchers = {ghaf.graphics.app-launchers.enabled-launchers = targetconf.launchers;};
 
   formatModule = nixos-generators.nixosModules.raw-efi;
   target = variant: extraModules: let
     hostConfiguration = lib.nixosSystem {
       inherit system;
-      specialArgs = {inherit lib; inherit ghafOS;};
+      specialArgs = {
+        inherit lib;
+        inherit ghafOS;
+      };
       modules =
         [
           microvm.nixosModules.host
@@ -80,7 +78,11 @@ let
         ++ (import "${ghafOS}/modules/module-list.nix")
         ++ (import ./modules/fmo-module-list.nix)
         ++ extraModules
-        ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
+        ++ (
+          if lib.hasAttr "extraModules" targetconf
+          then targetconf.extraModules
+          else []
+        );
     };
   in {
     inherit hostConfiguration;

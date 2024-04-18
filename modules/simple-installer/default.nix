@@ -1,12 +1,12 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{ 
+{
   lib,
-  pkgs, 
-  config, 
-  ... 
-}: with lib;
-let
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.installer.simple-installer;
 in {
   options.installer.simple-installer = {
@@ -117,7 +117,7 @@ in {
       '';
     in {
       systemPackages = [simple-installer];
-      loginShellInit = mkIf (cfg.run_on_boot) ''${simple-installer}/bin/simple-installer -f ${cfg.oss_path}'';
+      loginShellInit = mkIf cfg.run_on_boot ''${simple-installer}/bin/simple-installer -f ${cfg.oss_path}'';
     }
   );
 }

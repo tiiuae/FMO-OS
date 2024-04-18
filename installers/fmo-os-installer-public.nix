@@ -11,7 +11,7 @@
     extraModules = [
       {
         services = {
-          registration-agent-laptop ={
+          registration-agent-laptop = {
             enable = false;
           }; # services.registration-agent-laptop
         }; # services

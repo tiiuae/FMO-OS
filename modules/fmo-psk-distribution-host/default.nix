@@ -1,8 +1,12 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{ lib, pkgs, config, ... }:
-with lib;
-let
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.services.fmo-psk-distribution-service-host;
 in {
   options.services.fmo-psk-distribution-service-host = {
@@ -35,7 +39,7 @@ in {
       };
     };
 
-   # This directory needs to be created before any of the microvms start.
+    # This directory needs to be created before any of the microvms start.
     systemd.services."create-ssh-public-key-directory" = let
       script = pkgs.writeShellScriptBin "create-ssh-public-key-directory" ''
         mkdir -pv /run/ssh-public-key

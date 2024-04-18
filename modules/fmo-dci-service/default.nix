@@ -1,8 +1,12 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{ lib, pkgs, config, ... }:
-with lib;
-let
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.services.fmo-dci;
   preload_path = ./images;
 in {
@@ -36,7 +40,7 @@ in {
     virtualisation.docker.enable = true;
 
     systemd.services.fmo-dci = {
-    script = ''
+      script = ''
         USR=$(${pkgs.gawk}/bin/gawk '{print $1}' ${cfg.pat-path} || echo "")
         PAT=$(${pkgs.gawk}/bin/gawk '{print $2}' ${cfg.pat-path} || echo "")
         DCPATH=$(echo ${cfg.compose-path} )
@@ -45,7 +49,7 @@ in {
         if [ -z "$DOCKER_URL" ]; then
           DOCKER_URL="cr.airoplatform.com"
         fi
-        
+
         echo "Login $DOCKER_URL"
         echo $PAT | ${pkgs.docker}/bin/docker login $DOCKER_URL -u $USR --password-stdin || echo "login to $DOCKER_URL failed continue as is"
 

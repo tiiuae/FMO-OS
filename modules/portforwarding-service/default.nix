@@ -1,17 +1,25 @@
 # Copyright 2022-2023 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{ lib, pkgs, config, ... }:
-with lib;
-let
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.services.portforwarding-service;
 
-  mkPortForwardingRule = {dip, sport, dport, proto}: ''
+  mkPortForwardingRule = {
+    dip,
+    sport,
+    dport,
+    proto,
+  }: ''
     echo "Apply a new port forwarding: $IP:${sport} to ${dip}:${dport}"
     ${pkgs.iptables}/bin/iptables -I INPUT -p ${proto} --dport ${sport} -j ACCEPT
     ${pkgs.iptables}/bin/iptables -t nat -I PREROUTING -p ${proto} -d $IP --dport ${sport} -j DNAT --to-destination ${dip}:${dport}
 
   '';
-
 in {
   options.services.portforwarding-service = {
     enable = mkEnableOption "portforwarding-service";
@@ -40,20 +48,19 @@ in {
           }
       '';
     };
-
   };
 
   config = mkIf cfg.enable {
     systemd.services.fmo-portforwarding-service = {
       script = ''
-          IP=$(${pkgs.gawk}/bin/gawk '{print $1}' ${cfg.ipaddress-path} || echo ${cfg.ipaddress})
+        IP=$(${pkgs.gawk}/bin/gawk '{print $1}' ${cfg.ipaddress-path} || echo ${cfg.ipaddress})
 
-          if [ -z "$IP" ]
-          then
-            echo "No IP address has been provided"
-          else
-            ${ lib.concatStrings (map mkPortForwardingRule cfg.configuration) }
-          fi
+        if [ -z "$IP" ]
+        then
+          echo "No IP address has been provided"
+        else
+          ${lib.concatStrings (map mkPortForwardingRule cfg.configuration)}
+        fi
       '';
 
       wantedBy = ["network.target"];
