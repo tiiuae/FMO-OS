@@ -17,6 +17,7 @@
 
 in {
   imports = [
+    ./lisgd
     ./nwg-panel
   ];
 
