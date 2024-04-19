@@ -1,0 +1,781 @@
+diff --git a/data/keyboards/terminal/us_wide.yaml b/data/keyboards/terminal/us_wide.yaml
+index 7f7cbf0..116f142 100644
+--- a/data/keyboards/terminal/us_wide.yaml
++++ b/data/keyboards/terminal/us_wide.yaml
+@@ -1,208 +1,299 @@
+----
++--- 
+ outlines:
+-    default:   { width: 54,   height: 37 }
+-    action:    { width: 90,   height: 37 }
+-    altline:   { width: 81,   height: 37 }
+-    wide:      { width: 90,   height: 37 }
+-    spaceline: { width: 225,  height: 37 }
+-    special:   { width: 54,   height: 37 }
+-    small:     { width: 67.4, height: 22 }
++    default:   { width: 100, height: 60 }
++    key125:    { width: 125, height: 60 }
++    key150:    { width: 150, height: 60 }
++    key175:    { width: 175, height: 60 }
++    key200:    { width: 200, height: 60 }
++    key225:    { width: 225, height: 60 }
++    key300:    { width: 300, height: 60 }
++    key700:    { width: 700, height: 60 }
++    key600:    { width: 600, height: 60 }
++    fndefault: { width: 100, height: 60 }
++    fnright2x: { width: 200, height: 60 }
++    fnhome:    { width: 75.6,height: 60 }
++    
+ 
+ views:
+     base:
+-        - "EscSmall TabSmall Ctrl Alt ↑ ↓ ← →"
+-        - "q w e r t y u i o p"
+-        - "a s d f g h j k l"
+-        - "Shift_L   z x c v b n m  BackSpace"
+-        - "show_numbers preferences      space        show_actions Return"
++        - "Esc ` 1 2 3 4 5 6 7 8 9 0 - = BackSpace"
++        - "Tab q w e r t y u i o p [ ] \\"
++        - "Empty a s d f g h j k l ; ' Return"
++        - "Shift_L z x c v b n m , . / Up Shift_R"
++        - "Ctrl show_fnkeys Alt space show_fnkeys Left Down Right"
+     upper:
+-        - "EscSmall TabSmall Ctrl Alt PgUp PgDn Home End"
+-        - "Q W E R T Y U I O P"
+-        - "A S D F G H J K L"
+-        - "Shift_L   Z X C V B N M  BackSpace"
+-        - "show_numbers preferences      space        show_actions Return"
+-    numbers:
+-        - "EscSmall TabSmall Ctrl Alt ↑ ↓ ← →"
+-        - "1 2 3 4 5 6 7 8 9 0"
+-        - "* # $ / & - _ + ( )"
+-        - "show_symbols   , \" ' colon ; ! ?  BackSpace"
+-        - "show_letters preferences         space        period Return"
+-    symbols:
+-        - "EscSmall TabSmall Ctrl Alt ↑ ↓ ← →"
+-        - "~ ` | · √ π τ ÷ × ¶"
+-        - "© ® £ € ¥ ^ ° @ { }"
+-        - "show_numbers_from_symbols   \\ % < > = [ ]  BackSpace"
+-        - "show_letters preferences         space        period Return"
+-    actions:
+-        - "EscSmall TabSmall Ctrl Alt PgUp PgDn Home End"
+-        - "F1  F2  F3  F4  F5  F6"
+-        - "F7  F8  F9  F10 F11 F12"
+-        - "Esc Tab Pause Insert Up Del"
+-        - "show_letters Menu Break Left Down Right"
++        - "Esc ~ ! @ # $ % ^ & * ( ) _ + BackSpace"
++        - "Tab Q W E R T Y U I O P [ ] |"
++        - "Empty A S D F G H J K L : \" Return"
++        - "Shift_L Z X C V B N M < > ? Up Shift_R"
++        - "Ctrl show_fnkeys Alt space show_fnkeys Left Down Right"
++    fnkeys:
++        - "EscFn F1 F2 F3 F4 Seven Eight Nine NumSlash Home BkspFn"
++        - "TabFn F5 F6 F7 F8 Four Five Six NumAst End Ins Del"
++        - "EmptyFn F9 F10 F11 F12 One Two Three NumMinus PgUp ReturnFn"
++        - "ShiftLFn SysRq ScrL Break NumLock Zero NumComa NumPeriod NumPlus PgDn Up Shift_R"
++        - "Ctrl show_letters Alt spaceFn Left Down Right"
+ 
+ buttons:
++    Voice:
++        outline: "key225"
++        text: " "
+     Shift_L:
+         action:
+             locking:
+                 lock_view: "upper"
+                 unlock_view: "base"
+-        outline: "altline"
++        outline: "key300"
++        icon: "key-shift"
++    Shift_R:
++        action:
++            locking:
++                lock_view: "upper"
++                unlock_view: "base"
++        outline: "default"
++        icon: "key-shift"
++    ShiftLFn:
++        text: " "
++        outline: "key225"
+         icon: "key-shift"
++    "`":
++        text: "`"
++        outline: "default"
++    "~":
++        text: "~"
++        outline: "default"
++    "\\":
++        text: "\\"
++        outline: "key150"
++    "|":
++        text: "|"
++        outline: "key150"
+     BackSpace:
+-        outline: "altline"
++        outline: "default"
+         icon: "edit-clear-symbolic"
+         action: erase
+     preferences:
+         action: "show_prefs"
+-        outline: "special"
+         icon: "keyboard-mode-symbolic"
+-    show_numbers:
+-        action:
+-            set_view: "numbers"
+-        outline: "wide"
+-        label: "123"
+-    show_numbers_from_symbols:
+-        action:
+-            set_view: "numbers"
+-        outline: "altline"
+-        label: "123"
+     show_letters:
+         action:
+             set_view: "base"
+-        outline: "wide"
+-        label: "ABC"
+-    show_symbols:
++        label: "Fn"
++        outline: "key150"
++    show_fnkeys:
+         action:
+-            set_view: "symbols"
+-        outline: "altline"
+-        label: "τ=\\"
+-    show_actions:
+-        action:
+-            set_view: "actions"
+-        outline: "altline"
+-        label: ">_"
+-    period:
+-        outline: "altline"
+-        text: "."
++            set_view: "fnkeys"
++        outline: "key125"
++        label: "Fn"
++    circle:
++        text: " "
++        outline: "default"
+     space:
+-        outline: "spaceline"
++        outline: "key700"
++        text: " "
++    Empty:
++        outline: "key175"
+         text: " "
+     Return:
+-        outline: "wide"
++        outline: "key225"
++        icon: "key-enter"
++        keysym: "Return"
++    ReturnFn:
++        outline: "fnright2x"
+         icon: "key-enter"
+         keysym: "Return"
+     colon:
+         text: ":"
+     F1:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F1"
+     F2:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F2"
+     F3:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F3"
+     F4:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F4"
+     F5:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F5"
+     F6:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F6"
+     F7:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F7"
+     F8:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F8"
+     F9:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F9"
+     F10:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F10"
+     F11:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F11"
+     F12:
+-        outline: "action"
++        outline: "fndefault"
+         keysym: "F12"
+     Esc:
+-        outline: "action"
+-        keysym: "Escape"
+-    EscSmall:
+-        outline: "small"
++        outline: "default"
+         keysym: "Escape"
+-        label: "Esc"
+     Tab:
+-        outline: "action"
+-        keysym: "Tab"
+-    TabSmall:
+-        outline: "small"
++        outline: "key150"
+         keysym: "Tab"
+-        label: "Tab"
+-    Del:
+-        outline: "action"
+-        keysym: "Delete"
+-    Insert:
+-        outline: "action"
+-        keysym: "Insert"
+-    Menu:
+-        outline: "action"
+-        keysym: "Menu"
+-    Pause:
+-        outline: "action"
+-        keysym: "Pause"
+     Break:
+-        outline: "action"
++        label: "Brk"
++        outline: "fndefault"
+         keysym: "Break"
++    SysRq:
++        outline: "fndefault"
++        keysym: "VoidSymbol"
++    ScrL:
++        outline: "fndefault"
++        keysym: "Scroll_Lock"
+     Home:
+-        outline: "small"
++        outline: "fnhome"
+         keysym: "Home"
+     End:
+-        outline: "small"
++        outline: "fnhome"
+         keysym: "End"
+     PgUp:
+-        outline: "small"
++        outline: "fnhome"
+         keysym: "Page_Up"
+     PgDn:
+-        outline: "small"
++        outline: "fnhome"
+         keysym: "Page_Down"
+-    "↑":
+-        outline: "small"
+-        keysym: "Up"
+-    "↓":
+-        outline: "small"
+-        keysym: "Down"
+-    "←":
+-        outline: "small"
+-        keysym: "Left"
+-    "→":
+-        outline: "small"
+-        keysym: "Right"
+     Up:
+         label: "↑"
+-        outline: "action"
++        outline: "default"
+         keysym: "Up"
+     Left:
+         label: "←"
+-        outline: "action"
++        outline: "default"
+         keysym: "Left"
+     Down:
+         label: "↓"
+-        outline: "action"
++        outline: "default"
+         keysym: "Down"
+     Right:
+         label: "→"
+-        outline: "action"
++        outline: "default"
+         keysym: "Right"
+     Ctrl:
+         modifier: "Control"
+-        outline: "small"
++        outline: "key125"
+         label: "Ctrl"
+     Alt:
+         modifier: "Alt"
+-        outline: "small"
+-        label: "Alt"
+\ No newline at end of file
++        outline: "key125"
++        label: "Alt"
++    Zero:
++        label: "0"
++        text: "0"
++        outline: "fndefault"
++    One:
++        label: "1"
++        text: "1"
++        outline: "fndefault"
++    Two:
++        label: "2"
++        text: "2"
++        outline: "fndefault"
++    Three:
++        label: "3"
++        text: "3"
++        outline: "fndefault"
++    Four:
++        label: "4"
++        text: "4"
++        outline: "fndefault"
++    Five:
++        label: "5"
++        text: "5"
++        outline: "fndefault"
++    Six:
++        label: "6"
++        text: "6"
++        outline: "fndefault"
++    Seven:
++        label: "7"
++        text: "7"
++        outline: "fndefault"
++    Eight:
++        label: "8"
++        text: "8"
++        outline: "fndefault"
++    Nine:
++        label: "9"
++        text: "9"
++        outline: "fndefault"
++    NumSlash:
++        label: "/"
++        text: "/"
++        outline: "fndefault"
++    NumAst:
++        label: "*"
++        text: "*"
++        outline: "fndefault"
++    NumMinus:
++        label: "-"
++        text: "-"
++        outline: "fndefault"
++    NumComa:
++        label: ","
++        text: ","
++        outline: "fndefault"
++    NumPeriod:
++        label: "."
++        text: "."
++        outline: "fndefault"
++    NumPlus:
++        label: "+"
++        text: "+"
++        outline: "fndefault"
++    NumLock:
++        label: "NLk"
++        outline: "fndefault"
++        keysym: "Num_Lock"
++    Home:
++        label: "Home"
++        keysym: "Home"
++        outline: "fnhome"
++    End:
++        label: "End"
++        keysym: "End"
++        outline: "fnhome"
++    Ins:
++        label: "Ins"
++        keysym: "Insert"
++        outline: "default"
++    Del:
++        label: "Del"
++        keysym: "Delete"
++        outline: "default"
++    BkspFn:
++        outline: "fnright2x"
++        icon: "edit-clear-symbolic"
++        action: erase
++    TabFn:
++        outline: "key225"
++        keysym: "Tab"
++    EscFn:
++        outline: "key225"
++        keysym: "Escape"
++        text: "Esc"    
++    EmptyFn:
++        outline: "key225"
++        text: " "
++    spaceFn:
++        outline: "key600"
++        text: " "
++        keysym: "Space"
++    
++        
++
+diff --git a/data/keyboards/us_wide.yaml b/data/keyboards/us_wide.yaml
+index cf349c0..116f142 100644
+--- a/data/keyboards/us_wide.yaml
++++ b/data/keyboards/us_wide.yaml
+@@ -1,78 +1,299 @@
+----
++--- 
+ outlines:
+-    default: { width: 54, height: 42 }
+-    altline: { width: 81, height: 42 }
+-    wide: { width: 108, height: 42 }
+-    spaceline: { width: 216, height: 42 }
+-    special: { width: 54, height: 42 }
++    default:   { width: 100, height: 60 }
++    key125:    { width: 125, height: 60 }
++    key150:    { width: 150, height: 60 }
++    key175:    { width: 175, height: 60 }
++    key200:    { width: 200, height: 60 }
++    key225:    { width: 225, height: 60 }
++    key300:    { width: 300, height: 60 }
++    key700:    { width: 700, height: 60 }
++    key600:    { width: 600, height: 60 }
++    fndefault: { width: 100, height: 60 }
++    fnright2x: { width: 200, height: 60 }
++    fnhome:    { width: 75.6,height: 60 }
++    
+ 
+ views:
+     base:
+-        - "q w e r t y u i o p"
+-        - "a s d f g h j k l"
+-        - "Shift_L   z x c v b n m  BackSpace"
+-        - "show_numbers preferences         space        . Return"
++        - "Esc ` 1 2 3 4 5 6 7 8 9 0 - = BackSpace"
++        - "Tab q w e r t y u i o p [ ] \\"
++        - "Empty a s d f g h j k l ; ' Return"
++        - "Shift_L z x c v b n m , . / Up Shift_R"
++        - "Ctrl show_fnkeys Alt space show_fnkeys Left Down Right"
+     upper:
+-        - "Q W E R T Y U I O P"
+-        - "A S D F G H J K L"
+-        - "Shift_L   Z X C V B N M  BackSpace"
+-        - "show_numbers preferences         space        . Return"
+-    numbers:
+-        - "1 2 3 4 5 6 7 8 9 0"
+-        - "@ # $ % & - _ + ( )"
+-        - "show_symbols   , \" ' colon ; ! ?  BackSpace"
+-        - "show_letters preferences         space        . Return"
+-    symbols:
+-        - "~ ` | · √ π τ ÷ × ¶"
+-        - "© ® £ € ¥ ^ ° * { }"
+-        - "show_numbers_from_symbols   \\ / < > = [ ]  BackSpace"
+-        - "show_letters preferences         space        . Return"
++        - "Esc ~ ! @ # $ % ^ & * ( ) _ + BackSpace"
++        - "Tab Q W E R T Y U I O P [ ] |"
++        - "Empty A S D F G H J K L : \" Return"
++        - "Shift_L Z X C V B N M < > ? Up Shift_R"
++        - "Ctrl show_fnkeys Alt space show_fnkeys Left Down Right"
++    fnkeys:
++        - "EscFn F1 F2 F3 F4 Seven Eight Nine NumSlash Home BkspFn"
++        - "TabFn F5 F6 F7 F8 Four Five Six NumAst End Ins Del"
++        - "EmptyFn F9 F10 F11 F12 One Two Three NumMinus PgUp ReturnFn"
++        - "ShiftLFn SysRq ScrL Break NumLock Zero NumComa NumPeriod NumPlus PgDn Up Shift_R"
++        - "Ctrl show_letters Alt spaceFn Left Down Right"
+ 
+ buttons:
++    Voice:
++        outline: "key225"
++        text: " "
+     Shift_L:
+         action:
+             locking:
+                 lock_view: "upper"
+                 unlock_view: "base"
+-        outline: "altline"
++        outline: "key300"
++        icon: "key-shift"
++    Shift_R:
++        action:
++            locking:
++                lock_view: "upper"
++                unlock_view: "base"
++        outline: "default"
++        icon: "key-shift"
++    ShiftLFn:
++        text: " "
++        outline: "key225"
+         icon: "key-shift"
++    "`":
++        text: "`"
++        outline: "default"
++    "~":
++        text: "~"
++        outline: "default"
++    "\\":
++        text: "\\"
++        outline: "key150"
++    "|":
++        text: "|"
++        outline: "key150"
+     BackSpace:
+-        outline: "altline"
++        outline: "default"
+         icon: "edit-clear-symbolic"
+-        action: "erase"
++        action: erase
+     preferences:
+         action: "show_prefs"
+-        outline: "special"
+         icon: "keyboard-mode-symbolic"
+-    show_numbers:
+-        action:
+-            set_view: "numbers"
+-        outline: "wide"
+-        label: "123"
+-    show_numbers_from_symbols:
+-        action:
+-            set_view: "numbers"
+-        outline: "altline"
+-        label: "123"
+     show_letters:
+         action:
+             set_view: "base"
+-        outline: "wide"
+-        label: "ABC"
+-    show_symbols:
++        label: "Fn"
++        outline: "key150"
++    show_fnkeys:
+         action:
+-            set_view: "symbols"
+-        outline: "altline"
+-        label: "*/="
+-    ".":
+-        outline: "special"
+-        text: "."
++            set_view: "fnkeys"
++        outline: "key125"
++        label: "Fn"
++    circle:
++        text: " "
++        outline: "default"
+     space:
+-        outline: "spaceline"
++        outline: "key700"
++        text: " "
++    Empty:
++        outline: "key175"
+         text: " "
+     Return:
+-        outline: "wide"
++        outline: "key225"
++        icon: "key-enter"
++        keysym: "Return"
++    ReturnFn:
++        outline: "fnright2x"
+         icon: "key-enter"
+         keysym: "Return"
+     colon:
+         text: ":"
++    F1:
++        outline: "fndefault"
++        keysym: "F1"
++    F2:
++        outline: "fndefault"
++        keysym: "F2"
++    F3:
++        outline: "fndefault"
++        keysym: "F3"
++    F4:
++        outline: "fndefault"
++        keysym: "F4"
++    F5:
++        outline: "fndefault"
++        keysym: "F5"
++    F6:
++        outline: "fndefault"
++        keysym: "F6"
++    F7:
++        outline: "fndefault"
++        keysym: "F7"
++    F8:
++        outline: "fndefault"
++        keysym: "F8"
++    F9:
++        outline: "fndefault"
++        keysym: "F9"
++    F10:
++        outline: "fndefault"
++        keysym: "F10"
++    F11:
++        outline: "fndefault"
++        keysym: "F11"
++    F12:
++        outline: "fndefault"
++        keysym: "F12"
++    Esc:
++        outline: "default"
++        keysym: "Escape"
++    Tab:
++        outline: "key150"
++        keysym: "Tab"
++    Break:
++        label: "Brk"
++        outline: "fndefault"
++        keysym: "Break"
++    SysRq:
++        outline: "fndefault"
++        keysym: "VoidSymbol"
++    ScrL:
++        outline: "fndefault"
++        keysym: "Scroll_Lock"
++    Home:
++        outline: "fnhome"
++        keysym: "Home"
++    End:
++        outline: "fnhome"
++        keysym: "End"
++    PgUp:
++        outline: "fnhome"
++        keysym: "Page_Up"
++    PgDn:
++        outline: "fnhome"
++        keysym: "Page_Down"
++    Up:
++        label: "↑"
++        outline: "default"
++        keysym: "Up"
++    Left:
++        label: "←"
++        outline: "default"
++        keysym: "Left"
++    Down:
++        label: "↓"
++        outline: "default"
++        keysym: "Down"
++    Right:
++        label: "→"
++        outline: "default"
++        keysym: "Right"
++    Ctrl:
++        modifier: "Control"
++        outline: "key125"
++        label: "Ctrl"
++    Alt:
++        modifier: "Alt"
++        outline: "key125"
++        label: "Alt"
++    Zero:
++        label: "0"
++        text: "0"
++        outline: "fndefault"
++    One:
++        label: "1"
++        text: "1"
++        outline: "fndefault"
++    Two:
++        label: "2"
++        text: "2"
++        outline: "fndefault"
++    Three:
++        label: "3"
++        text: "3"
++        outline: "fndefault"
++    Four:
++        label: "4"
++        text: "4"
++        outline: "fndefault"
++    Five:
++        label: "5"
++        text: "5"
++        outline: "fndefault"
++    Six:
++        label: "6"
++        text: "6"
++        outline: "fndefault"
++    Seven:
++        label: "7"
++        text: "7"
++        outline: "fndefault"
++    Eight:
++        label: "8"
++        text: "8"
++        outline: "fndefault"
++    Nine:
++        label: "9"
++        text: "9"
++        outline: "fndefault"
++    NumSlash:
++        label: "/"
++        text: "/"
++        outline: "fndefault"
++    NumAst:
++        label: "*"
++        text: "*"
++        outline: "fndefault"
++    NumMinus:
++        label: "-"
++        text: "-"
++        outline: "fndefault"
++    NumComa:
++        label: ","
++        text: ","
++        outline: "fndefault"
++    NumPeriod:
++        label: "."
++        text: "."
++        outline: "fndefault"
++    NumPlus:
++        label: "+"
++        text: "+"
++        outline: "fndefault"
++    NumLock:
++        label: "NLk"
++        outline: "fndefault"
++        keysym: "Num_Lock"
++    Home:
++        label: "Home"
++        keysym: "Home"
++        outline: "fnhome"
++    End:
++        label: "End"
++        keysym: "End"
++        outline: "fnhome"
++    Ins:
++        label: "Ins"
++        keysym: "Insert"
++        outline: "default"
++    Del:
++        label: "Del"
++        keysym: "Delete"
++        outline: "default"
++    BkspFn:
++        outline: "fnright2x"
++        icon: "edit-clear-symbolic"
++        action: erase
++    TabFn:
++        outline: "key225"
++        keysym: "Tab"
++    EscFn:
++        outline: "key225"
++        keysym: "Escape"
++        text: "Esc"    
++    EmptyFn:
++        outline: "key225"
++        text: " "
++    spaceFn:
++        outline: "key600"
++        text: " "
++        keysym: "Space"
++    
++        
++
