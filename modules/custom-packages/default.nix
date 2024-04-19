@@ -10,5 +10,6 @@ _: {
     (import ./nmLauncher)
     (import ./registration-agent)
     (import ./squeekboard)
+    (import ./sway-scripts)
   ];
 }

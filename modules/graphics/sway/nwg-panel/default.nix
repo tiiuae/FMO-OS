@@ -46,7 +46,7 @@
       };
   };
 
-  # Create power button and place it in module-right
+  # Create keyboard button and place it in module-right
   keyboardIcons =  {
     button-keyboard = {
         command =  "squeekboard-control";
@@ -58,6 +58,29 @@
         icon-size = 36;
       };
   };
+   # Create next and prev buttons and place them in module-right
+  wsSwitchIcons =  {
+    button-ws-next = {
+      command =  "${pkgs.workspace-switch}/bin/workspace-switch window next; ${pkgs.workspace-switch}/bin/workspace-switch next";
+      icon = "${../../assets/next.png}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Next";
+      css-name = "";
+      icon-size = 36;
+    };
+    
+    button-ws-prev = {
+      command =  "${pkgs.workspace-switch}/bin/workspace-switch window prev; ${pkgs.workspace-switch}/bin/workspace-switch prev";
+      icon = "${../../assets/prev.png}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Prev";
+      css-name = "";
+      icon-size = 36;
+    };
+  };
+
 
 
   panel-top-modules = {
@@ -66,14 +89,14 @@
 
   panel-bottom-modules = {
     modules-left = [ "button-keyboard" "sway-taskbar"];
-    modules-right = [ "button-power" ];
+    modules-right = [ "button-ws-prev" "button-ws-next" "button-power" ];
   };
 
   panelConfig = builtins.toJSON [
                   (panelTopConfig // launcherIcons
                     // panel-top-modules)
 
-                  (panelBottomConfig // powerIcons // keyboardIcons
+                  (panelBottomConfig // powerIcons // keyboardIcons // wsSwitchIcons
                     // panel-bottom-modules)
                   ];
 
