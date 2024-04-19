@@ -61,6 +61,7 @@
         ]; # systemPackages
         extraModules = [
         {
+          users.users."ghaf".extraGroups = ["networkmanager"];
           networking = {
             nat.enable = true;
             wireless = {
