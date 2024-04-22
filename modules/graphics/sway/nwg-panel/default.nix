@@ -36,29 +36,60 @@
   # Create power button and place it in module-right
   powerIcons =  {
     button-power = {
-        command =  "nwg-bar";
-        icon = "${../../assets/system-shutdown-symbolic.svg}";
-        label = "";
-        label-position = "bottom";
-        tooltip = "Power Menu";
-        css-name = "";
-        icon-size = 36;
-      };
+      command =  "nwg-bar";
+      icon = "${../../assets/system-shutdown-symbolic.svg}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Power Menu";
+      css-name = "";
+      icon-size = 36;
+    };
   };
 
-  # Create power button and place it in module-right
+  # Create keyboard button and place it in module-right
   keyboardIcons =  {
     button-keyboard = {
-        command =  "squeekboard-control";
-        icon = "${../../assets/keyboard.png}";
-        label = "";
-        label-position = "bottom";
-        tooltip = "Keyboard";
-        css-name = "";
-        icon-size = 36;
-      };
+      command =  "squeekboard-control";
+      icon = "${../../assets/keyboard.png}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Keyboard";
+      css-name = "";
+      icon-size = 36;
+    };
   };
+   # Create next and prev buttons and place them in module-right
+  wsSwitchIcons =  {
+    button-ws-next = {
+      command =  "${pkgs.workspace-switch}/bin/workspace-switch window next; ${pkgs.workspace-switch}/bin/workspace-switch next";
+      icon = "${../../assets/arrow-circle-right-svgrepo-com.svg}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Next";
+      css-name = "";
+      icon-size = 36;
+    };
+    
+    button-ws-prev = {
+      command =  "${pkgs.workspace-switch}/bin/workspace-switch window prev; ${pkgs.workspace-switch}/bin/workspace-switch prev";
+      icon = "${../../assets/arrow-circle-left-svgrepo-com.svg}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Prev";
+      css-name = "";
+      icon-size = 36;
+    };
 
+    button-win-kill = {
+      command =  "swaymsg kill";
+      icon = "${../../assets/close-circle-svgrepo-com.svg}";
+      label = "";
+      label-position = "bottom";
+      tooltip = "Window close";
+      css-name = "";
+      icon-size = 36;
+    };
+  };
 
   panel-top-modules = {
     modules-left = (mkLauncherModules config.ghaf.graphics.app-launchers.launchers);
@@ -66,14 +97,14 @@
 
   panel-bottom-modules = {
     modules-left = [ "button-keyboard" "sway-taskbar"];
-    modules-right = [ "button-power" ];
+    modules-right = [ "button-ws-prev" "button-ws-next" "button-win-kill" "button-power" ];
   };
 
   panelConfig = builtins.toJSON [
                   (panelTopConfig // launcherIcons
                     // panel-top-modules)
 
-                  (panelBottomConfig // powerIcons // keyboardIcons
+                  (panelBottomConfig // powerIcons // keyboardIcons // wsSwitchIcons
                     // panel-bottom-modules)
                   ];
 

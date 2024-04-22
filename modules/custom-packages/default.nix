@@ -12,5 +12,6 @@ _: {
     (import ./nwg-panel)
     (import ./registration-agent)
     (import ./squeekboard)
+    (import ./sway-scripts)
   ];
 }
