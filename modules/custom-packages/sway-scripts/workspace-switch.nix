@@ -16,9 +16,11 @@
     if [ "$1" = "next" ]; then
     	test $current_workspace -eq 9 && exit 1
     	$category $((current_workspace + 1))
+    	swaymsg workspace number $((current_workspace + 1))
     elif [ "$1" = "prev" ]; then
     	test $current_workspace -eq 1 && exit 1
     	$category $((current_workspace - 1))
+    	swaymsg workspace number $((current_workspace - 1))
     fi
         ''
 

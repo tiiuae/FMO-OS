@@ -191,10 +191,6 @@ include /etc/sway/config.d/*
 # screenshots
 bindsym $mod+c exec grim  -g "$(slurp)" /tmp/$(date +'%H:%M:%S.png')
 
-# bind app with workspace 
-assign [app_id="chromium-browser"] workspace number 1
-assign [app_id="foot"] workspace number 2
-
 # start with sway
 exec dbus-sway-environment
 exec configure-gtk
