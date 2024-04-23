@@ -40,10 +40,6 @@ for input in $INPUT_PATHS; do
   DEST_DIR=$(echo "$input" | cut -d ":" -f 2)
 
   UPLOAD_DIR=$SOURCE_DIR
-  if [ "$BUILD_NUM" ]; then
-    UPLOAD_DIR=$SOURCE_DIR-b$BUILD_NUM
-    mv "$SOURCE_DIR" "$UPLOAD_DIR"
-  fi
   echo "Run: jf rt u "$UPLOAD_DIR" "$DEST_DIR" --flat=true"
   jf rt u "$UPLOAD_DIR" "$DEST_DIR" --flat=true
 done

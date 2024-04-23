@@ -2,22 +2,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: Push artifacts to JFrog artifactory
-description: Push artifacts to JFrog artifactory
+name: Push artifacts to Harbor artifactory
+description: Push artifacts to Harbor artifactory
 
 inputs:
-  JFROG_UNAME:
+  HARBOR_UNAME:
     description: 'user account for artifactory'
     required: true
-  JFROG_TOKEN:
+  HARBOR_TOKEN:
      description: 'api-key for artifactory'
      required: true
-  JFROG_URL:
+  HARBOR_URL:
     description: 'artifactory url'
     required: true
-  build-num:
-    description: 'build number'
-    required: false
   input-paths:
     description: 'input-paths'
     required: true
@@ -26,14 +23,15 @@ runs:
   using: "composite"
   steps:
     - name: Preparing artifactory for upload
-      uses: "jfrog/setup-jfrog-cli@v3"
+      uses: oras-project/setup-oras@v1
+    - run: oras version
+      shell: bash
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
     - run: upload.sh
       env:
-        JFROG_UNAME: ${{ inputs.JFROG_UNAME }}
-        JFROG_TOKEN: ${{ inputs.JFROG_TOKEN }}
-        JFROG_URL: ${{ inputs.JFROG_URL }}
-        BUILD_NUM: ${{ inputs.build-num }}
+        HARBOR_UNAME: ${{ inputs.HARBOR_UNAME }}
+        HARBOR_TOKEN: ${{ inputs.HARBOR_TOKEN }}
+        HARBOR_URL: ${{ inputs.HARBOR_URL }}
         INPUT_PATHS: ${{ inputs.input-paths }}
       shell: bash

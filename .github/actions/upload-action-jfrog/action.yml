@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2022-2024 TII (SSRC) and the Ghaf contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Push artifacts to JFrog artifactory
+description: Push artifacts to JFrog artifactory
+
+inputs:
+  JFROG_UNAME:
+    description: 'user account for artifactory'
+    required: true
+  JFROG_TOKEN:
+     description: 'api-key for artifactory'
+     required: true
+  JFROG_URL:
+    description: 'artifactory url'
+    required: true
+  input-paths:
+    description: 'input-paths'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Preparing artifactory for upload
+      uses: "jfrog/setup-jfrog-cli@v3"
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+    - run: upload.sh
+      env:
+        JFROG_UNAME: ${{ inputs.JFROG_UNAME }}
+        JFROG_TOKEN: ${{ inputs.JFROG_TOKEN }}
+        JFROG_URL: ${{ inputs.JFROG_URL }}
+        INPUT_PATHS: ${{ inputs.input-paths }}
+      shell: bash
