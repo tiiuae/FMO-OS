@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 2
       - name: Check if build.yml is modified
         id: build-yml-changed
-        uses: tj-actions/changed-files@v40
+        uses: tj-actions/changed-files@v41
         with:
           files: .github/**
       - name: Set output
