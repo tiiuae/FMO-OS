@@ -16,8 +16,8 @@ buildGo121Module {
   name = "registration-agent-laptop";
   src = builtins.fetchGit {
     url = "git@github.com:tiiuae/registration-agent-laptop.git";
-    rev = "2f904867b98c65d38561e2447183109a7c68ba0d";
-    ref = "refs/heads/main";
+    rev = "da0f0721a0e72347b58033104fa06d05e7ab46eb";
+    ref = "refs/tags/v0.0.1-fm2";
   };
   tags = [ "prod" ];
   patches = [./remove-test.patch];
