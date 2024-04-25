@@ -7,18 +7,6 @@ let
 in {
   options.services.fmo-psk-distribution-service-vm = {
     enable   = mkEnableOption "fmo-psk-distribution-service-vm";
-
-    ipaddress-path = mkOption {
-      type = types.str;
-      description = "Path to ipaddress file for dynamic use";
-      default = "";
-    };
-
-    ipaddress = mkOption {
-      type = types.str;
-      description = "Static IP address to use instead for dynamic from file";
-      default = "";
-    };
   };
 
   config = mkIf cfg.enable {

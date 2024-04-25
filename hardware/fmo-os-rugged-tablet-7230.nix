@@ -32,6 +32,9 @@
         boot.initrd.availableKernelModules = [ "nvme" "ahci" ];
 
         services = {
+          fmo-psk-distribution-service-host = {
+              enable = true;
+          }; # services.fmo-psk-distribution-service-host
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
