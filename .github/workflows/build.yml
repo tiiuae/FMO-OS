@@ -7,7 +7,7 @@ name: build
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9][a-z]*'
+      - 'v[0-9]+.[0-9]+.[0-9]*'
 
 permissions:
   contents: read
@@ -49,14 +49,20 @@ jobs:
           build_target: 'fmo-os-installer-debug'
           CACHIX_TOKEN: ${{ secrets.CACHIX_TOKEN }}
           RA_TOKEN: ${{ secrets.RA_TOKEN }}
-      - name: Prepare artifactory for upload
-        uses: "jfrog/setup-jfrog-cli@v2"
-      - name: Push to artifactory
-        uses: ./.github/actions/upload-action
+      - name: Push to JFrog artifactory
+        uses: ./.github/actions/upload-action-jfrog
         with:
           JFROG_UNAME: ${{ secrets.JFROG_UNAME }}
           JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
           JFROG_URL: ${{ secrets.JFROG_URL }}
           input-paths:  |
             ${{ github.workspace }}/${{ steps.build.outputs.outimg }}:tii-fmo-os/releases/FMO-OS_inst_${{ steps.tag.outputs.TAG_VERSION }}.iso
+      - name: Push to Harbor artifactory
+        uses: ./.github/actions/upload-action-harbor
+        with:
+          HARBOR_UNAME: ${{ secrets.HARBOR_UNAME }}
+          HARBOR_TOKEN: ${{ secrets.HARBOR_TOKEN }}
+          HARBOR_URL: ${{ secrets.HARBOR_URL }}
+          input-paths:  |
+            ${{ github.workspace }}/${{ steps.build.outputs.outimg }}:fmo/pmc-installer:${{ steps.tag.outputs.TAG_VERSION }}
 
