@@ -1,16 +1,16 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-(final: _prev: {
-  nwg-panel = _prev.nwg-panel.overrideAttrs (oldAttrs : {
+(final: prev: {
+  nwg-panel = prev.nwg-panel.overrideAttrs (oldAttrs : {
     version = "0.9.27";
-    src = _prev.fetchFromGitHub {
+    src = prev.fetchFromGitHub {
       owner = "nwg-piotr";
       repo = "nwg-panel";
       rev = "refs/tags/v0.9.27";
       hash = "sha256-GCaqFqoZ7lfyE3VD3Dgz8jVt9TtUq3XVzVeI6g3SO5E=";
      };
-    buildInputs = oldAttrs.buildInputs ++ [ _prev.playerctl _prev.makeWrapper ];
-    preFixup = with _prev; ''
+    buildInputs = oldAttrs.buildInputs ++ [ prev.playerctl prev.makeWrapper ];
+    preFixup = with prev; ''
       makeWrapperArgs+=(
         "''${gappsWrapperArgs[@]}"
         --prefix XDG_DATA_DIRS : "$out/share"

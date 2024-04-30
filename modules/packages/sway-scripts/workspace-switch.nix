@@ -1,16 +1,16 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{_prev}:
-  _prev.writeShellScriptBin "workspace-switch" ''
-    #${_prev.bash}/bin/bash
+{prev}:
+  prev.writeShellScriptBin "workspace-switch" ''
+    #${prev.bash}/bin/bash
 
     current_workspace=$(swaymsg -p -t get_workspaces|grep focused|grep -o "[0-9]")
 
     if [ "$1" = "window" ]; then
-    	category="${_prev.sway}/bin/swaymsg move window to workspace"
+    	category="${prev.sway}/bin/swaymsg move window to workspace"
     	shift
     else
-    	category="${_prev.sway}/bin/swaymsg workspace number"
+    	category="${prev.sway}/bin/swaymsg workspace number"
     fi
 
     if [ "$1" = "next" ]; then

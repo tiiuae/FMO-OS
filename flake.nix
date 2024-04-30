@@ -39,7 +39,7 @@
       x86_64-linux
     ];
 
-    lib = nixpkgs.lib.extend (final: _prev: {
+    lib = nixpkgs.lib.extend (final: prev: {
       ghaf = import "${ghafOS}/lib" {
         inherit self;
         lib = final;

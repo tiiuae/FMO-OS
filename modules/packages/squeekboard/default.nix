@@ -1,7 +1,7 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-(final: _prev: {
-  squeekboard = _prev.squeekboard.overrideAttrs (oldAttrs: {
+(final: prev: {
+  squeekboard = prev.squeekboard.overrideAttrs (oldAttrs: {
     postUnpack = oldAttrs.postUnpack or "" + ''
       cat $src/data/keyboards/terminal/us_wide.yaml
     '';
