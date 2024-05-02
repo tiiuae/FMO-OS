@@ -33,7 +33,10 @@
 
         services = {
           fmo-psk-distribution-service-host = {
-              enable = true;
+            enable = true;
+          };
+          fmo-config = {
+            enable = true;
           };
           registration-agent-laptop = {
             enable = true;

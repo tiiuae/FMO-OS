@@ -9,15 +9,14 @@
   nixos-hardware,
   nixpkgs,
   microvm,
-}: {
-  sysconf,
-}:
+}: sysconf:
 let
-  updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
+  # updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
 
-  targetconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./hardware sysconf.extend) ).sysconf sysconf
-               else sysconf;
+  targetconf = sysconf;
+  # targetconf = if lib.hasAttr "extend" sysconf
+  #              then updateAttrs false (import (lib.path.append ./hardware sysconf.extend) ).sysconf sysconf
+  #              else sysconf;
 
   name = targetconf.name;
   system = "x86_64-linux";
@@ -80,7 +79,11 @@ let
         ++ (import "${ghafOS}/modules/module-list.nix")
         ++ (import ./modules/fmo-module-list.nix)
         ++ extraModules
-        ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
+        ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else [])
+        ++ (import ./modules/fmo-hyper/fmo-hyper-module-list.nix {inherit targetconf;});
+#        ++ (if lib.hasAttr "fmo-hyper" targetconf 
+#              then map (fmo-hyper-module: (import ./modules/fmo-hyper/${fmo-hyper-module} {inherit targetconf;})) (builtins.attrNames targetconf.fmo-hyper)
+#              else []);
     };
   in {
     inherit hostConfiguration;
