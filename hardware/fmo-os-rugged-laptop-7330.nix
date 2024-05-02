@@ -7,6 +7,11 @@
     name = "fmo-os-rugged-laptop-7330";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
+    release = "v1.0.0a";
+
+    fmo-system = {
+      RAversion = "v0.8.4";
+    };
 
     systemPackages = [
       "vim"
@@ -36,8 +41,11 @@
 
         services = {
           fmo-psk-distribution-service-host = {
-              enable = true;
-          };
+            enable = true;
+          }; # fmo-psk-distribution-service-host
+          fmo-config = {
+            enable = true;
+          }; # fmo-config
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
@@ -98,7 +106,7 @@
 
             fmo-psk-distribution-service-vm = {
               enable = true;
-            };
+            }; # fmo-psk-distribution-service-vm
 
             portforwarding-service = {
               enable = true;

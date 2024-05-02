@@ -21,14 +21,10 @@
   outputs = inputs @ {ghafOS, self, ...}: let
     # Retrieve inputs from Ghaf
     nixpkgs = ghafOS.inputs.nixpkgs;
-    flake-utils = ghafOS.inputs.flake-utils;
     nixos-generators = ghafOS.inputs.nixos-generators;
     nixos-hardware = ghafOS.inputs.nixos-hardware;
     microvm = ghafOS.inputs.microvm;
     flake-parts = ghafOS.inputs.flake-parts;
-    systems = with flake-utils.lib.system; [
-      x86_64-linux
-    ];
 
     lib = nixpkgs.lib.extend (final: _prev: {
       ghaf = import "${ghafOS}/lib" {
@@ -37,6 +33,22 @@
       };
     });
 
+    hwConfigs = [
+      (import ./hardware/fmo-os-rugged-laptop-7330.nix)
+      (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
+      (import ./hardware/fmo-os-rugged-tablet-7230.nix)
+      (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
+    ];
+
+    instConfigs = [
+      (import ./installers/fmo-os-installer.nix)
+      (import ./installers/fmo-os-installer-public.nix)
+    ];
+
+    updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
+    inheritConfig = confPath: { sysconf }: if lib.hasAttr "extend" sysconf
+          then updateAttrs false (import (lib.path.append confPath sysconf.extend) ).sysconf sysconf
+          else sysconf;
     generateHwConfig = import ./config-processor-hardware.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
     generateInstConfig = import ./config-processor-installers.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
   in
@@ -56,16 +68,10 @@
       imports = [
         ./hydrajobs/flake-module.nix
         ./modules/flake-module.nix
-      ] ++ map generateHwConfig [
-        (import ./hardware/fmo-os-rugged-laptop-7330.nix)
-        (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
-        (import ./hardware/fmo-os-rugged-tablet-7230.nix)
-        (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
-      ] ++ map generateInstConfig [
-        (import ./installers/fmo-os-installer.nix)
-        (import ./installers/fmo-os-installer-public.nix)
-      ];
+      ] ++ map generateHwConfig   (map (conf: inheritConfig ./hardware conf)   hwConfigs)
+        ++ map generateInstConfig (map (conf: inheritConfig ./installers conf) instConfigs);
 
       flake.lib = lib;
     };
+    
 }
