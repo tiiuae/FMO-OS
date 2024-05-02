@@ -8,8 +8,11 @@
     ./dci-service
     ./hostname-service
     ./portforwarding-service
+    ./dynamic-portforwarding-service
+    ./dynamic-portforwarding-service-host
     ./psk-distribution-host
     ./psk-distribution-vm
     ./registration-agent-laptop
+    ./dynamic-device-passthrough-services
   ];
 }

@@ -9,17 +9,9 @@
   nixos-hardware,
   nixpkgs,
   microvm,
-}: {
-  sysconf,
-}:
+}: sysconf:
 let
-  updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
-  updateHostConfig = (import ./utils/updateHostConfig.nix).updateHostConfig;
-
-  targetconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./hardware sysconf.extend) ).sysconf sysconf
-               else sysconf;
-
+  targetconf = sysconf;
   name = targetconf.name;
   system = "x86_64-linux";
   vms = targetconf.vms;
@@ -33,6 +25,7 @@ let
   };
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) targetconf.systemPackages;};
   addCustomLaunchers =  { ghaf.graphics.app-launchers.enabled-launchers = targetconf.launchers; };
+  updateHostConfig = (import ./utils/updateHostConfig.nix).updateHostConfig;
 
   formatModule = nixos-generators.nixosModules.raw-efi;
   target = variant: extraModules: let
@@ -90,7 +83,8 @@ let
         ++ updateHostConfig {inherit lib; inherit targetconf;}
         ++ map (vm: importvm vms.${vm}) (builtins.attrNames vms)
         ++ extraModules
-        ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
+        ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else [])
+        ++ (import ./modules/fmo-tools/fmo-hyper-module-list.nix {inherit targetconf;});
     };
   in {
     inherit hostConfiguration;

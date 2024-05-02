@@ -7,6 +7,11 @@
     name = "fmo-os-rugged-tablet-7230";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
+    release = "v1.0.0a";
+
+    fmo-system = {
+      RAversion = "v0.8.4";
+    };
 
     systemPackages = [
       "vim"
@@ -36,8 +41,17 @@
 
         services = {
           fmo-psk-distribution-service-host = {
-              enable = true;
+            enable = true;
           }; # services.fmo-psk-distribution-service-host
+          fmo-dynamic-portforwarding-service-host = {
+            enable = true;
+            config-paths = {
+              netvm = "/var/netvm/netconf/dpf.config";
+            };
+          }; # services.dynamic-portforwarding-service
+          fmo-config = {
+            enable = true;
+          }; # fmo-config
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
@@ -98,12 +112,13 @@
 
             fmo-psk-distribution-service-vm = {
               enable = true;
-            };
+            }; # fmo-psk-distribution-service-vm
 
-            portforwarding-service = {
+            dynamic-portforwarding-service = {
               enable = true;
               ipaddress = "192.168.100.12";
               ipaddress-path = "/etc/NetworkManager/system-connections/ip-address";
+              config-path = "/etc/NetworkManager/system-connections/dpf.config";
               configuration = [
                 {
                   dip = "192.168.101.11";
@@ -142,7 +157,7 @@
                   proto = "udp";
                 }
               ];
-            }; # services.portforwarding-service;
+            }; # services.dynamic-portforwarding-service
           }; # services
 
           microvm = {
@@ -223,6 +238,15 @@
               enable = true;
               hostname-path = "/var/lib/fogdata/hostname";
             }; # services.fmo-hostnam-service
+            fmo-dynamic-device-passthrough = {
+              devices = [
+                {
+                  bus = "usb";
+                  vendorid = "0x1546";
+                  productid = "0x01a9";
+                }
+              ];
+            }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
               enable = true;
               compose-path = "/var/lib/fogdata/docker-compose.yml";
