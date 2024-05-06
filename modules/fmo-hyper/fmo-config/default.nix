@@ -5,7 +5,7 @@
 with lib;
 let
   cfg = config.services.fmo-config;
-  
+
   hyperConfigServices = {
     portforwarding-service = "";
     monitoring-service = "";
@@ -31,43 +31,67 @@ let
 
   hyperConfigSystem = {
     name = "Unknown";
-    release = "NA-3";
+    release = "NA-9";
     vms = getConfigTarget hyperConfigVM {};
     fmo-system = getConfig hyperConfigFMOSystem hyperConfigFMOSystem;
   };
 
-  getConfigTarget = config: default: target: listToAttrs (
-    map (
-      attr:
-        {
-          name = "${attr}";
-          value = getConfig config default target.${attr};
-        }
-    ) (builtins.attrNames target)
+  getConfigTarget = config: default: target: field: (
+    if lib.hasAttr "${field}" target
+    then
+      let
+        newtarget = target.${field};
+      in
+        listToAttrs (
+          map (
+            attr:
+              {
+                name = "${attr}";
+                value = getConfig config default newtarget attr;
+              }
+          ) (builtins.attrNames newtarget)
+        )
+    else
+      default
   );
 
-  getConfigMerged = config: default: target: 
-    let 
-      merged = builtins.foldl' (acc: elem: acc // elem) {} target;
-    in
-      getConfig config default merged;
-
-
-  getConfig = config: default: target: listToAttrs (
-    map (
-      attr:
-        {
-          name = "${attr}";
-          value = if builtins.typeOf config.${attr} == "lambda"
-                  then
-                    if (lib.hasAttr "${attr}" target) then (config.${attr} target.${attr}) else default
-                  else
-                    ifHasAttr target "${attr}" config.${attr};
-        }
-    ) (builtins.attrNames config)
+  getConfigMerged = config: default: target: field: (
+    if lib.hasAttr "${field}" target
+    then
+      let
+        newtarget = target.${field};
+        merged = builtins.foldl' (acc: elem: acc // elem) {} target.${field};
+      in
+        getConfig config default { "${field}" = merged; } field
+    else
+      default
   );
 
-  hyperSystemConfig = getConfig hyperConfigSystem {} targetconf;
+
+  getConfig = config: default: target: field: (
+    if lib.hasAttr "${field}" target
+    then
+      let
+        newtarget = target.${field};
+      in
+        listToAttrs (
+          map (
+            attr:
+              {
+                name = "${attr}";
+                value = if builtins.typeOf config.${attr} == "lambda"
+                        then
+                          config.${attr} newtarget attr
+                        else
+                          ifHasAttr newtarget "${attr}" config.${attr};
+              }
+          ) (builtins.attrNames config)
+        )
+    else
+      default
+  );
+
+  hyperSystemConfig = getConfig hyperConfigSystem {} { inherit targetconf; } "targetconf";
 
   ifHasAttr = set: attr: default: if lib.hasAttr "${attr}" set then set.${attr} else default;
 in {
