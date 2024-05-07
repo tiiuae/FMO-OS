@@ -1,0 +1,22 @@
+diff --git a/terminatorlib/config.py b/terminatorlib/config.py
+index 008d1cfa..c2be42cf 100644
+--- a/terminatorlib/config.py
++++ b/terminatorlib/config.py
+@@ -230,7 +230,7 @@ DEFAULTS = {
+                 'cursor_color_default'  : True,
+                 'term'                  : 'xterm-256color',
+                 'colorterm'             : 'truecolor',
+-                'font'                  : 'Mono 10',
++                'font'                  : 'Hack 12',
+                 'foreground_color'      : '#aaaaaa',
+                 'show_titlebar'         : True,
+                 'scrollbar_position'    : "right",
+@@ -248,7 +248,7 @@ DEFAULTS = {
+                 'login_shell'           : False,
+                 'use_custom_command'    : False,
+                 'custom_command'        : '',
+-                'use_system_font'       : True,
++                'use_system_font'       : False,
+                 'use_theme_colors'      : False,
+                 'bold_is_bright'        : False,
+                 'cell_height'           : 1.0,

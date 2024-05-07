@@ -73,6 +73,7 @@ in
       grim # screenshot functionality
       slurp # screenshot functionality
       wl-clipboard # wl-copy and wl-paste for copy/paste from stdin / stdout
+      clipman
       mako # notification system developed by swaywm maintainer
       wdisplays # tool to configure displays
       wl-mirror # mirror displays
@@ -108,7 +109,7 @@ in
     enable = true;
     wrapperFeatures.gtk = true;
     extraPackages = with pkgs; [
-      foot
+      terminator
       xwayland
       mako
       kanshi

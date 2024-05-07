@@ -13,5 +13,6 @@ _: {
     (import ./registration-agent)
     (import ./squeekboard)
     (import ./sway-scripts)
+    (import ./terminator)
   ];
 }
