@@ -110,15 +110,33 @@
                 }
                 {
                   dip = "192.168.101.11";
+                  dport = "4222";
+                  sport = "4222";
+                  proto = "udp";
+                }
+                {
+                  dip = "192.168.101.11";
                   dport = "7222";
                   sport = "7222";
                   proto = "tcp";
                 }
                 {
                   dip = "192.168.101.11";
+                  dport = "7222";
+                  sport = "7222";
+                  proto = "udp";
+                }
+                {
+                  dip = "192.168.101.11";
                   dport = "4223";
                   sport = "4223";
                   proto = "tcp";
+                }
+                {
+                  dip = "192.168.101.11";
+                  dport = "4223";
+                  sport = "4223";
+                  proto = "udp";
                 }
               ];
             }; # services.portforwarding-service;
