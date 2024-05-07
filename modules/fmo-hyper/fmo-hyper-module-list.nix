@@ -4,7 +4,7 @@
 #
 { targetconf }:
 let
-  fmo-hyper-modules = 
+  fmo-hyper-modules =
   [
     ./fmo-config
   ];

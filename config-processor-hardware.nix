@@ -11,13 +11,7 @@
   microvm,
 }: sysconf:
 let
-  # updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
-
   targetconf = sysconf;
-  # targetconf = if lib.hasAttr "extend" sysconf
-  #              then updateAttrs false (import (lib.path.append ./hardware sysconf.extend) ).sysconf sysconf
-  #              else sysconf;
-
   name = targetconf.name;
   system = "x86_64-linux";
   vms = targetconf.vms;
@@ -81,9 +75,6 @@ let
         ++ extraModules
         ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else [])
         ++ (import ./modules/fmo-hyper/fmo-hyper-module-list.nix {inherit targetconf;});
-#        ++ (if lib.hasAttr "fmo-hyper" targetconf 
-#              then map (fmo-hyper-module: (import ./modules/fmo-hyper/${fmo-hyper-module} {inherit targetconf;})) (builtins.attrNames targetconf.fmo-hyper)
-#              else []);
     };
   in {
     inherit hostConfiguration;

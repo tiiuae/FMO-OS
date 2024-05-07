@@ -80,8 +80,6 @@
         formatter = pkgs.alejandra;
       }))
     ]
-    # ++ map generateHwConfig   hwConfigs
-    # ++ map generateInstConfig instConfigs
     ++ map generateHwConfig   (map (conf: inheritConfig ./hardware conf)   hwConfigs)
     ++ map generateInstConfig (map (conf: inheritConfig ./installers conf) instConfigs)
     );
