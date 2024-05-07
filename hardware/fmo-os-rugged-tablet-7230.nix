@@ -5,6 +5,12 @@
 {
   sysconf = {
     name = "fmo-os-rugged-tablet-7230";
+    release = "v1.0.0a";
+
+    fmo-system = {
+      RAversion = "v0.8.4";
+    };
+
     systemPackages = [
       "vim"
       "tcpdump"
@@ -35,6 +41,9 @@
           fmo-psk-distribution-service-host = {
               enable = true;
           }; # services.fmo-psk-distribution-service-host
+          fmo-config = {
+            enable = true;
+          }; # fmo-config
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
@@ -92,7 +101,7 @@
 
             fmo-psk-distribution-service-vm = {
               enable = true;
-            };
+            }; # fmo-psk-distribution-service-vm
 
             portforwarding-service = {
               enable = true;

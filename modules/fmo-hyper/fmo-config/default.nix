@@ -22,16 +22,16 @@ let
   };
 
   hyperConfigFMOSystem = {
-    alias = "na";
-    ipaddr = "na";
-    defaultGW = "na";
-    dockerCR = "na";
-    RAversion = "na";
+    alias = "NA";
+    ipaddr = "NA";
+    defaultGW = "NA";
+    dockerCR = "NA";
+    RAversion = "NA";
   };
 
   hyperConfigSystem = {
     name = "Unknown";
-    release = "NA-9";
+    release = "Unknown";
     vms = getConfigTarget hyperConfigVM {};
     fmo-system = getConfig hyperConfigFMOSystem hyperConfigFMOSystem;
   };
