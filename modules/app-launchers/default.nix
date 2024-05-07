@@ -17,10 +17,10 @@
           package = [pkgs.chromium];
         };
         terminal = {
-          name = "Foot";
-          path = "${pkgs.foot}/bin/foot ${extraArgs}";
-          icon = "${pkgs.foot}/share/icons/hicolor/48x48/apps/foot.png";
-          package = [pkgs.foot];
+          name = "Terminal";
+          path = "${pkgs.terminator}/bin/terminator ${extraArgs}";
+          icon = "${pkgs.terminator}/share/icons/hicolor/48x48/apps/terminator.png";
+          package = [pkgs.terminator];
         };
         nmLauncher = {
           name = "nmLauncher";

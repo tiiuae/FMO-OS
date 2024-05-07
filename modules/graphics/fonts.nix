@@ -13,6 +13,7 @@ in {
       lib.lists.optionals sway.enable [
         font-awesome_5
         font-awesome
+        hack-font
       ];
   };
 }
