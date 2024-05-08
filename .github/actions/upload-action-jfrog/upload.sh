@@ -14,6 +14,8 @@ err_exit() {
   exit "$rc"
 }
 
+cd $GITHUB_WORKSPACE
+
 echo "::group::Input validation"
 
 [ ! "$JFROG_URL" ] && err_exit 1 "JFROG_URL undefined"

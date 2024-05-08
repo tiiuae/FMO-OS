@@ -56,7 +56,7 @@ jobs:
           JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
           JFROG_URL: ${{ secrets.JFROG_URL }}
           input-paths:  |
-            ${{ github.workspace }}/${{ steps.build.outputs.outimg }}:tii-fmo-os/releases/FMO-OS_inst_${{ steps.tag.outputs.TAG_VERSION }}.iso
+            ${{ steps.build.outputs.outimg }}:tii-fmo-os/releases/FMO-OS_inst_${{ steps.tag.outputs.TAG_VERSION }}.iso
       - name: Push to Harbor artifactory
         uses: ./.github/actions/upload-action-harbor
         with:
@@ -64,5 +64,5 @@ jobs:
           HARBOR_TOKEN: ${{ secrets.HARBOR_TOKEN }}
           HARBOR_URL: ${{ secrets.HARBOR_URL }}
           input-paths:  |
-            ${{ github.workspace }}/${{ steps.build.outputs.outimg }}:fmo/pmc-installer:${{ steps.tag.outputs.TAG_VERSION }}
+            ${{ steps.build.outputs.outimg }}:fmo/pmc-installer:${{ steps.tag.outputs.TAG_VERSION }}
 
