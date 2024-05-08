@@ -10,7 +10,7 @@ RA_TOKEN=$3
 SSH_DIR="/root/.ssh/"
 RESULT_DIR="result/iso/"
 RESULT_NAME="nixos.iso"
-RESULT_COPY_DIR="./result_to_upload/"
+RESULT_COPY_DIR="./"
 SYS_USER_NAME="root"
 
 err_print() {

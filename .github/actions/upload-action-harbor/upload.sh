@@ -14,6 +14,8 @@ err_exit() {
   exit "$rc"
 }
 
+cd $GITHUB_WORKSPACE
+
 echo "::group::Input validation"
 
 [ ! "$HARBOR_URL" ] && err_exit 1 "HARBOR_URL undefined"
@@ -41,7 +43,7 @@ for input in $INPUT_PATHS; do
 
   UPLOAD_DIR=$SOURCE_DIR
   echo "oras push "$HARBOR_URL/$DEST_DIR:$TAG" $UPLOAD_DIR"
-  oras push --disable-path-validation "$HARBOR_URL/$DEST_DIR:$TAG" $UPLOAD_DIR
+  oras push "$HARBOR_URL/$DEST_DIR:$TAG" $UPLOAD_DIR
 done
 
 echo "::endgroup::"
