@@ -463,7 +463,6 @@
     },
     "root": {
       "inputs": {
-        "flake-parts": "flake-parts",
         "ghafOS": "ghafOS"
       }
     },

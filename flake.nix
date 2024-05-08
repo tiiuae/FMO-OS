@@ -18,10 +18,7 @@
     ghafOS.url = "github:tiiuae/ghaf";
   };
 
-  outputs = {
-    self,
-    ghafOS,
-  }: let
+  outputs = inputs @ {ghafOS, self, ...}: let
     # Retrieve inputs from Ghaf
     nixpkgs = ghafOS.inputs.nixpkgs;
     flake-utils = ghafOS.inputs.flake-utils;
