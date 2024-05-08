@@ -58,14 +58,14 @@ in
             ((lib.optional config.services.registration-agent-laptop.enable
             (config.services.registration-agent-laptop.env_path + "/.env"))
              ++ cfg.custom_script_env_path));
-      installerGoScript = pkgs.buildGo120Module {
+      installerGoScript = pkgs.buildGoModule {
         name = "ghaf-installer";
         src = builtins.fetchGit {
           url = "https://github.com/tiiuae/FMO-OS-Installer.git";
           rev = "688dd34da9f57a9cbf99ef57c43dcdfd5e7c50a2";
           ref = "refs/heads/main";
         };
-        vendorSha256 = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
+        vendorHash = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
         proxyVendor=true;
         ldflags = [
           "-X 'ghaf-installer/global.OSSfile=${cfg.oss_path}'"

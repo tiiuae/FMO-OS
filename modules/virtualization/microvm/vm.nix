@@ -23,6 +23,9 @@
           };
         };
 
+        # noXlibs=false; needed for NetworkManager stuff
+        environment.noXlibs = false;
+
         networking.hostName = vmconf.name;
         system.stateVersion = lib.trivial.release;
 
@@ -43,7 +46,7 @@
         microvm.interfaces = [
           {
             type = "tap";
-            id = "vm-${vmconf.name}";
+            id = "tap-${vmconf.name}";
             mac = "${vmconf.macaddr}";
           }
         ];
@@ -90,13 +93,12 @@
           };
         };
 
-        microvm.qemu.bios.enable = false;
         microvm.storeDiskType = "squashfs";
-
-        imports = (import "${ghafOS}/modules/module-list.nix");
+        
       })
       addSystemPackages
       self.nixosModules.fmo-configs
+      self.nixosModules.ghaf-common
     ];
   };
   cfg = config.ghaf.virtualization.microvm.${vmconf.name};

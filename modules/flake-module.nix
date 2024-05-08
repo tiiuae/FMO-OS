@@ -15,6 +15,10 @@
       ./installers
       ./fmo-services
       ../utils/write-to-file
-      ];
+    ];
+    ghaf-common.imports = [
+      inputs.ghafOS.nixosModules.desktop
+      inputs.ghafOS.nixosModules.common
+    ];
   };
 }
