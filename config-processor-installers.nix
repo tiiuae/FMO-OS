@@ -42,6 +42,7 @@ let
       specialArgs = {inherit lib; inherit ghafOS;};
       modules =
         [
+          self.nixosModules.installer
           (import "${ghafOS}/modules/host")
           ({modulesPath, lib, config, ...}: {
             imports = [ (modulesPath + "/profiles/all-hardware.nix") ];
@@ -50,12 +51,30 @@ let
             nixpkgs.config.allowUnfree = true;
 
             hardware.enableAllFirmware = true;
-
-            ghaf = {
-              profiles.installer.enable = true;
+                   
+            # Installer system profile
+            # Use less privileged ghaf user
+            users.users.ghaf = {
+              isNormalUser = true;
+              extraGroups = ["wheel" "networkmanager" "video"];
+              # Allow the graphical user to login without password
+              initialHashedPassword = "";
             };
+
+            # Allow the user to log in as root without a password.
+            users.users.root.initialHashedPassword = "";
+
+            # Allow passwordless sudo from ghaf user
+            security.sudo = {
+              enable = lib.mkDefault true;
+              wheelNeedsPassword = lib.mkImageMediaOverride false;
+            };
+
+            # Automatically log in at the virtual consoles.
+            services.getty.autologinUser = lib.mkDefault "ghaf";
           })
 
+          # Configs for installation
           {
             installer.includeOSS = {
               enable = lib.mkDefault true;
@@ -66,6 +85,7 @@ let
             };
           }
 
+          # Installer app
           {
             installer.${installerconf.installer.name} = installerApp installerconf.installer;
           }
@@ -77,7 +97,6 @@ let
             isoImage.squashfsCompression = "lz4"; 
           }
         ]
-        ++ (import ./modules/fmo-module-list.nix)
         ++ (import "${ghafOS}/modules/module-list.nix")
         ++ extraModules
         ++ (if lib.hasAttr "extraModules" installerconf then installerconf.extraModules else []);
@@ -93,7 +112,9 @@ let
     (installer "release" [])
   ];
 in {
-  packages = lib.foldr lib.recursiveUpdate {} (map ({name, system, installerImgDrv, ...}: {
-    ${system}.${name} = installerImgDrv;
-  }) targets);
+  flake = {
+    packages = lib.foldr lib.recursiveUpdate {} (map ({name, system, installerImgDrv, ...}: {
+      ${system}.${name} = installerImgDrv;
+    }) targets);
+  };
 }
