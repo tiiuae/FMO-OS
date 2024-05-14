@@ -19,6 +19,7 @@ in {
   imports = [
     ./lisgd
     ./nwg-panel
+    ./ydotool
   ];
 
   config = lib.mkIf cfg.enable {

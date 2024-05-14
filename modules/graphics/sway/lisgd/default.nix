@@ -9,6 +9,7 @@
   cfg = config.ghaf.graphics.sway;
 
   lisgd = pkgs.lisgd.overrideAttrs (oldAttrs: {
+        patches = oldAttrs.patches or [] ++ [./hold.patch];
         postPatch = ''
           cp ${./config} config.def.h
         '';

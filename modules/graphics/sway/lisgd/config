@@ -11,9 +11,11 @@
 */
 
 unsigned int distancethreshold = 80;
+unsigned int holddistancethreshold = 35;
 unsigned int distancethreshold_pressed = 60;
 unsigned int degreesleniency = 22;
-unsigned int timeoutms = 800;
+unsigned int timeoutms = 750;
+unsigned int holdtimems = 300;
 unsigned int orientation = 0;
 unsigned int verbose = 1;
 double edgesizeleft = 50.0;
@@ -35,4 +37,5 @@ Gesture gestures[] = {
 	{ 2,         SwipeRL,     EdgeAny, DistanceAny, ActModeReleased, "swaymsg workspace next" },
 	{ 2,         SwipeDU,     EdgeAny, DistanceAny, ActModeReleased, "busctl --user call sm.puri.OSK0 /sm/puri/OSK0 sm.puri.OSK0 SetVisible b true" },
 	{ 2,         SwipeUD,     EdgeAny, DistanceAny, ActModeReleased, "pkill squeekboard" },
+	{ 1,         Hold,     EdgeAny, DistanceAny, ActModeReleased, "ydotool click 0xC1" },
 };

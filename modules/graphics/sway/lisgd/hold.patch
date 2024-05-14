@@ -1,0 +1,140 @@
+diff --git a/config.def.h b/config.def.h
+index f02e624..3df5be0 100644
+--- a/config.def.h
++++ b/config.def.h
+@@ -11,9 +11,11 @@
+ */
+ 
+ unsigned int distancethreshold = 125;
++unsigned int holddistancethreshold = 35;
+ unsigned int distancethreshold_pressed = 60;
+ unsigned int degreesleniency = 15;
+ unsigned int timeoutms = 800;
++unsigned int holdtimems = 350;
+ unsigned int orientation = 0;
+ unsigned int verbose = 0;
+ double edgesizeleft = 50.0;
+diff --git a/lisgd.c b/lisgd.c
+index 921f5bc..6274b4d 100644
+--- a/lisgd.c
++++ b/lisgd.c
+@@ -30,7 +30,8 @@ enum {
+   SwipeDLUR,
+   SwipeDRUL,
+   SwipeURDL,
+-  SwipeULDR
++  SwipeULDR,
++  Hold
+ };
+ typedef int Swipe;
+ 
+@@ -108,7 +109,7 @@ gesturecalculateswipewithindegrees(double gestdegrees, double wantdegrees) {
+ }
+ 
+ Swipe
+-gesturecalculateswipe(double x0, double y0, double x1, double y1, int mindistance) {
++gesturecalculateswipe(double x0, double y0, double x1, double y1, int mindistance, int holddistance) {
+ 	double t, degrees, dist;
+ 
+ 	t = atan2(x1 - x0, y0 - y1);
+@@ -118,7 +119,8 @@ gesturecalculateswipe(double x0, double y0, double x1, double y1, int mindistanc
+ 	if (verbose)
+ 		fprintf(stderr, "Swipe distance=[%.2f]; degrees=[%.2f]\n", dist, degrees);
+ 
+-	if (dist < mindistance) return -1;
++	if ((dist < mindistance) && (dist > holddistance)) return -1;
++	else if (dist <= holddistance) return Hold;
+ 	else if (gesturecalculateswipewithindegrees(degrees, 0))   return SwipeDU;
+ 	else if (gesturecalculateswipewithindegrees(degrees, 45))  return SwipeDLUR;
+ 	else if (gesturecalculateswipewithindegrees(degrees, 90))  return SwipeLR;
+@@ -211,6 +213,15 @@ gesturecalculateedge(double x0, double y0, double x1, double y1) {
+ 		}
+ }
+ 
++int
++mousemove(xend, yend) {
++	char command[100];
++	sprintf(command, "ydotool mousemove --absolute -x %d -y %d",  xend, yend);
++	system(command);
++	if (verbose) fprintf(stderr, "Execute %s\n", command);
++	return 1; //execute first match only
++}
++
+ int
+ gestureexecute(Swipe swipe, int nfingers, Edge edge, Distance distance, ActMode actmode) {
+ 	int i;
+@@ -284,7 +295,7 @@ edgereorient(Edge edge, int orientation) {
+ 			case CornerTopLeft: edge = CornerTopRight; break;
+ 			case CornerTopRight:   edge = CornerBottomRight; break;
+ 			case CornerBottomLeft: edge = CornerTopLeft; break;
+-			case CornerBottomRight: edge = CornerBottomLeft; break;
++			case CornerBottomRight: edge = CornerBottomLeft; break; 
+ 		}
+ 		orientation--;
+ 	}
+@@ -301,6 +312,10 @@ touchdown(struct libinput_event *e)
+ 	slot = libinput_event_touch_get_slot(tevent);
+ 	xstart[slot] = libinput_event_touch_get_x_transformed(tevent, screenwidth);
+ 	ystart[slot] = libinput_event_touch_get_y_transformed(tevent, screenheight);
++	// Record temporary end in case finger not moving
++	xend[slot] = (int) (xstart[slot]);
++	yend[slot] = (int) (ystart[slot]);
++
+ 	if (nfdown == 0) clock_gettime(CLOCK_MONOTONIC_RAW, &timedown);
+ 	nfdown++;
+ }
+@@ -328,7 +343,7 @@ touchmotion(struct libinput_event *e)
+ 
+ 	if (have_actmode_pressed) {
+ 		Swipe swipe = gesturecalculateswipe(
+-			xstart[slot], ystart[slot], xend[slot], yend[slot], distancethreshold_pressed
++			xstart[slot], ystart[slot], xend[slot], yend[slot], distancethreshold_pressed, 0
+ 		);
+ 		if (swipe != -1) {
+ 			Edge edge = gesturecalculateedge(
+@@ -358,9 +373,14 @@ touchup(struct libinput_event *e)
+ 	int slot;
+ 	struct libinput_event_touch *tevent;
+ 	struct timespec now;
+-
+ 	tevent = libinput_event_get_touch_event(e);
+ 	slot = libinput_event_touch_get_slot(tevent);
++
++	// Record last touch position to move mouse to, with ydotool
++	// Issue: the coordinates uses by ydotool only indicates half of screen
++	int xhold = xend[slot]/2;
++	int yhold = yend[slot]/2;
++
+ 	nfdown--;
+ 	clock_gettime(CLOCK_MONOTONIC_RAW, &now);
+ 
+@@ -371,7 +391,7 @@ touchup(struct libinput_event *e)
+ 	) return;
+ 
+ 	Swipe swipe = gesturecalculateswipe(
+-		xstart[slot], ystart[slot], xend[slot], yend[slot], distancethreshold
++		xstart[slot], ystart[slot], xend[slot], yend[slot], distancethreshold, holddistancethreshold
+ 	);
+ 	Edge edge = gesturecalculateedge(
+ 		xstart[slot], ystart[slot], xend[slot], yend[slot]
+@@ -392,8 +412,18 @@ touchup(struct libinput_event *e)
+ 		if (
+ 			timeoutms >
+ 			((now.tv_sec - timedown.tv_sec) * 1000000 + (now.tv_nsec - timedown.tv_nsec) / 1000) / 1000
+-		) gestureexecute(swipe, nfpendingswipe, edge, distance, ActModeReleased);
+-
++		) {
++			if (swipe != Hold)  gestureexecute(swipe, nfpendingswipe, edge, distance, ActModeReleased);
++			else if ((swipe == Hold)
++				&& (
++					holdtimems <
++					((now.tv_sec - timedown.tv_sec) * 1000000 + (now.tv_nsec - timedown.tv_nsec) / 1000) / 1000
++				)) {
++					// In case of hold gesture, ensure holding time > threshold
++					mousemove(xhold, yhold);
++					gestureexecute(swipe, nfpendingswipe, edge, distance, ActModeReleased);		
++				}
++		}
+ 		nfpendingswipe = 0;
+ 	}
+ }

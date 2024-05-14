@@ -79,6 +79,8 @@ in
       wl-mirror # mirror displays
       squeekboard
       squeekboard-control
+      libinput
+      ydotool
     ];
 
     services.pipewire = {
