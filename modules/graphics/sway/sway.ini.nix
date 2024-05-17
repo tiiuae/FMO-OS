@@ -160,8 +160,13 @@ with lib; let
 
       input = mkOption {
         type = types.attrsOf (types.attrsOf types.str);
-        default = {};
-        example = {"*" = {xkb_variant = "dvorak";};};
+        default = {
+          "type:keyboard" = {
+            xkb_layout = "us,fi";
+            xkb_variant = "qwerty";
+          };
+        };
+        example = {"*" = {xkb_variant = "qwerty";};};
         description = ''
           An attribute set that defines input modules. See
           {manpage}`sway-input(5)`
