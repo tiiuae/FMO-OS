@@ -5,7 +5,7 @@
   config,
   lib,
   ...
-}:{
+}: {
   imports = [
     ./sway/sway.nix
     ./sway/sway.ini.nix
