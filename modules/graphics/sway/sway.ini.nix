@@ -308,7 +308,7 @@ with lib; let
     (mapAttrsToList (
         name: attrs: ''
           mode "${toString name}" {
-            ${genKeyBindingsConfig {
+          ${genKeyBindingsConfig {
             keyBindings = attrs;
             bindSymArgs = optionalString bindKeysToCode "--to-code";
             inherit indent;
