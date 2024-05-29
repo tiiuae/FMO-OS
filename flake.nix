@@ -16,11 +16,18 @@
 
   inputs = rec {
     ghafOS.url = "github:tiiuae/ghaf";
+    
+    # Secure-boot
+    #
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v0.3.0";
+    };
   };
 
   outputs = {
     self,
     ghafOS,
+    lanzaboote,
   }: let
     # Retrieve inputs from Ghaf
     nixpkgs = ghafOS.inputs.nixpkgs;
@@ -40,8 +47,8 @@
       };
     });
 
-    generateHwConfig = import ./config-processor-hardware.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
-    generateInstConfig = import ./config-processor-installers.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
+    generateHwConfig = import ./config-processor-hardware.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lanzaboote lib microvm;};
+    generateInstConfig = import ./config-processor-installers.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lanzaboote lib microvm;};
   in
     # Combine list of attribute sets together
     lib.foldr lib.recursiveUpdate {} ([

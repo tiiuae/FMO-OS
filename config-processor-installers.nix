@@ -8,6 +8,7 @@
   nixos-generators,
   nixos-hardware,
   nixpkgs,
+  lanzaboote,
   microvm,
 }: {
   sysconf,

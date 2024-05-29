@@ -8,6 +8,7 @@
   nixos-generators,
   nixos-hardware,
   nixpkgs,
+  lanzaboote,
   microvm,
 }: {
   sysconf,
@@ -41,6 +42,8 @@ let
       modules =
         [
           microvm.nixosModules.host
+          lanzaboote.nixosModules.lanzaboote
+          (./modules/secure-boot)
           (import "${ghafOS}/modules/host")
           (import "${ghafOS}/modules/virtualization/microvm/microvm-host.nix")
           {
@@ -51,6 +54,7 @@ let
 
                   virtualization.microvm-host.enable = true;
                   host.networking.enable = true;
+                  host.secureboot.enable = true;
 
                   # Enable all the default UI applications
                   profiles = {
