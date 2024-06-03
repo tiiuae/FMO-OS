@@ -14,6 +14,7 @@
 }:
 let
   updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
+  updateHostConfig = (import ./utils/updateHostConfig.nix).updateHostConfig;
 
   targetconf = if lib.hasAttr "extend" sysconf
                then updateAttrs false (import (lib.path.append ./hardware sysconf.extend) ).sysconf sysconf
@@ -76,6 +77,7 @@ let
             ];
           }
         ]
+        ++ updateHostConfig {inherit lib; inherit targetconf;}
         ++ map (vm: importvm vms.${vm}) (builtins.attrNames vms)
         ++ (import "${ghafOS}/modules/module-list.nix")
         ++ (import ./modules/fmo-module-list.nix)
