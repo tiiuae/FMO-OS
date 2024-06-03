@@ -14,6 +14,10 @@
     ];
   };
 
+  nixConfig = {
+    allow-import-from-derivation = true;
+  };
+
   inputs = rec {
     ghafOS.url = "github:tiiuae/ghaf";
   };
