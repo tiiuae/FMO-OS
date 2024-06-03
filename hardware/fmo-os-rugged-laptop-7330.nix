@@ -5,6 +5,9 @@
 {
   sysconf = {
     name = "fmo-os-rugged-laptop-7330";
+    ipaddr = "192.168.101.2";
+    defaultgw = "192.168.101.1";
+
     systemPackages = [
       "vim"
       "tcpdump"
