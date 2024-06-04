@@ -226,6 +226,8 @@
             fmo-dci = {
               enable = true;
               compose-path = "/var/lib/fogdata/docker-compose.yml";
+              update-path = "/var/lib/fogdata/docker-compose.yml.new";
+              backup-path = "/var/lib/fogdata/docker-compose.yml.backup";
               pat-path = "/var/lib/fogdata/PAT.pat";
               preloaded-images = "tii-offline-map-data-loader.tar.gz";
             }; # services.fmo-dci
