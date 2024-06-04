@@ -32,6 +32,11 @@ in {
     docker-url = mkOption {
       type = types.str;
       default = "";
+      description = "Default container repository URL to use";
+    };
+    docker-url-path = mkOption {
+      type = types.str;
+      default = "";
       description = "Path to docker url file";
     };
   };
@@ -52,6 +57,11 @@ in {
         BCPPATH=$(echo ${cfg.backup-path})
         PRELOAD_PATH=$(echo ${preload_path})
         DOCKER_URL=$(echo ${cfg.docker-url})
+        DOCKER_URL_PATH=$(echo ${cfg.docker-url-path})
+
+        if [ -e "$DOCKER_URL_PATH" ]; then
+          DOCKER_URL=$(cat $DOCKER_URL_PATH)
+        fi
 
         # Check if the update file exists
         if [ -e "$UPDPATH" ]; then
@@ -72,10 +82,6 @@ in {
             echo "Update file does not exist. No operations performed"
         fi
 
-        if [ -z "$DOCKER_URL" ]; then
-          DOCKER_URL="cr.airoplatform.com"
-        fi
-        
         echo "Login $DOCKER_URL"
         echo $PAT | ${pkgs.docker}/bin/docker login $DOCKER_URL -u $USR --password-stdin || echo "login to $DOCKER_URL failed continue as is"
 
