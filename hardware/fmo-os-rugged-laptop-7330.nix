@@ -256,6 +256,8 @@
               backup-path = "/var/lib/fogdata/docker-compose.yml.backup";
               pat-path = "/var/lib/fogdata/PAT.pat";
               preloaded-images = "tii-offline-map-data-loader.tar.gz";
+              docker-url = "cr.airoplatform.com";
+              docker-url-path = "/var/lib/fogdata/cr.url";
             }; # services.fmo-dci
             avahi = {
               enable = true;
