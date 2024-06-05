@@ -46,6 +46,11 @@
       run_on_boot = true;
       welcome_msg = "Welcome to FMO-OS installer";
       mount_path = "/home/ghaf/root";
+      docker_urls = [
+        "ghcr.io"
+        "cr.airoplatform.com"
+      ];
+      docker_url_path = "/var/fogdata/cr.url";
       custom_script_path = "registration-agent-laptop";
       custom_script_env_path = [
         "/home/ghaf/root/var/fogdata"

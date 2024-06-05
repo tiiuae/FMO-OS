@@ -50,6 +50,18 @@ in
       description = "Folders created for custom script to run";
       default = [];
     };
+
+    docker_urls = mkOption {
+      type = types.listOf types.str;
+      default = ["ghcr.io" "cr.airoplatform.com"];
+      description = "List of docker url to select from";
+    };
+
+    docker_url_path = mkOption {
+      type = types.str;
+      default = "";
+      description = "Path to docker url file";
+    };
   };
 
   config.environment = mkIf (cfg.enable) (
@@ -58,11 +70,12 @@ in
             ((lib.optional config.services.registration-agent-laptop.enable
             (config.services.registration-agent-laptop.env_path + "/.env"))
              ++ cfg.custom_script_env_path));
+      dockerUrlList = builtins.concatStringsSep "*" cfg.docker_urls;
       installerGoScript = pkgs.buildGo120Module {
         name = "ghaf-installer";
         src = builtins.fetchGit {
           url = "https://github.com/tiiuae/FMO-OS-Installer.git";
-          rev = "688dd34da9f57a9cbf99ef57c43dcdfd5e7c50a2";
+          rev = "0a12c7f3288f7019adc7781310f02f47f61444f1";
           ref = "refs/heads/main";
         };
         vendorSha256 = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
@@ -71,6 +84,8 @@ in
           "-X 'ghaf-installer/global.OSSfile=${cfg.oss_path}'"
           "-X 'ghaf-installer/global.WelcomeMsg=${cfg.welcome_msg}'"
           "-X 'ghaf-installer/screen.mountPoint=${cfg.mount_path}'"
+          "-X 'ghaf-installer/screen.dockerURLs=${dockerUrlList}'"
+          "-X 'ghaf-installer/screen.dockerURLPath=${cfg.docker_url_path}'"
           "-X 'ghaf-installer/screen.sourceDir=${installerGoScript.src.outPath}'"
         ] ++ lib.optionals (cfg.custom_script_path != "") [
           "-X ghaf-installer/screen.folderPaths=${scriptEnvPath}"
