@@ -27,6 +27,10 @@ err_exit() {
 echo "build target: $BUILD_TARGET"
 cd $GITHUB_WORKSPACE
 
+echo "::group::Add $GITHUB_WORKSPACE/.git as safe directory"
+git config --global --add safe.directory $GITHUB_WORKSPACE/.git
+echo "::endgroup::"
+
 echo "::group::Input validation"
 [ ! "$BUILD_TARGET" ] && err_exit 1 "BUILD_TARGET undefined"
 [ ! "$CACHIX_TOKEN" ] && err_exit 1 "CACHIX_TOKEN undefined"
@@ -57,6 +61,16 @@ echo "::group::Add github to knownhosts"
 mkdir -p $SSH_DIR
 ssh-keyscan -t ed25519 -H github.com > $SSH_DIR/known_hosts
 chmod 600 $SSH_DIR/known_hosts
+echo "::endgroup::"
+
+echo "::group::RUNNER_TEMP WAR"
+if [ ! -e $RUNNER_TEMP ]; then
+  echo "::warning RUNNER_TEMP ( $RUNNER_TEMP ) dir does not exists. \
+    It will cause the cachix fail. \
+    WAR: create this dir. This WAR need to be removed ASAP. \
+    JIRA: FMO-39 for monitoring this issue."
+  mkdir -p $RUNNER_TEMP
+fi
 echo "::endgroup::"
 
 echo "::group::Build $BUILD_TARGET"
