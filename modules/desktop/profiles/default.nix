@@ -6,5 +6,6 @@
 {
   imports = [
     ./applications.nix
+    ./graphics.nix
   ];
 }

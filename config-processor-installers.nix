@@ -43,7 +43,8 @@ let
       modules =
         [
           self.nixosModules.installer
-          (import "${ghafOS}/modules/host")
+          self.nixosModules.ghaf-common
+          
           ({modulesPath, lib, config, ...}: {
             imports = [ (modulesPath + "/profiles/all-hardware.nix") ];
 
@@ -97,7 +98,7 @@ let
             isoImage.squashfsCompression = "lz4"; 
           }
         ]
-        ++ (import "${ghafOS}/modules/module-list.nix")
+        #++ (import "${ghafOS}/modules/module-list.nix")
         ++ extraModules
         ++ (if lib.hasAttr "extraModules" installerconf then installerconf.extraModules else []);
     };
@@ -106,7 +107,7 @@ let
     inherit installerImgCfg system;
     installerImgDrv = installerImgCfg.config.system.build.${installerImgCfg.config.formatAttr};
   };
-  debugModules = [(import "${ghafOS}/modules/development/usb-serial.nix") {ghaf.development.usb-serial.enable = true;}];
+  debugModules = [{ghaf.development.usb-serial.enable = true;}];
   targets = [
     (installer "debug" debugModules)
     (installer "release" [])

@@ -7,24 +7,10 @@
   ...
 }: let
   cfg = config.ghaf.profiles.applications;
-  compositors = ["weston" "sway"];
 in
   with lib; {
-    options.ghaf.profiles.applications = {
-      compositor = mkOption {
-        type = types.enum compositors;
-        default = "sway";
-        description = ''
-          Which Wayland compositor to use.
-
-          Choose one of: ${lib.concatStringsSep "," compositors}
-        '';
-      };
-    };
-
-    config.ghaf.graphics = mkIf cfg.enable {
-      weston.enable = lib.mkForce (cfg.compositor == "weston");
-      sway.enable = cfg.compositor == "sway";
-      app-launchers.enableAppLaunchers = true;
+    config.ghaf = mkIf cfg.enable {
+      graphics.enableDemoApplications = lib.mkForce false;
+      graphics.app-launchers.enableAppLaunchers = true;
     };
   }

@@ -10,6 +10,5 @@
     ./sway/sway.nix
     ./sway/sway.ini.nix
     ./fonts.nix
-    ./window-manager.nix
   ];
 }
