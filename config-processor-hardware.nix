@@ -24,7 +24,7 @@ let
   system = "x86_64-linux";
   vms = targetconf.vms;
 
-  importvm = vmconf: (import ./modules/virtualization/microvm/vm.nix {inherit ghafOS vmconf;});
+  importvm = vmconf: (import ./modules/virtualization/microvm/vm.nix {inherit ghafOS vmconf self;});
   enablevm = vm: {
     virtualization.microvm.${vm.name} = {
       enable = true;
@@ -42,6 +42,8 @@ let
       modules =
         [
           microvm.nixosModules.host
+          self.nixosModules.fmo-configs
+
           (import "${ghafOS}/modules/host")
           (import "${ghafOS}/modules/virtualization/microvm/microvm-host.nix")
           {
@@ -80,7 +82,6 @@ let
         ++ updateHostConfig {inherit lib; inherit targetconf;}
         ++ map (vm: importvm vms.${vm}) (builtins.attrNames vms)
         ++ (import "${ghafOS}/modules/module-list.nix")
-        ++ (import ./modules/fmo-module-list.nix)
         ++ extraModules
         ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
     };
@@ -95,10 +96,12 @@ let
     (target "release" [])
   ];
 in {
-  nixosConfigurations =
-    builtins.listToAttrs (map (t: lib.nameValuePair t.name t.hostConfiguration) targets);
-  packages = {
-    x86_64-linux =
-      builtins.listToAttrs (map (t: lib.nameValuePair t.name t.package) targets);
+  flake = {
+    nixosConfigurations =
+      builtins.listToAttrs (map (t: lib.nameValuePair t.name t.hostConfiguration) targets);
+    packages = {
+      x86_64-linux =
+        builtins.listToAttrs (map (t: lib.nameValuePair t.name t.package) targets);
+    };
   };
 }

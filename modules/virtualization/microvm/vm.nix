@@ -3,6 +3,7 @@
 {
   ghafOS,
   vmconf,
+  self,
 }:{
   config,
   lib,
@@ -92,9 +93,10 @@
         microvm.qemu.bios.enable = false;
         microvm.storeDiskType = "squashfs";
 
-        imports = (import "${ghafOS}/modules/module-list.nix") ++ (import ../../fmo-module-list.nix);
+        imports = (import "${ghafOS}/modules/module-list.nix");
       })
       addSystemPackages
+      self.nixosModules.fmo-configs
     ];
   };
   cfg = config.ghaf.virtualization.microvm.${vmconf.name};
