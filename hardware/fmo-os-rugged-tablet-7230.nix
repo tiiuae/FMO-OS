@@ -251,6 +251,58 @@
           networking.firewall.enable = false;
         }]; # extraModules
       }; # dockervm
+      monitorvm = {
+        enable = true;
+        name = "monitorvm";
+        macaddr = "02:00:00:01:01:03";
+        ipaddr = "192.168.101.111";
+        defaultgw = "192.168.101.1";
+        systemPackages = [
+          "vim"
+          "tcpdump"
+          "natscli"
+          "nats-top"
+          "nats-server"
+        ]; # systemPackages
+        extraModules = [
+        {
+          users.users."ghaf".extraGroups = ["docker"];
+          microvm = {
+            mem = 2028;
+            vcpu = 1;
+            volumes = [{
+              image = "/var/tmp/monitorvm.img";
+              mountPoint = "/var/shares/local";
+              size = 51200;
+              autoCreate = true;
+              fsType = "ext4";
+            }];# microvm.volumes
+            shares = [
+              {
+                source = "/var/shares/monitorvm";
+                mountPoint = "/var/shares/monitorvm";
+                tag = "monitorvmfs";
+                proto = "virtiofs";
+                socket = "monitorvmfs.sock";
+              }
+            ]; # microvm.shares
+          };# microvm
+          services = {
+            avahi = {
+              enable = true;
+              nssmdns = true;
+              ipv4 = true;
+              ipv6 = false;
+              publish.enable = true;
+              publish.domain = true;
+              publish.addresses = true;
+              publish.workstation = true;
+              domainName = "monitorvm";
+            }; # services.avahi
+          }; # services
+          networking.firewall.enable = false;
+        }]; # extraModules
+      }; # monitorvm
     }; # vms
   }; # system
 }
