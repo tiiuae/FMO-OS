@@ -16,6 +16,7 @@
       "vim"
       "tcpdump"
       "gpsd"
+      "natscli"
     ]; # systemPackages
 
     launchers = [
@@ -53,6 +54,19 @@
           fmo-config = {
             enable = true;
           }; # fmo-config
+          fmo-certs-distribution-service-host = {
+            enable = true;
+            ca-name = "NATS CA";
+            ca-path = "/run/certs/nats/ca";
+            server-ips = ["192.168.101.111" "127.0.0.1"];
+            server-name = "NATS-server";
+            server-path = "/run/certs/nats/server";
+            clients-paths = [
+              "/run/certs/nats/clients/host"
+              "/run/certs/nats/clients/netvm"
+              "/run/certs/nats/clients/dockervm"
+            ];
+          };
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
@@ -76,6 +90,7 @@
         systemPackages = [
           "vim"
           "tcpdump"
+          "natscli"
         ]; # systemPackages
         extraModules = [
         {
@@ -244,6 +259,20 @@
                 socket = "netconf.sock";
               }
               {
+                source = "/run/certs/nats/clients/netvm";
+                mountPoint = "/var/lib/nats/certs";
+                tag = "nats_netvm_certs";
+                proto = "virtiofs";
+                socket = "nats_netvm_certs.sock";
+              }
+              {
+                source = "/run/certs/nats/ca";
+                mountPoint = "/var/lib/nats/ca";
+                tag = "nats_netvm_ca_certs";
+                proto = "virtiofs";
+                socket = "nats_netvm_ca_certs.sock";
+              }
+              {
                 tag = "ssh-public-key";
                 source = "/run/ssh-public-key";
                 mountPoint = "/run/ssh-public-key";
@@ -267,6 +296,7 @@
           "vim"
           "tcpdump"
           "gpsd"
+          "natscli"
         ]; # systemPackages
         extraModules = [
         {
@@ -319,6 +349,20 @@
                 tag = "fogdatafs";
                 proto = "virtiofs";
                 socket = "fogdata.sock";
+              }
+              {
+                source = "/run/certs/nats/clients/dockervm";
+                mountPoint = "/var/lib/nats/certs";
+                tag = "nats_dockervm_certs";
+                proto = "virtiofs";
+                socket = "nats_dockervm_certs.sock";
+              }
+              {
+                source = "/run/certs/nats/ca";
+                mountPoint = "/var/lib/nats/ca";
+                tag = "nats_dockervm_ca_certs";
+                proto = "virtiofs";
+                socket = "nats_dockervm_ca_certs.sock";
               }
               {
                 tag = "ssh-public-key";
@@ -374,6 +418,121 @@
           networking.firewall.enable = false;
         }]; # extraModules
       }; # dockervm
+      msgvm = {
+        enable = true;
+        name = "msgvm";
+        macaddr = "02:00:00:01:01:03";
+        ipaddr = "192.168.101.111";
+        defaultgw = "192.168.101.1";
+        systemPackages = [
+          "vim"
+          "tcpdump"
+          "natscli"
+          "nats-top"
+          "nats-server"
+        ]; # systemPackages
+        extraModules = [
+        {
+          users.users."ghaf".extraGroups = ["docker"];
+          microvm = {
+            mem = 2028;
+            vcpu = 1;
+            volumes = [
+              {
+                image = "/var/tmp/msgvm_internal.img";
+                mountPoint = "/var/lib/internal";
+                size = 10240;
+                autoCreate = true;
+                fsType = "ext4";
+              }
+              {
+                image = "/var/tmp/msgvm_var.img";
+                mountPoint = "/var";
+                size = 10240;
+                autoCreate = true;
+                fsType = "ext4";
+              }
+            ];# microvm.volumes
+            shares = [
+              {
+                source = "/var/vms_shares/common";
+                mountPoint = "/var/vms_share/common";
+                tag = "common_share_msgvm";
+                proto = "virtiofs";
+                socket = "common_share_msgvm.sock";
+              }
+              {
+                source = "/var/vms_shares/msgvm";
+                mountPoint = "/var/vms_share/host";
+                tag = "msgvm_share";
+                proto = "virtiofs";
+                socket = "msgvm_share.sock";
+              }
+              {
+                source = "/run/certs/nats/server";
+                mountPoint = "/var/lib/nats/certs";
+                tag = "nats_certs";
+                proto = "virtiofs";
+                socket = "nats_certs.sock";
+              }
+              {
+                source = "/run/certs/nats/ca";
+                mountPoint = "/var/lib/nats/ca";
+                tag = "nats_ca";
+                proto = "virtiofs";
+                socket = "nats_ca.sock";
+              }
+              {
+                tag = "ssh-public-key";
+                source = "/run/ssh-public-key";
+                mountPoint = "/run/ssh-public-key";
+              }
+            ]; # microvm.shares
+          };# microvm
+          fileSystems."/run/ssh-public-key".options = ["ro"];
+          services = {
+            avahi = {
+              enable = true;
+              nssmdns = true;
+              ipv4 = true;
+              ipv6 = false;
+              publish.enable = true;
+              publish.domain = true;
+              publish.addresses = true;
+              publish.workstation = true;
+              domainName = "msgvm";
+            }; # services.avahi
+            fmo-psk-distribution-service-vm = {
+              enable = true;
+            }; # fmo-psk-distribution-service-vm
+            nats = {
+              enable = true;
+              port = 4222;
+
+              settings = {
+                # Monitoring endpoints
+                http = 8222;
+                tls = {
+                  # Path to the server certificate and private key
+                  cert_file = "/var/lib/nats/certs/server.crt";
+                  key_file = "/var/lib/nats/certs/server.key";
+
+                  # Path to the CA certificate
+                  ca_file = "/var/lib/nats/ca/ca.crt";
+
+                  # Require client certificate verification
+                  verify_and_map = true;
+                };
+
+                # Logs config
+                log_file = "/var/lib/nats/nats-server.log";
+                logtime = true;
+              };
+            }; # services.nats-server
+          }; # services
+          networking.firewall.enable = false;
+        }]; # extraModules
+      }; # msgvm
     }; # vms
   }; # system
 }
