@@ -185,6 +185,7 @@
 
       dockervm = {
         enable = true;
+        enableDynamicPassthrough = true;
         name = "dockervm";
         macaddr = "02:00:00:01:01:02";
         ipaddr = "192.168.101.11";
@@ -214,15 +215,15 @@
               autoCreate = true;
               fsType = "ext4";
             }];# microvm.volumes
-            shares = [
-              {
-                source = "/var/fogdata";
-                mountPoint = "/var/lib/fogdata";
-                tag = "fogdatafs";
-                proto = "virtiofs";
-                socket = "fogdata.sock";
-              }
-            ]; # microvm.shares
+            #shares = [
+            #  {
+            #    source = "/var/fogdata";
+            #    mountPoint = "/var/lib/fogdata";
+            #    tag = "fogdatafs";
+            #    proto = "virtiofs";
+            #    socket = "fogdata.sock";
+            #  }
+            #]; # microvm.shares
           };# microvm
           services = {
             fmo-hostname-service = {

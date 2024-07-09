@@ -10,6 +10,7 @@
   pkgs,
   ...
 }: let
+  dynamic-passthrough = pkgs.callPackage ./dynamic-passthrough.nix {inherit pkgs;};
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = lib.mkIf (lib.hasAttr "systemPackages" vmconf) (map (app: pkgs.${app}) vmconf.systemPackages);};
   configHost = config;
   vmBaseConfiguration = {
@@ -100,9 +101,29 @@
     ];
   };
   cfg = config.ghaf.virtualization.microvm.${vmconf.name};
+  passthroughPackage  = pkgs.callPackage ./dynamic-passthrough.nix {inherit pkgs config vmconf lib ghafOS; microvmConfig = {
+            inherit (config.microvm.vms."${vmconf.name}".config.config.networking) hostName;
+             hypervisor="qemu";
+          } // config.microvm.vms."${vmconf.name}".config.config.microvm;};
+  
+  udev = "${import ./udev.nix {
+    name = "udev-rules";
+    udevPackages = config.services.udev.packages;
+    systemd = config.systemd.package;
+    binPackages = config.services.udev.packages;
+    udevPath =  pkgs.buildEnv {
+      name = "udev-path";
+      paths = config.services.udev.path;
+      pathsToLink = [ "/bin" "/sbin" ];
+      ignoreCollisions = true;
+    };
+    udev = config.systemd.package;
+    inherit pkgs lib config;      
+  }}";
 in {
   options.ghaf.virtualization.microvm.${vmconf.name} = {
     enable = lib.mkEnableOption "${vmconf.name}";
+    enableDynamicPassthrough = lib.mkEnableOption "${vmconf.name} Dynamic Passthrough";
 
     extraModules = lib.mkOption {
       description = ''
@@ -113,8 +134,9 @@ in {
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    microvm.vms."${vmconf.name}" = {
+  config = {
+    microvm = lib.mkIf cfg.enable {
+      vms."${vmconf.name}" = {
       autostart = true;
       config =
         vmBaseConfiguration
@@ -122,8 +144,18 @@ in {
           imports =
             vmBaseConfiguration.imports
             ++ cfg.extraModules;
+          config.microvm.declaredRunner = lib.mkIf cfg.enableDynamicPassthrough (lib.mkForce passthroughPackage);
         };
       specialArgs = {inherit lib;};
+      };
     };
-  };
+    environment.etc = lib.mkIf cfg.enableDynamicPassthrough ({
+      "microvm/${vmconf.name}/usb".text = "-usb -device usb-host,vendorid=0x090c,productid=0x1000";
+      "udev/rules.d".enable = false;
+    } // (lib.mapAttrs' (name: value: lib.attrsets.nameValuePair ("udev/rules.d/" + name)
+      {
+        source = "${udev}/${name}";
+        mode = "644 ";
+      }) (builtins.readDir udev)));
+    };
 }
