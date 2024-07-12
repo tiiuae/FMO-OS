@@ -9,12 +9,12 @@ rec {
           networks."10-virbr0" = lib.mkIf (lib.hasAttr "ipaddr" targetconf) {
             addresses = [
               {
-                addressConfig.Address = "${targetconf.ipaddr}/24";
+                Address = "${targetconf.ipaddr}/24";
               }
             ];
             routes =  lib.mkIf (lib.hasAttr "defaultgw" targetconf)
               [
-                { routeConfig.Gateway = "${targetconf.defaultgw}"; }
+                { Gateway = "${targetconf.defaultgw}"; }
               ];
           };
         };

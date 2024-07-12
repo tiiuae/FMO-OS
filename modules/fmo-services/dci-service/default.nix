@@ -114,6 +114,9 @@ in {
       after = [
         "docker.service"
         "docker.socket"
+        # WAR: warning: fmo-dci.service is ordered after 'network-online.target' 
+        # but doesn't depend on it
+        # JIRA: FMO-44 for monitoring this issue.
         "network-online.target"
       ];
 

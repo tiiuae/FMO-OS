@@ -9,7 +9,7 @@
   sway = config.ghaf.graphics.sway;
 in {
   config = {
-    fonts.fonts = with pkgs;
+    fonts.packages = with pkgs;
       lib.lists.optionals sway.enable [
         font-awesome_5
         font-awesome

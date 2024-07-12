@@ -2,13 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 (final: _prev: {
   squeekboard = _prev.squeekboard.overrideAttrs (oldAttrs: {
-    postUnpack = oldAttrs.postUnpack or "" + ''
-      cat $src/data/keyboards/terminal/us_wide.yaml
+    postPatch = oldAttrs.postPatch or "" + ''
+      ${_prev.coreutils}/bin/cp -rf ${./us_wide.yaml} data/keyboards/terminal/us_wide.yaml
     '';
-    prePatch = '' 
-      ls .
-      '';
-    patches = oldAttrs.patches or [] ++ [ ./us_wide.patch ];
     postInstall = ''
         mkdir -p $out/share/dbus-1/services
         cat <<END > $out/share/dbus-1/services/sm.puri.OSK0.service
