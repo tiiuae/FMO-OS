@@ -17,11 +17,16 @@
 
 in {
   imports = [
-    ./lisgd
     ./nwg-panel
   ];
 
   config = lib.mkIf cfg.enable {
+
+    users.users."ghaf".extraGroups = ["input"];
+    environment.systemPackages = [
+        pkgs.lisgd
+      ];
+
     services.writeToFile = {
       enable = true;
       enabledFiles = [ "config-folder" "sway-config" ];

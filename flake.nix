@@ -16,25 +16,16 @@
 
   inputs = rec {
     ghafOS.url = "github:tiiuae/ghaf";
-    
-    #
-    # Flake and repo structuring configurations
-    #
-    # Allows us to structure the flake with the NixOS module system
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-    };
-
   };
 
-  outputs = inputs @ {ghafOS, flake-parts, self, ...}: let
+  outputs = inputs @ {ghafOS, self, ...}: let
     # Retrieve inputs from Ghaf
     nixpkgs = ghafOS.inputs.nixpkgs;
     flake-utils = ghafOS.inputs.flake-utils;
     nixos-generators = ghafOS.inputs.nixos-generators;
     nixos-hardware = ghafOS.inputs.nixos-hardware;
     microvm = ghafOS.inputs.microvm;
-
+    flake-parts = ghafOS.inputs.flake-parts;
     systems = with flake-utils.lib.system; [
       x86_64-linux
     ];

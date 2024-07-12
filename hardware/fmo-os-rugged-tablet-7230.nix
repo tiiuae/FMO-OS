@@ -92,7 +92,7 @@
 
             avahi = {
               enable = true;
-              nssmdns = true;
+              nssmdns4 = true;
               reflector = true;
             }; # services.avahi
 
@@ -151,16 +151,11 @@
                 bus = "pci";
                 path = "0000:00:14.3";
               }
+              {
+                bus = "usb";
+                path = "vendorid=0x0525,productid=0xa4a2";
+              }
             ]; # microvm.devices
-
-            # WAR: Default microvm's way to passthrough usb devices is not working
-            # Lets use qemu.extraArgs for that
-            qemu.extraArgs = [
-              "-usb"
-              "-device"
-              "usb-host,vendorid=0x0525,productid=0xa4a2"
-            ]; # microvm.qemu.extraArgs
-
             shares = [
               {
                 source = "/var/netvm/netconf";
@@ -200,13 +195,12 @@
           microvm = {
             mem = 4096;
             vcpu = 2;
-            # WAR: Default microvm's way to passthrough usb devices is not working
-            # Lets use qemu.extraArgs for that
-            qemu.extraArgs = [
-              "-usb"
-              "-device"
-              "usb-host,vendorid=0x1546,productid=0x01a9"
-            ]; # microvm.qemu.extraArgs
+            devices = [
+              {
+                bus = "usb";
+                path = "vendorid=0x1546,productid=0x01a9";
+              }
+            ]; # microvm.devices
             volumes = [{
               image = "/var/tmp/dockervm.img";
               mountPoint = "/var/lib/docker";
@@ -241,7 +235,7 @@
             }; # services.fmo-dci
             avahi = {
               enable = true;
-              nssmdns = true;
+              nssmdns4 = true;
             }; # services.avahi
             registration-agent-laptop = {
               enable = true;

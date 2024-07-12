@@ -5,8 +5,7 @@
 #
 _: {
   nixpkgs.overlays = [
-    # WAR: libsecret should be removed when the upstream error is fixed
-    (import ./libsecret)
+    (import ./lisgd)
     (import ./nmLauncher)
     (import ./nwg-bar)
     (import ./nwg-panel)

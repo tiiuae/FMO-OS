@@ -43,9 +43,16 @@ let
         [
           microvm.nixosModules.host
           self.nixosModules.fmo-configs
+          self.nixosModules.ghaf-common
+          ghafOS.nixosModules.host
 
-          (import "${ghafOS}/modules/host")
-          (import "${ghafOS}/modules/virtualization/microvm/microvm-host.nix")
+          (import "${ghafOS}/modules/microvm/networking.nix")
+          (import "${ghafOS}/modules/microvm/virtualization/microvm/microvm-host.nix")
+          
+          # WAR: ghaf mainline has audiovm hardcoded. This causes audiovm defined here
+          # This should be removed when audiovm on ghaf mainline is fixed.
+          # JIRA: FMO-43 for monitoring this issue.
+          (import "${ghafOS}/modules/microvm/virtualization/microvm/audiovm.nix")
           {
             ghaf = lib.mkMerge (
               [
@@ -53,6 +60,7 @@ let
                   hardware.x86_64.common.enable = true;
 
                   virtualization.microvm-host.enable = true;
+                  virtualization.microvm-host.networkSupport = true;
                   host.networking.enable = true;
 
                   # Enable all the default UI applications
@@ -81,7 +89,6 @@ let
         ]
         ++ updateHostConfig {inherit lib; inherit targetconf;}
         ++ map (vm: importvm vms.${vm}) (builtins.attrNames vms)
-        ++ (import "${ghafOS}/modules/module-list.nix")
         ++ extraModules
         ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
     };
@@ -90,7 +97,7 @@ let
     name = "${name}-${variant}";
     package = hostConfiguration.config.system.build.${hostConfiguration.config.formatAttr};
   };
-  debugModules = [(import "${ghafOS}/modules/development/usb-serial.nix") {ghaf.development.usb-serial.enable = true;}];
+  debugModules = [{ghaf.development.usb-serial.enable = true;}];
   targets = [
     (target "debug" debugModules)
     (target "release" [])

@@ -20,6 +20,7 @@ double edgesizeleft = 50.0;
 double edgesizetop = 50.0;
 double edgesizeright = 50.0;
 double edgesizebottom = 50.0;
+double edgessizecaling = 1.0;
 char *device = "/dev/input/by-path/pci-0000:00:15.0-platform-i2c_designware.0-event";
 
 //Gestures can also be specified interactively from the command line using -g

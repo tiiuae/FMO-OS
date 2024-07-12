@@ -25,7 +25,7 @@
 
         services = {
           avahi.enable = true;
-          avahi.nssmdns = true;
+          avahi.nssmdns4 = true;
 
           registration-agent-laptop ={
             enable = true;
