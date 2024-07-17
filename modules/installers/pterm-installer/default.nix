@@ -78,7 +78,7 @@ in
           rev = "0a12c7f3288f7019adc7781310f02f47f61444f1";
           ref = "refs/heads/main";
         };
-        vendorHash = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
+        vendorHash = "sha256-CFFSaURE4lJZS6E8XT6KcRv4hk6wO059lzD1V2wfZgI=";
         proxyVendor=true;
         ldflags = [
           "-X 'ghaf-installer/global.OSSfile=${cfg.oss_path}'"
