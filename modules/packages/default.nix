@@ -13,5 +13,6 @@ _: {
     (import ./squeekboard)
     (import ./sway-scripts)
     (import ./terminator)
+    (import ./xlibinput-calibrator)
   ];
 }

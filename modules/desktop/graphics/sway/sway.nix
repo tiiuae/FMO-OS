@@ -79,6 +79,7 @@ in
       wl-mirror # mirror displays
       squeekboard
       squeekboard-control
+      xlibinput-calibrator # touchscreen calibration utility
     ];
 
     services.pipewire = {
