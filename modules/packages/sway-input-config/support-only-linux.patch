@@ -1,0 +1,15 @@
+diff --git a/sway_input_config/main.py b/sway_input_config/main.py
+index 6af2b1c..e8ed6df 100644
+--- a/sway_input_config/main.py
++++ b/sway_input_config/main.py
+@@ -38,8 +38,8 @@ os_name = platform.system()
+
+ if os_name == "Linux":
+     XKB_BASE_LIST = load_text_file("/usr/share/X11/xkb/rules/base.lst").splitlines()
+-elif os_name == "FreeBSD":
+-    XKB_BASE_LIST = load_text_file("/usr/local/share/X11/xkb/rules/base.lst").splitlines()
++else:
++    raise SystemExit('Unsupported OS: ' + os_name)
+
+ models = []
+ layouts = []

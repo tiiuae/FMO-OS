@@ -14,5 +14,6 @@ _: {
     (import ./sway-scripts)
     (import ./terminator)
     (import ./xlibinput-calibrator)
+    (import ./sway-input-config)
   ];
 }
