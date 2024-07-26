@@ -81,6 +81,7 @@ in
       squeekboard-control
       xlibinput-calibrator # touchscreen calibration utility
       sway-input-config # Sway input configuration utility (WIP, testing)
+      calibrate-touchscreen
     ];
 
     services.pipewire = {

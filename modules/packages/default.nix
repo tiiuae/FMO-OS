@@ -15,5 +15,6 @@ _: {
     (import ./terminator)
     (import ./xlibinput-calibrator)
     (import ./sway-input-config)
+    (import ./calibrate-touchscreen)
   ];
 }
