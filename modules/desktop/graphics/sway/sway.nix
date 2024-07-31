@@ -79,9 +79,10 @@ in
       wl-mirror # mirror displays
       squeekboard
       squeekboard-control
-      xlibinput-calibrator # touchscreen calibration utility
-      sway-input-config # Sway input configuration utility (WIP, testing)
-      calibrate-touchscreen
+      calibrate-touchscreen # touchscreen calibration utility
+      libinput # for debugging libinput
+      #xlibinput-calibrator # touchscreen calibration utility
+      #sway-input-config # Sway input configuration utility (WIP, testing)
     ];
 
     services.pipewire = {
