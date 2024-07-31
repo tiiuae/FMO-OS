@@ -16,9 +16,20 @@
 
   inputs = rec {
     ghafOS.url = "github:tiiuae/ghaf";
+
+    devshell = {
+      url = "github:numtide/devshell";
+      inputs = {
+        nixpkgs.follows = "ghafOS/nixpkgs";
+      };
+    };
   };
 
-  outputs = inputs @ {ghafOS, self, ...}: let
+  outputs = inputs @ {
+    ghafOS,
+    self,
+    ...
+  }: let
     # Retrieve inputs from Ghaf
     nixpkgs = ghafOS.inputs.nixpkgs;
     flake-utils = ghafOS.inputs.flake-utils;
@@ -40,7 +51,6 @@
     generateHwConfig = import ./config-processor-hardware.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
     generateInstConfig = import ./config-processor-installers.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
   in
-
     flake-parts.lib.mkFlake
     {
       inherit inputs;
@@ -49,22 +59,36 @@
       # see:https://flake.parts/debug
       debug = false;
 
-      systems = [
-        "x86_64-linux"
-      ];
+      #systems = [
+      #  "x86_64-linux"
+      #];
+      inherit systems;
 
-      imports = [
-        ./hydrajobs/flake-module.nix
-        ./modules/flake-module.nix
-      ] ++ map generateHwConfig [
-        (import ./hardware/fmo-os-rugged-laptop-7330.nix)
-        (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
-        (import ./hardware/fmo-os-rugged-tablet-7230.nix)
-        (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
-      ] ++ map generateInstConfig [
-        (import ./installers/fmo-os-installer.nix)
-        (import ./installers/fmo-os-installer-public.nix)
-      ];
+      imports =
+        [
+          # This workaround is needed so `perSystem` is able to find
+          # the `pkgs` instance, as we don't have `nixpkgs` in our Flake inputs.
+          (_: {
+            perSystem = {system, ...}: {
+              config._module.args.pkgs = import nixpkgs {
+                inherit system;
+              };
+            };
+          })
+          ./nix/flake-module.nix
+          ./hydrajobs/flake-module.nix
+          ./modules/flake-module.nix
+        ]
+        ++ map generateHwConfig [
+          (import ./hardware/fmo-os-rugged-laptop-7330.nix)
+          (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
+          (import ./hardware/fmo-os-rugged-tablet-7230.nix)
+          (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
+        ]
+        ++ map generateInstConfig [
+          (import ./installers/fmo-os-installer.nix)
+          (import ./installers/fmo-os-installer-public.nix)
+        ];
 
       flake.lib = lib;
     };

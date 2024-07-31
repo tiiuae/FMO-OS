@@ -39,6 +39,27 @@
     },
     "devshell": {
       "inputs": {
+        "nixpkgs": [
+          "ghafOS",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1722113426,
+        "narHash": "sha256-Yo/3loq572A8Su6aY5GP56knpuKYRvM2a1meP9oJZCw=",
+        "owner": "numtide",
+        "repo": "devshell",
+        "rev": "67cce7359e4cd3c45296fb4aaf6a19e2a9c757ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "devshell",
+        "type": "github"
+      }
+    },
+    "devshell_2": {
+      "inputs": {
         "flake-utils": "flake-utils",
         "nixpkgs": [
           "ghafOS",
@@ -173,7 +194,7 @@
     },
     "ghafOS": {
       "inputs": {
-        "devshell": "devshell",
+        "devshell": "devshell_2",
         "disko": "disko",
         "flake-compat": "flake-compat",
         "flake-parts": "flake-parts",
@@ -440,6 +461,7 @@
     },
     "root": {
       "inputs": {
+        "devshell": "devshell",
         "ghafOS": "ghafOS"
       }
     },
