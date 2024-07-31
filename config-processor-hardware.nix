@@ -9,16 +9,14 @@
   nixos-hardware,
   nixpkgs,
   microvm,
-}: {
-  sysconf,
-}:
-let
+}: {sysconf}: let
   updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
   updateHostConfig = (import ./utils/updateHostConfig.nix).updateHostConfig;
 
-  targetconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./hardware sysconf.extend) ).sysconf sysconf
-               else sysconf;
+  targetconf =
+    if lib.hasAttr "extend" sysconf
+    then updateAttrs false (import (lib.path.append ./hardware sysconf.extend)).sysconf sysconf
+    else sysconf;
 
   name = targetconf.name;
   system = "x86_64-linux";
@@ -32,23 +30,52 @@ let
     };
   };
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) targetconf.systemPackages;};
-  addCustomLaunchers =  { ghaf.graphics.app-launchers.enabled-launchers = targetconf.launchers; };
+  addCustomLaunchers = {ghaf.graphics.app-launchers.enabled-launchers = targetconf.launchers;};
 
   formatModule = nixos-generators.nixosModules.raw-efi;
+
   target = variant: extraModules: let
     hostConfiguration = lib.nixosSystem {
       inherit system;
-      specialArgs = {inherit lib; inherit ghafOS;};
+      specialArgs = {
+        inherit lib;
+        inherit ghafOS;
+      };
       modules =
         [
           microvm.nixosModules.host
           self.nixosModules.fmo-configs
           self.nixosModules.ghaf-common
           ghafOS.nixosModules.host
+          {
+            boot.kernelPatches = [
+              {
+                name = "enable-touchscreen";
+                patch = null;
+                extraStructuredConfig = with lib.kernel; {
+                  I2C = yes;
+                  I2C_HID = module;
+                  I2C_HID_ACPI = module;
+                  INPUT_TOUCHSCREEN = yes;
+                  HID_MULTITOUCH = module;
+                  #TOUCHSCREEN_EETI = module;
+                  #TOUCHSCREEN_EGALAX_SERIAL = module;
+                  #TOUCHSCREEN_EXC3000 = module;
+                };
+              }
+            ];
+            #boot.kernelModules = [
+            #  "eeti_ts"
+            #  "egalax_ts"
+            #];
+            services.udev.extraRules = ''
+              KERNELS=="input*", SUBSYSTEMS=="input", ATTR{idVendor}=="0eef", ATTR{idProduct}=="c003", SYMLINK+="input/touchscreen"
+            '';
+          }
 
           (import "${ghafOS}/modules/microvm/networking.nix")
           (import "${ghafOS}/modules/microvm/virtualization/microvm/microvm-host.nix")
-          
+
           # WAR: ghaf mainline has audiovm hardcoded. This causes audiovm defined here
           # This should be removed when audiovm on ghaf mainline is fixed.
           # JIRA: FMO-43 for monitoring this issue.
@@ -87,10 +114,17 @@ let
             ];
           }
         ]
-        ++ updateHostConfig {inherit lib; inherit targetconf;}
+        ++ updateHostConfig {
+          inherit lib;
+          inherit targetconf;
+        }
         ++ map (vm: importvm vms.${vm}) (builtins.attrNames vms)
         ++ extraModules
-        ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
+        ++ (
+          if lib.hasAttr "extraModules" targetconf
+          then targetconf.extraModules
+          else []
+        );
     };
   in {
     inherit hostConfiguration;
