@@ -10,6 +10,7 @@
   pkgs,
   ...
 }: let
+  dynamic-passthrough = pkgs.callPackage ./dynamic-passthrough.nix {inherit pkgs;};
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = lib.mkIf (lib.hasAttr "systemPackages" vmconf) (map (app: pkgs.${app}) vmconf.systemPackages);};
   configHost = config;
   vmBaseConfiguration = {
@@ -101,10 +102,25 @@
       self.nixosModules.ghaf-common
     ];
   };
+
+  inherit (import (./usb-passthrough-scripts.nix) {inherit pkgs;}) changeDeviceGroup;
   cfg = config.ghaf.virtualization.microvm.${vmconf.name};
+  passthroughPackage  = pkgs.callPackage ./dynamic-passthrough.nix {inherit pkgs config vmconf lib ghafOS; microvmConfig = {
+            inherit (config.microvm.vms."${vmconf.name}".config.config.networking) hostName;
+             hypervisor="qemu";
+          } // config.microvm.vms."${vmconf.name}".config.config.microvm;};
+
 in {
   options.ghaf.virtualization.microvm.${vmconf.name} = {
     enable = lib.mkEnableOption "${vmconf.name}";
+    enableDynamicPassthrough = lib.mkEnableOption "${vmconf.name} Dynamic Passthrough";
+    passthroughDeviceListPath = lib.mkOption {
+      description = ''
+        List of additional modules to be imported and evaluated as part of
+        VM's NixOS configuration.
+      '';
+      default = "/var/microvm/${vmconf.name}/usb";
+    };
 
     extraModules = lib.mkOption {
       description = ''
@@ -115,8 +131,9 @@ in {
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    microvm.vms."${vmconf.name}" = {
+  config = {
+    microvm = lib.mkIf cfg.enable {
+      vms."${vmconf.name}" = {
       autostart = true;
       config =
         vmBaseConfiguration
@@ -124,8 +141,27 @@ in {
           imports =
             vmBaseConfiguration.imports
             ++ cfg.extraModules;
+          config.microvm.declaredRunner = lib.mkIf cfg.enableDynamicPassthrough (lib.mkForce passthroughPackage);
         };
       specialArgs = {inherit lib;};
+      };
+    };
+    services.udev.extraRules = lib.mkIf cfg.enableDynamicPassthrough ''
+      ACTION=="add",  SUBSYSTEM=="usb", DRIVER=="usb", RUN+="${changeDeviceGroup}/bin/changeDeviceGroup ${cfg.passthroughDeviceListPath}"
+    '';
+
+    systemd.services."microvm-set-kvm-devices@${vmconf.name}" = lib.mkIf cfg.enableDynamicPassthrough  {
+      wantedBy = ["multi-user.target"];
+      script = ''
+        mkdir -p $(dirname ${cfg.passthroughDeviceListPath})
+        touch ${cfg.passthroughDeviceListPath}
+        ${changeDeviceGroup}/bin/changeDeviceGroup ${cfg.passthroughDeviceListPath}
+      '';
+      serviceConfig = {
+        Type = "oneshot";
+        Restart = lib.mkForce "on-failure";
+        RestartSec = "30";
+      };
     };
   };
 }

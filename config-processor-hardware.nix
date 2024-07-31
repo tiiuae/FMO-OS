@@ -28,6 +28,7 @@ let
   enablevm = vm: {
     virtualization.microvm.${vm.name} = {
       enable = true;
+      enableDynamicPassthrough = true;
       extraModules = vm.extraModules;
     };
   };
