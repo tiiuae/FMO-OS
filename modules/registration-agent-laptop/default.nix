@@ -13,6 +13,7 @@ in
   with lib; {
     options.services.registration-agent-laptop = {
       enable = mkEnableOption "Install and setup registration-agent on system";
+      createAllConfig = mkEnableOption "Create all config folders";
 
       run_on_boot = mkOption {
         description = mdDoc ''
@@ -66,12 +67,13 @@ in
     };
 
     config =  mkIf (cfg.enable) {
+        services.registration-agent-laptop.createAllConfig = true;
         environment.systemPackages = [ pkgs.registration-agent-laptop];
 
         services.writeToFile = {
           enable = true;
-          enabledFiles = [
-            "fmo-registration-agent-laptop"
+          enabledFiles = ["fmo-registration-agent-laptop"]
+            ++ lib.optionals cfg.createAllConfig [
             "fmo-registration-agent-certs"
             "fmo-registration-agent-config"
             "fmo-registration-agent-hostname"
