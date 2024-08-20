@@ -86,7 +86,7 @@ echo "::endgroup::"
 echo "::group::Copy results"
 out=$(readlink -f $RESULT_DIR/$RESULT_NAME)
 mkdir -p $RESULT_COPY_DIR
-cp $out $RESULT_COPY_DIR/$RESULT_NAME || err_exit 1 "Result copy failed. Fail"
+mv $out $RESULT_COPY_DIR/$RESULT_NAME || err_exit 1 "Result copy failed. Fail"
 out=$(ls $RESULT_COPY_DIR/$RESULT_NAME)
 echo "::endgroup::"
 
