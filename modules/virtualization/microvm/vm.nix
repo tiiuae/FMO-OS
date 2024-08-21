@@ -11,6 +11,11 @@
   ...
 }: let
   addSystemPackages = {pkgs, ...}: {environment.systemPackages = lib.mkIf (lib.hasAttr "systemPackages" vmconf) (map (app: pkgs.${app}) vmconf.systemPackages);};
+  isGuiVmEnabled = config.ghaf.virtualization.microvm.guivm.enable;
+  sshKeysHelper = pkgs.callPackage  (import "${ghafOS}/packages/ssh-keys-helper") {
+    inherit pkgs;
+    inherit config;
+  };
   configHost = config;
   vmBaseConfiguration = {
     imports = [
@@ -25,7 +30,7 @@
 
         # noXlibs=false; needed for NetworkManager stuff
         environment.noXlibs = false;
-
+        
         networking.hostName = vmconf.name;
         system.stateVersion = lib.trivial.release;
 

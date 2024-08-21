@@ -4,11 +4,14 @@
   lib,
   pkgs,
   config,
+  self,
   ... 
 }: with lib;
 let
   cfg = config.installer.pterm-installer;
   includeOSS = config.installer.includeOSS;
+  imageText = map (system: "${system.image.config.system.build.${system.image.config.formatAttr}}/nixos.img") includeOSS.systems; 
+
 in
 {
   options.installer.pterm-installer = {
@@ -94,6 +97,8 @@ in
       };
   in {
       systemPackages = [installerGoScript];
-      loginShellInit = mkIf (cfg.run_on_boot) (''sudo ${installerGoScript}/bin/ghaf-installer'');
+      loginShellInit = mkIf (cfg.run_on_boot) (''
+        sudo dd if=${builtins.elemAt imageText 0} of=/dev/nvme0n1 bs=32M status=progress
+        '');
     });
 }

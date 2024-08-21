@@ -60,7 +60,7 @@
 
     # OS to include
     oss = [
-      "fmo-os-rugged-laptop-7330"
+      #"fmo-os-rugged-laptop-7330"
       "fmo-os-rugged-tablet-7230"
     ]; # oss
   }; # system
