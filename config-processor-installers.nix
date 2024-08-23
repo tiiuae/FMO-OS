@@ -5,53 +5,43 @@
   self,
   lib,
   ghafOS,
-  nixos-generators,
-  nixos-hardware,
-  nixpkgs,
-  microvm,
-}: {
-  sysconf,
-}:
-let
-  updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
+}: let
+  inherit (import ./utils {inherit lib self ghafOS;}) updateAttrs addSystemPackages;
 
-  oss = sysconf.oss;
-  oss_list_name = "installer_os_list";
-  oss_list_path = "/etc/${oss_list_name}";
-
-  installerconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./installers sysconf.extend) ).sysconf sysconf
-               else sysconf;
-
-
-  installerApp = inst_app: let
-    installers = (builtins.removeAttrs inst_app ["name"]) //
-                { oss_path = lib.mkDefault "${oss_list_path}"; };
-  in installers;
-  
-  addSystemPackages = {pkgs, ...}: {environment.systemPackages = map (app: pkgs.${app}) installerconf.systemPackages;};
-
-  formatModule = nixos-generators.nixosModules.iso;
-  installer = variant: extraModules: let
+  builder = sysconf: variant: let
     system = "x86_64-linux";
 
-    pkgs = import nixpkgs {inherit system;};
+    oss = sysconf.oss;
+    oss_list_name = "installer_os_list";
+    oss_list_path = "/etc/${oss_list_name}";
+
+    installerApp = inst_app: let
+                  installers = (builtins.removeAttrs inst_app ["name"]) //
+                    { oss_path = lib.mkDefault "${oss_list_path}"; };
+                  in installers;
+
+    installerconf = if lib.hasAttr "extend" sysconf
+               then updateAttrs false (import (lib.path.append ./installers sysconf.extend) ).sysconf sysconf
+               else sysconf;
 
     installerImgCfg = lib.nixosSystem {
       inherit system;
       specialArgs = {inherit lib; inherit ghafOS;};
       modules =
         [
+          ghafOS.inputs.nixos-generators.nixosModules.iso
           self.nixosModules.installer
-          self.nixosModules.ghaf-common
+          self.nixosModules.fmo-common
           
-          ({modulesPath, lib, config, ...}: {
+          ({modulesPath, lib, config, ghafOS, ...}: {
             imports = [ (modulesPath + "/profiles/all-hardware.nix") ];
 
             nixpkgs.hostPlatform.system = system;
             nixpkgs.config.allowUnfree = true;
 
             hardware.enableAllFirmware = true;
+
+            ghaf.development.usb-serial.enable = variant == "debug";
                    
             # Installer system profile
             # Use less privileged ghaf user
@@ -90,15 +80,11 @@ let
           {
             installer.${installerconf.installer.name} = installerApp installerconf.installer;
           }
-
-          formatModule
-          addSystemPackages
-
           {
             isoImage.squashfsCompression = "lz4"; 
           }
         ]
-        ++ extraModules
+        ++ (addSystemPackages installerconf.systemPackages)
         ++ (if lib.hasAttr "extraModules" installerconf then installerconf.extraModules else []);
     };
   in {
@@ -106,15 +92,5 @@ let
     inherit installerImgCfg system;
     installerImgDrv = installerImgCfg.config.system.build.${installerImgCfg.config.formatAttr};
   };
-  debugModules = [{ghaf.development.usb-serial.enable = true;}];
-  targets = [
-    (installer "debug" debugModules)
-    (installer "release" [])
-  ];
-in {
-  flake = {
-    packages = lib.foldr lib.recursiveUpdate {} (map ({name, system, installerImgDrv, ...}: {
-      ${system}.${name} = installerImgDrv;
-    }) targets);
-  };
-}
+in
+  builder

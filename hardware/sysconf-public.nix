@@ -1,11 +1,11 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 #
-# fmo-os-disabled-for-public -target
+# fmo-os-system-configuration-public-version -target
 {
   sysconf = {
-    extend = "./fmo-os-rugged-tablet-7230.nix";
-    name = "fmo-os-rugged-tablet-7230-public";
+    extend = "./sysconf.nix";
+    suffix = "public";
     extraModules = [
     {
       services = {

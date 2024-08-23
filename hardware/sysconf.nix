@@ -1,10 +1,8 @@
-# Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 #
-# fmo-os-rugged-laptop-7330 computer -target
+# fmo-os-system-configuration -target
 {
   sysconf = {
-    name = "fmo-os-rugged-laptop-7330";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
 
@@ -37,7 +35,7 @@
         services = {
           fmo-psk-distribution-service-host = {
               enable = true;
-          };
+          }; # services.fmo-psk-distribution-service-host
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
@@ -58,6 +56,7 @@
         name = "netvm";
         macaddr = "02:00:00:01:01:01";
         ipaddr = "192.168.101.1";
+        hardware = "network";
         systemPackages = [
           "vim"
           "tcpdump"
@@ -148,35 +147,10 @@
           microvm = {
             devices = [
               {
-                bus = "pci";
-                path = "0000:72:00.0";
-              }
-              {
-                bus = "pci";
-                path = "0000:00:1f.0";
-              }
-              {
-                bus = "pci";
-                path = "0000:00:1f.3";
-              }
-              {
-                bus = "pci";
-                path = "0000:00:1f.4";
-              }
-              {
-                bus = "pci";
-                path = "0000:00:1f.5";
-              }
-              {
-                bus = "pci";
-                path = "0000:00:1f.6";
-              }
-              {
                 bus = "usb";
                 path = "vendorid=0x0525,productid=0xa4a2";
               }
             ]; # microvm.devices
-
             shares = [
               {
                 source = "/var/netvm/netconf";
