@@ -61,7 +61,7 @@
    # Create next and prev buttons and place them in module-right
   wsSwitchIcons =  {
     button-ws-next = {
-      command =  "${pkgs.workspace-switch}/bin/workspace-switch window next; ${pkgs.workspace-switch}/bin/workspace-switch next";
+      command =  "${pkgs.workspace-switch}/bin/workspace-switch window next";
       icon = "${../../assets/arrow-circle-right-svgrepo-com.svg}";
       label = "";
       label-position = "bottom";
@@ -71,7 +71,7 @@
     };
     
     button-ws-prev = {
-      command =  "${pkgs.workspace-switch}/bin/workspace-switch window prev; ${pkgs.workspace-switch}/bin/workspace-switch prev";
+      command =  "${pkgs.workspace-switch}/bin/workspace-switch window prev";
       icon = "${../../assets/arrow-circle-left-svgrepo-com.svg}";
       label = "";
       label-position = "bottom";
