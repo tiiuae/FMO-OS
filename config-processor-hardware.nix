@@ -70,6 +70,8 @@ let
                     release.enable = variant == "release";
                     debug.enable = variant == "debug";
                   };
+
+                  hardware.usb.vhotplug.enable = true;
                 }
               ]
               ++ map (vm: enablevm vms.${vm}) (builtins.attrNames vms)

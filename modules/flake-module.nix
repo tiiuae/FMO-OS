@@ -8,6 +8,7 @@
       ./packages
       ./fmo-services
       ./desktop
+      ./virtualization/vhotplug
       ../utils/write-to-file
     ];
     installer.imports = [

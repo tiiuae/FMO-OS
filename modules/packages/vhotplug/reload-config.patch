@@ -1,0 +1,12 @@
+diff --git a/vhotplug/vhotplug.py b/vhotplug/vhotplug.py
+index 912f78c..d7b16d9 100644
+--- a/vhotplug/vhotplug.py
++++ b/vhotplug/vhotplug.py
+@@ -11,6 +11,7 @@ logger = logging.getLogger("vhotplug")
+ 
+ async def device_event(config, device):
+     if device.action == 'add':
++        config.config = config.load()
+         logger.debug(f"Device plugged: {device.sys_name}.")
+         logger.debug(f"Subsystem: {device.subsystem}, path: {device.device_path}")
+         log_device(device)
