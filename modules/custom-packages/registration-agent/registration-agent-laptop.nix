@@ -16,12 +16,12 @@ buildGo121Module {
   name = "registration-agent-laptop";
   src = builtins.fetchGit {
     url = "git@github.com:tiiuae/registration-agent-laptop.git";
-    rev = "2f904867b98c65d38561e2447183109a7c68ba0d";
+    rev = "8df9034641431aaee66eceff0ebb5257e2e4244e";
     ref = "refs/heads/main";
   };
   tags = [ "prod" ];
   patches = [./remove-test.patch];
-  vendorSha256 = "sha256-9/twQyt6SVXWTRypt1FIWsRQxQEWFBkdi8eR+/xYNqg==";
+  vendorSha256 = "sha256-MU1zAsy0hUx6UGPaA22GRMz04e5GTP3Rxm90/WmneUQ=";
   proxyVendor=true;
 
 
