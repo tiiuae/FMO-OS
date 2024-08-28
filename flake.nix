@@ -22,9 +22,6 @@
     # Retrieve inputs from Ghaf
     nixpkgs = ghafOS.inputs.nixpkgs;
     flake-utils = ghafOS.inputs.flake-utils;
-    nixos-generators = ghafOS.inputs.nixos-generators;
-    nixos-hardware = ghafOS.inputs.nixos-hardware;
-    microvm = ghafOS.inputs.microvm;
     flake-parts = ghafOS.inputs.flake-parts;
     systems = with flake-utils.lib.system; [
       x86_64-linux
@@ -37,8 +34,8 @@
       };
     });
 
-    generateHwConfig = import ./config-processor-hardware.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
-    generateInstConfig = import ./config-processor-installers.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
+    generateHwConfig = import ./config-processor-hardware.nix {inherit ghafOS self lib;};
+    generateInstConfig = import ./config-processor-installers.nix {inherit ghafOS self lib;};
   in
 
     flake-parts.lib.mkFlake
