@@ -97,8 +97,7 @@
         
       })
       addSystemPackages
-      self.nixosModules.fmo-configs
-      self.nixosModules.ghaf-common
+      self.nixosModules.fmo-common
     ];
   };
   cfg = config.ghaf.virtualization.microvm.${vmconf.name};
