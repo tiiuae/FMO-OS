@@ -141,6 +141,18 @@
                   sport = "4223";
                   proto = "udp";
                 }
+                {
+                  dip = "192.168.101.11";
+                  dport = "123";
+                  sport = "123";
+                  proto = "udp";
+                }
+                {
+                  dip = "192.168.101.11";
+                  dport = "123";
+                  sport = "123";
+                  proto = "tcp";
+                }
               ];
             }; # services.portforwarding-service;
           }; # services
