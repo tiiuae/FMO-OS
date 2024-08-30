@@ -7,7 +7,6 @@ _: {
   nixpkgs.overlays = [
     (import ./lisgd)
     (import ./nmLauncher)
-    (import ./nwg-bar)
     (import ./nwg-panel)
     (import ./registration-agent)
     (import ./squeekboard)
