@@ -18,4 +18,5 @@
   ../utils/write-to-file
   ./fmo-psk-distribution-host
   ./fmo-psk-distribution-vm
+  ./netvm-profiles
 ]

@@ -68,6 +68,7 @@
         systemd.network.links."10-ethint0" = {
           matchConfig.PermanentMACAddress = "${vmconf.macaddr}";
           linkConfig.Name = "ethint0";
+          extraConfig = "MTUBytes=1460";
         };
 
         systemd.network = {

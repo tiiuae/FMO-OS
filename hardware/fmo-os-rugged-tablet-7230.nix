@@ -79,6 +79,7 @@
                 "ethint0"
               ];
             };
+            useDHCP = false;
           }; # networking
 
           services = {
@@ -98,6 +99,13 @@
 
             fmo-psk-distribution-service-vm = {
               enable = true;
+            };
+
+            networking = {
+              loadProfiles = {
+                enable = true;
+                profileList = [ "WireMesh0" ];
+              }; # services.networking.loadProfiles
             };
 
             portforwarding-service = {
@@ -176,7 +184,7 @@
             shares = [
               {
                 source = "/var/netvm/netconf";
-                mountPoint = "/etc/NetworkManager/system-connections";
+                mountPoint = "/run/NetworkManager/system-connections";
                 tag = "netconf";
                 proto = "virtiofs";
                 socket = "netconf.sock";
