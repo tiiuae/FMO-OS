@@ -33,6 +33,7 @@
         nixpkgs.hostPlatform.system = configHost.nixpkgs.hostPlatform.system;
 
         microvm.hypervisor = "qemu";
+        microvm.qemu.machine = "q35";
 
         networking = {
           enableIPv6 = false;
@@ -53,8 +54,6 @@
 
         microvm.shares = [
           # Use host's /nix/store to reduce size of the image
-          # WAR: to enable -M q35 option need to share any fs or pcie devices
-          # WAR: otherwise machine is not able to start, why?
           {
             tag = "ro-store";
             source = "/nix/store";
