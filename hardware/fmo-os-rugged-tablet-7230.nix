@@ -66,6 +66,7 @@
         {
           users.users."ghaf".extraGroups = ["networkmanager"];
           networking = {
+            useDHCP = false;
             nat = {
               enable = true;
               internalIPs = [ "192.168.101.0/24" ];
