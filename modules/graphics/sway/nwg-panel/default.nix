@@ -113,6 +113,7 @@
 in {
 
   config =  lib.mkIf cfg.enable {
+    services.upower.enable = true;
     environment.etc."xdg/nwg-panel/config" = {
       text = panelConfig;
       # The UNIX file mode bits
