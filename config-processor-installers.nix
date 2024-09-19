@@ -71,7 +71,7 @@ let
           })
 
           # Configs for installation
-          {
+          ({lib, ...}: {
             installer.includeOSS = {
               enable = lib.mkDefault true;
               oss_list_fname = lib.mkDefault "${oss_list_name}";
@@ -79,7 +79,8 @@ let
                 name = "${os}-${variant}";
                 image = self.nixosConfigurations.${name};}) oss;
             };
-          }
+            services.registration-agent-laptop.createAllConfig = lib.mkForce false;
+          })
 
           # Installer app
           {
