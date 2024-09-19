@@ -66,6 +66,7 @@
         {
           users.users."ghaf".extraGroups = ["networkmanager"];
           networking = {
+            useDHCP = false;
             nat = {
               enable = true;
               internalIPs = [ "192.168.101.0/24" ];
@@ -80,6 +81,7 @@
               ];
             };
           }; # networking
+          systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
 
           services = {
             udev = {
@@ -229,6 +231,7 @@
         extraModules = [
         {
           users.users."ghaf".extraGroups = ["docker" "dialout"];
+          systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
           microvm = {
             mem = 4096;
             vcpu = 2;
