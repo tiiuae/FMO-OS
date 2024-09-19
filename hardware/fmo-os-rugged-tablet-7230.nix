@@ -49,6 +49,9 @@
               netvm = "/var/netvm/netconf/dpf.config";
             };
           }; # services.dynamic-portforwarding-service
+          fmo-dynamic-device-passthrough-service-host = {
+            enable = true;
+          }; # services.dynamic-device-passthrough-service-host
           fmo-config = {
             enable = true;
           }; # fmo-config
@@ -239,11 +242,12 @@
               hostname-path = "/var/lib/fogdata/hostname";
             }; # services.fmo-hostnam-service
             fmo-dynamic-device-passthrough = {
+              enable = true;
               devices = [
                 {
                   bus = "usb";
-                  vendorid = "0x1546";
-                  productid = "0x01a9";
+                  vendorid = "1546";
+                  productid = "01a9";
                 }
               ];
             }; # services.fmo-dynamic-device-passthrough

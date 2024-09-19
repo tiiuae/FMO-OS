@@ -6,7 +6,7 @@ let
   cfg = config.services.fmo-dynamic-device-passthrough;
 in {
   options.services.fmo-dynamic-device-passthrough = {
-    enable = mkEnableOption "FMO dynamic device passthrough service";
+    enable = mkEnableOption "FMO dynamic device passthrough devices";
 
     devices = mkOption {
       type = types.listOf types.attrs;
@@ -19,9 +19,5 @@ in {
         }
       '';
     };
-  };
-
-  config = mkIf cfg.enable {
-
   };
 }

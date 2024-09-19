@@ -14,5 +14,6 @@
     ./psk-distribution-vm
     ./registration-agent-laptop
     ./dynamic-device-passthrough-services
+    ./dynamic-device-passthrough-services-host
   ];
 }
