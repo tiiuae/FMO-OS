@@ -278,16 +278,6 @@
               enable = true;
               nssmdns = true;
             }; # services.avahi
-            registration-agent-laptop = {
-              enable = true;
-              run_on_boot = true;
-              certs_path = "/var/lib/fogdata/certs";
-              config_path = "/var/lib/fogdata";
-              token_path = "/var/lib/fogdata";
-              hostname_path = "/var/lib/fogdata";
-              ip_path = "/var/lib/fogdata";
-              post_install_path = "/var/lib/fogdata/certs";
-            }; # services.registration-agent-laptop
           }; # services
           networking.firewall.enable = false;
         }]; # extraModules
