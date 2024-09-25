@@ -34,10 +34,9 @@ pkgs.python310Packages.buildPythonApplication {
     rich
   ];
 
-  patches = [ ./ddp.patch ];
   src = builtins.fetchGit {
     url = "git@github.com:tiiuae/fmo-tool.git";
-    rev = "e797aad27578316945daa0b133058c1e753119ac";
-    ref = "refs/heads/main";
+    rev = "40ca851d4f51af7ecf48939394609c6520b5d549";
+    ref = "refs/heads/integrate_ddp";
   };
 }
