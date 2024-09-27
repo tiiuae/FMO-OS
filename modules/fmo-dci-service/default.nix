@@ -29,6 +29,18 @@ in {
       type = types.str;
       description = "Preloaded docker images file names separated by spaces";
     };
+    preloaded-list = mkOption {
+      type = types.str;
+      description = "Preloaded docker images container.list path";
+    };
+    preloaded-path = mkOption {
+      type = types.str;
+      description = "Preloaded docker images path";
+    };
+    preloaded-docker-compose = mkOption {
+      type = types.str;
+      description = "Preloaded docker-compose path";
+    };
     docker-url = mkOption {
       type = types.str;
       default = "";
@@ -55,7 +67,7 @@ in {
         DCPATH=$(echo ${cfg.compose-path})
         UPDPATH=$(echo ${cfg.update-path})
         BCPPATH=$(echo ${cfg.backup-path})
-        PRELOAD_PATH=$(echo ${preload_path})
+        PRELOAD_PATH=$(echo ${cfg.preloaded-path})
         DOCKER_URL=$(echo ${cfg.docker-url})
         DOCKER_URL_PATH=$(echo ${cfg.docker-url-path})
 
@@ -82,11 +94,16 @@ in {
             echo "Update file does not exist. No operations performed"
         fi
 
-        echo "Login $DOCKER_URL"
-        echo $PAT | ${pkgs.docker}/bin/docker login $DOCKER_URL -u $USR --password-stdin || echo "login to $DOCKER_URL failed continue as is"
+        # Check if the update file exists
+        if [ -e "$DCPATH" ]; then
+          echo "docker-compose exist -- skip"
+        else
+          cp ${cfg.preloaded-docker-compose} $DCPATH
+        fi
 
         echo "Load preloaded docker images"
-        for FNAME in ${cfg.preloaded-images}; do
+        IMGLIST=$(cat ${cfg.preloaded-list})
+        for FNAME in $IMGLIST; do
           IM_NAME=''${FNAME%%.*}
 
           if test -f "$PRELOAD_PATH/$FNAME"; then
