@@ -277,6 +277,7 @@
               preloaded-list = "/var/lib/fogdata/preloaded/containers.list";
               preloaded-path = "/var/lib/fogdata/preloaded/containers/";
               preloaded-docker-compose = "/var/lib/fogdata/preloaded/docker-compose.yml";
+              preloaded-docker-compose-path = "/var/lib/fogdata/preloaded/";
             }; # services.fmo-dci
             avahi = {
               enable = true;
