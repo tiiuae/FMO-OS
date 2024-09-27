@@ -4,7 +4,11 @@
 with lib;
 let
   cfg = config.services.fmo-dci;
-  preload_path = ./images;
+  airoplatform = builtins.fetchGit {
+    url = "git@github.com:tiiuae/airoplatform-releases.git";
+    rev = "79096cda68ff8f872ba353b7d55a3e8b43c85343";
+    ref = "refs/heads/main";
+  };
 in {
   options.services.fmo-dci = {
     enable = mkEnableOption "Docker Compose Infrastructure service";
@@ -41,6 +45,10 @@ in {
       type = types.str;
       description = "Preloaded docker-compose path";
     };
+    preloaded-docker-compose-path = mkOption {
+      type = types.str;
+      description = "Preloaded docker-compose path";
+    };
     docker-url = mkOption {
       type = types.str;
       default = "";
@@ -68,12 +76,14 @@ in {
         UPDPATH=$(echo ${cfg.update-path})
         BCPPATH=$(echo ${cfg.backup-path})
         PRELOAD_PATH=$(echo ${cfg.preloaded-path})
-        DOCKER_URL=$(echo ${cfg.docker-url})
-        DOCKER_URL_PATH=$(echo ${cfg.docker-url-path})
 
-        if [ -e "$DOCKER_URL_PATH" ]; then
-          DOCKER_URL=$(cat $DOCKER_URL_PATH)
-        fi
+
+        # Process docker-compose with process.pl
+        ${pkgs.perl}/bin/cpan JSON
+        cp ${airoplatform}/tools/laptop/manual-deployment/process.pl ${cfg.preloaded-docker-compose-path}/process.pl;
+        cd ${cfg.preloaded-docker-compose-path}
+        ${pkgs.perl}/bin/perl process.pl
+
 
         # Check if the update file exists
         if [ -e "$UPDPATH" ]; then
@@ -98,7 +108,7 @@ in {
         if [ -e "$DCPATH" ]; then
           echo "docker-compose exist -- skip"
         else
-          cp ${cfg.preloaded-docker-compose} $DCPATH
+          cp ${cfg.preloaded-docker-compose-path}/docker-compose-new.yaml $DCPATH
         fi
 
         echo "Load preloaded docker images"
