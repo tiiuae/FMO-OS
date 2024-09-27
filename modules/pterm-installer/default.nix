@@ -75,8 +75,8 @@ in
         name = "ghaf-installer";
         src = builtins.fetchGit {
           url = "https://github.com/tiiuae/FMO-OS-Installer.git";
-          rev = "a7db48bd46841b1c94babc80946626f4cc8416f7";
-          ref = "refs/heads/main";
+          rev = "1575fdfb9cfa39aba75e67bcdf3cb4989e7de11c";
+          ref = "refs/heads/mvp1";
         };
         vendorSha256 = "sha256-MKMsvIP8wMV86dh9Y5CWhgTQD0iRpzxk7+0diHkYBUo=";
         proxyVendor=true;

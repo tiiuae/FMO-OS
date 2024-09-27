@@ -273,6 +273,10 @@
               preloaded-images = "tii-offline-map-data-loader.tar.gz";
               docker-url = "cr.airoplatform.com";
               docker-url-path = "/var/lib/fogdata/cr.url";
+
+              preloaded-list = "/var/lib/fogdata/preloaded/containers.list";
+              preloaded-path = "/var/lib/fogdata/preloaded/containers/";
+              preloaded-docker-compose = "/var/lib/fogdata/preloaded/docker-compose.yml";
             }; # services.fmo-dci
             avahi = {
               enable = true;
