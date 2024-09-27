@@ -4,11 +4,6 @@
 with lib;
 let
   cfg = config.services.fmo-dci;
-  airoplatform = builtins.fetchGit {
-    url = "git@github.com:tiiuae/airoplatform-releases.git";
-    rev = "79096cda68ff8f872ba353b7d55a3e8b43c85343";
-    ref = "refs/heads/main";
-  };
 in {
   options.services.fmo-dci = {
     enable = mkEnableOption "Docker Compose Infrastructure service";
@@ -76,13 +71,31 @@ in {
         UPDPATH=$(echo ${cfg.update-path})
         BCPPATH=$(echo ${cfg.backup-path})
         PRELOAD_PATH=$(echo ${cfg.preloaded-path})
+        ROOT="/var/lib/fogdata"
 
 
-        # Process docker-compose with process.pl
-        ${pkgs.perl}/bin/cpan JSON
-        cp ${airoplatform}/tools/laptop/manual-deployment/process.pl ${cfg.preloaded-docker-compose-path}/process.pl;
-        cd ${cfg.preloaded-docker-compose-path}
-        ${pkgs.perl}/bin/perl process.pl
+        # Process docker-compose with sed
+        # Read file contents into variables
+        device_id_file_contents=$(cat $ROOT/certs/device_id.txt)
+        ip_address=$(cat $ROOT/ip-address)
+        hostname=$(cat $ROOT/hostname)
+
+        # Extract 'id' from the JSON device_id_file_contents using jq (JSON parser)
+        device_id=$(echo "$device_id_file_contents" | ${pkgs.jq}/bin/jq -r '.id')
+
+        # Define the template parameters as shell variables
+        leaf_config="$ROOT/certs/leaf.conf"
+        utm_secret_file="$ROOT/certs/utm-client-secret"
+        rabbit_mq_secret_file="$ROOT/certs/rabbit-mq-secret"
+
+        # Perform replacements on the template file
+        ${pkgs.gnused}/bin/sed -e "s|{{device-id}}|$device_id|g" \
+            -e "s|{{ip-address}}|$ip_address|g" \
+            -e "s|{{hostname}}|$hostname|g" \
+            -e "s|{{leaf-config}}|$leaf_config|g" \
+            -e "s|{{utm-secret-file}}|$utm_secret_file|g" \
+            -e "s|{{rabbit-mq-secret-file}}|$rabbit_mq_secret_file|g" \
+            ${cfg.preloaded-docker-compose} > ${cfg.preloaded-docker-compose-path}/docker-compose-new.yaml
 
 
         # Check if the update file exists
