@@ -97,6 +97,15 @@ in {
             -e "s|{{rabbit-mq-secret-file}}|$rabbit_mq_secret_file|g" \
             ${cfg.preloaded-docker-compose} > ${cfg.preloaded-docker-compose-path}/docker-compose-new.yaml
 
+        # Perform replacements on the template file
+        ${pkgs.gnused}/bin/sed -e "s|{{device-id}}|$device_id|g" \
+            -e "s|{{ip-address}}|$ip_address|g" \
+            -e "s|{{hostname}}|$hostname|g" \
+            -e "s|{{leaf-config}}|$leaf_config|g" \
+            -e "s|{{utm-secret-file}}|$utm_secret_file|g" \
+            -e "s|{{rabbit-mq-secret-file}}|$rabbit_mq_secret_file|g" \
+            ${cfg.preloaded-docker-compose-path}/leaf.conf > ${cfg.preloaded-docker-compose-path}/leaf-new.conf
+
 
         # Check if the update file exists
         if [ -e "$UPDPATH" ]; then
@@ -117,11 +126,19 @@ in {
             echo "Update file does not exist. No operations performed"
         fi
 
-        # Check if the update file exists
+        # Check if the docker-compose file exists
         if [ -e "$DCPATH" ]; then
           echo "docker-compose exist -- skip"
         else
           cp ${cfg.preloaded-docker-compose-path}/docker-compose-new.yaml $DCPATH
+        fi
+
+        # Check if the leaf.conf file exists
+        LPATH="/var/lib/fogdata/certs/leaf.conf"
+        if [ -e "$LPATH" ]; then
+          echo "leaf.conf exist -- skip"
+        else
+          cp ${cfg.preloaded-docker-compose-path}/leaf-new.conf $LPATH
         fi
 
         echo "Load preloaded docker images"
