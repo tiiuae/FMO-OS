@@ -7,7 +7,11 @@
     name = "fmo-os-rugged-laptop-7330";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
+    release = "v1.0.0a";
 
+    fmo-system = {
+      RAversion = "v0.8.4";
+    };
     systemPackages = [
       "vim"
       "tcpdump"
@@ -36,8 +40,20 @@
 
         services = {
           fmo-psk-distribution-service-host = {
-              enable = true;
-          };
+            enable = true;
+          }; # fmo-psk-distribution-service-host
+          fmo-dynamic-portforwarding-service-host = {
+            enable = true;
+            config-paths = {
+              netvm = "/var/netvm/netconf/dpf.config";
+            };
+          }; # services.dynamic-portforwarding-service
+          fmo-dynamic-device-passthrough-service-host = {
+            enable = true;
+          }; # services.dynamic-device-passthrough-service-host
+          fmo-config = {
+            enable = true;
+          }; # fmo-config
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
@@ -100,12 +116,13 @@
 
             fmo-psk-distribution-service-vm = {
               enable = true;
-            };
+            }; # fmo-psk-distribution-service-vm
 
-            portforwarding-service = {
+            dynamic-portforwarding-service = {
               enable = true;
               ipaddress = "192.168.100.12";
               ipaddress-path = "/etc/NetworkManager/system-connections/ip-address";
+              config-path = "/etc/NetworkManager/system-connections/dpf.config";
               configuration = [
                 {
                   dip = "192.168.101.11";
@@ -156,7 +173,7 @@
                   proto = "tcp";
                 }
               ];
-            }; # services.portforwarding-service;
+            }; # services.dynamic-portforwarding-service
           }; # services
 
           microvm = {
@@ -264,6 +281,16 @@
               enable = true;
               hostname-path = "/var/lib/fogdata/hostname";
             }; # services.fmo-hostnam-service
+            fmo-dynamic-device-passthrough = {
+              enable = true;
+              devices = [
+                {
+                  bus = "usb";
+                  vendorid = "1546";
+                  productid = "01a9";
+                }
+              ];
+            }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
               enable = true;
               compose-path = "/var/lib/fogdata/docker-compose.yml";

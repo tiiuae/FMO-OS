@@ -29,6 +29,7 @@
         nixpkgs.hostPlatform.system = configHost.nixpkgs.hostPlatform.system;
 
         microvm.hypervisor = "qemu";
+        #microvm.optimize.enable = false;
 
         networking = {
           enableIPv6 = false;
@@ -45,6 +46,11 @@
             id = "vm-${vmconf.name}";
             mac = "${vmconf.macaddr}";
           }
+        ];
+
+        microvm.qemu.extraArgs = [
+          "-device"
+          "qemu-xhci"
         ];
 
         microvm.shares = [

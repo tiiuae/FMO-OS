@@ -9,20 +9,14 @@
   nixos-hardware,
   nixpkgs,
   microvm,
-}: {
-  sysconf,
-}:
+}: sysconf:
 let
-  updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
 
   oss = sysconf.oss;
   oss_list_name = "installer_os_list";
   oss_list_path = "/etc/${oss_list_name}";
 
-  installerconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./installers sysconf.extend) ).sysconf sysconf
-               else sysconf;
-
+  installerconf = sysconf;
 
   installerApp = inst_app: let
     installers = (builtins.removeAttrs inst_app ["name"]) //
@@ -74,7 +68,7 @@ let
           addSystemPackages
 
           {
-            isoImage.squashfsCompression = "lz4"; 
+            isoImage.squashfsCompression = "lz4";
           }
         ]
         ++ (import ./modules/fmo-module-list.nix)

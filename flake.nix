@@ -28,7 +28,6 @@
     nixos-generators = ghafOS.inputs.nixos-generators;
     nixos-hardware = ghafOS.inputs.nixos-hardware;
     microvm = ghafOS.inputs.microvm;
-
     systems = with flake-utils.lib.system; [
       x86_64-linux
     ];
@@ -39,7 +38,21 @@
         lib = final;
       };
     });
-
+    
+    hwConfigs = [
+      (import ./hardware/fmo-os-rugged-laptop-7330.nix)
+      (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
+      (import ./hardware/fmo-os-rugged-tablet-7230.nix)
+      (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
+    ];
+    instConfigs = [
+      (import ./installers/fmo-os-installer.nix)
+      (import ./installers/fmo-os-installer-public.nix)
+    ];
+    updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
+    inheritConfig = confPath: { sysconf }: if lib.hasAttr "extend" sysconf
+          then updateAttrs false (import (lib.path.append confPath sysconf.extend) ).sysconf sysconf
+          else sysconf;
     generateHwConfig = import ./config-processor-hardware.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
     generateInstConfig = import ./config-processor-installers.nix {inherit nixpkgs ghafOS self nixos-hardware nixos-generators lib microvm;};
   in
@@ -63,15 +76,6 @@
 
         formatter = pkgs.alejandra;
       }))
-    ]
-    ++ map generateHwConfig [
-      (import ./hardware/fmo-os-rugged-laptop-7330.nix)
-      (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
-      (import ./hardware/fmo-os-rugged-tablet-7230.nix)
-      (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
-    ]
-    ++ map generateInstConfig [
-      (import ./installers/fmo-os-installer.nix)
-      (import ./installers/fmo-os-installer-public.nix)
-    ]);
+    ] ++ map generateHwConfig   (map (conf: inheritConfig ./hardware conf)   hwConfigs)
+      ++ map generateInstConfig (map (conf: inheritConfig ./installers conf) instConfigs));
 }

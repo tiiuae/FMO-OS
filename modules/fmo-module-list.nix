@@ -18,4 +18,8 @@
   ../utils/write-to-file
   ./fmo-psk-distribution-host
   ./fmo-psk-distribution-vm
+  ./dynamic-portforwarding-service
+  ./dynamic-portforwarding-service-host
+  ./dynamic-device-passthrough-services
+  ./dynamic-device-passthrough-services-host
 ]
