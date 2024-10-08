@@ -5,16 +5,12 @@
   self,
   lib,
   ghafOS,
-}: {
-  sysconf,
-}:
+}: sysconf:
 let
-  inherit (import ./utils {inherit lib self ghafOS;}) updateAttrs updateHostConfig addCustomLaunchers addSystemPackages importvm;
+  inherit (import ./utils {inherit lib self ghafOS;}) 
+      updateAttrs updateHostConfig addCustomLaunchers addSystemPackages importvm generateFMOToolConfig;
 
-  targetconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./hardware sysconf.extend) ).sysconf sysconf
-               else sysconf;
-
+  targetconf = sysconf;
   name = targetconf.name;
   system = "x86_64-linux";
 
@@ -47,10 +43,11 @@ let
             ];
           }
         ]
-        ++ (addCustomLaunchers targetconf.launchers)
-        ++ (addSystemPackages  targetconf.systemPackages)
-        ++ (importvm           targetconf.vms)
-        ++ (updateHostConfig   targetconf)
+        ++ (addCustomLaunchers    targetconf.launchers)
+        ++ (addSystemPackages     targetconf.systemPackages)
+        ++ (importvm              targetconf.vms)
+        ++ (updateHostConfig      targetconf)
+        ++ (generateFMOToolConfig targetconf)
         ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
     };
   in {
