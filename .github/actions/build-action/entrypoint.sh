@@ -81,6 +81,9 @@ echo "::endgroup::"
 
 echo "::group::Nix collect garbage"
 nix-collect-garbage
+
+echo "delete everything, except .iso"
+find /nix/store/ -type f ! -name "*.iso" -delete
 echo "::endgroup::"
 
 echo "::group::Copy results"
