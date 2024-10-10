@@ -7,6 +7,7 @@
   ./custom-packages
   ./graphics
   ./includeOSS
+  ./google-chrome
   ./fmo-dci-service
   ./simple-installer
   ./pterm-installer

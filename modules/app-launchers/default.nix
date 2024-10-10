@@ -12,9 +12,9 @@
     launcers_description = {
         chromium = {
           name = "Chromium";
-          path = "${pkgs.chromium}/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland ${extraArgs}";
-          icon = "${pkgs.chromium}/share/icons/hicolor/48x48/apps/chromium.png";
-          package = [pkgs.chromium];
+          path = "${pkgs.google-chrome}/bin/google-chrome --enable-features=UseOzonePlatform --ozone-platform=wayland ${extraArgs}";
+          icon = "${pkgs.google-chrome}/share/icons/hicolor/48x48/apps/google-chrome.png";
+          package = [pkgs.google-chrome];
         };
         terminal = {
           name = "Terminal";
