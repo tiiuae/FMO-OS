@@ -4,6 +4,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   cfg = config.ghaf.profiles.graphics;
@@ -11,6 +12,6 @@ in
   with lib; {
     config.ghaf.graphics = mkIf cfg.enable {
        labwc.enable = lib.mkForce false;
-       sway.enable = true;
+       sway.enable = false;
      };
   }

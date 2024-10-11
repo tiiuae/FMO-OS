@@ -7,6 +7,8 @@
   ...
 }:{
   imports = [
+    ./plasma6
+    ./plasma6/plasma6.nix
     ./sway/sway.nix
     ./sway/sway.ini.nix
     ./fonts.nix
