@@ -79,8 +79,8 @@
 window#waybar {
 	background-color: @background_color;
 	color: @text_color;
-	transition-property: background-color;
-	transition-duration: .5s;
+	/*transition-property: background-color;
+	transition-duration: .5s;*/
 }
 
 window#waybar.hidden {

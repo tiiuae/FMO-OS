@@ -64,7 +64,8 @@ with lib; let
 
       modules-right = [
         "sway/language"
-        "group/network"
+        "network"
+        "group/battery"
         "group/hardware"
         "tray"
         "clock"
@@ -72,7 +73,7 @@ with lib; let
       ];
 
       "custom/menu" = {
-        format = "";
+        format = "<span size='large'></span>";
         on-click = "swaymsg exec \\$menu";
         tooltip = false;
       };
@@ -84,7 +85,7 @@ with lib; let
       };
 
       "idle_inhibitor" = {
-        format = "{icon}";
+        format = "<span size='large'>{icon}</span>";
         format-icons = {
           activated = "";
           deactivated = "";
@@ -93,7 +94,7 @@ with lib; let
 
       "custom/clipboard" = {
         tooltip = false;
-        format = "";
+        format = "<span size='large'></span>";
         interval = "once";
         #return-type = "json";
         on-click = "swaymsg -q exec '$clipboard'; waybar-signal clipboard";
@@ -119,7 +120,7 @@ with lib; let
       };
 
       "sway/language" = {
-        format = " {short}";
+        format = "<span size='large'> {short}</span>";
         tooltip-format = "{long}";
         on-click = "swaymsg input type:keyboard xkb_switch_layout next";
         on-scroll-up = "swaymsg input type:keyboard xkb_switch_layout next";
@@ -176,7 +177,6 @@ with lib; let
         interval = 15;
         format = "{icon} {capacity}%";
         format-charging = "󰢟 {capacity}%";
-        format-plugged = " {capacity}%";
         format-alt = "{icon} {time}";
         format-icons = [
           ""
@@ -185,7 +185,6 @@ with lib; let
           ""
           ""
         ];
-        tooltip-format = "{timeTo} {power}W";
       };
       "battery#bat2" = {
         bat = "BAT1";
@@ -239,7 +238,7 @@ with lib; let
       };
 
       "custom/power" = {
-        format = "⏻";
+        format = "<span size='large'>⏻</span>";
         tooltip = false;
         on-click = "swaymsg exec \\$powermenu";
       };
