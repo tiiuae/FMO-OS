@@ -1,0 +1,206 @@
+/* =============================================================================
+ *
+ * Waybar configuration
+ *
+ * Configuration reference: https://github.com/Alexays/Waybar/wiki/Configuration
+ *
+ * =========================================================================== */
+
+@define-color color0  #141a1b;
+@define-color color1  #282a2b;
+@define-color color2  #3b758b;
+@define-color color3  #41535b;
+@define-color color4  #43a5d5;
+@define-color color5  #d6d6d6;
+@define-color color6  #f8f8f2;
+@define-color color7  #ffffff;
+@define-color color8  #cd3f45;
+@define-color color9  #db7b55;
+@define-color color10 #e6cd69;
+@define-color color11 #9fca56;
+@define-color color12 #bd93f9;
+@define-color color13 #55b5db;
+@define-color color14 #a074c4;
+@define-color color15 #8a553f;
+
+@define-color background_color @color0;
+@define-color bright_text_color @color7;
+@define-color dim_text_color @color5;
+@define-color text_color @color6;
+@define-color selection_color @color1;
+@define-color accent_color @color12;
+@define-color alternative_color @color13;
+@define-color warning_color @color9;
+@define-color error_color @color8;
+
+/* -----------------------------------------------------------------------------
+ * Keyframes
+ * -------------------------------------------------------------------------- */
+
+ @keyframes blink-warning {
+	70% {
+		color: @background_color;
+	}
+
+	to {
+		color: @background_color;
+		background-color: @warning_color;
+	}
+}
+
+@keyframes blink-critical {
+	70% {
+		color: @background_color;
+	}
+
+	to {
+		color: @background_color;
+		background-color: @error_color;
+	}
+}
+
+/* -----------------------------------------------------------------------------
+ * Base styles
+ * -------------------------------------------------------------------------- */
+
+/* Reset all styles */
+* {
+	border: none;
+	border-radius: 0;
+	min-height: 0;
+	margin: 0;
+	padding: 0;
+	font-family: "Font Awesome 5 Free", "Hack", "Roboto Mono", sans-serif;
+	font-size: 14px;
+	font-weight: 400;
+}
+
+/* The whole bar */
+window#waybar {
+	background-color: @background_color;
+	color: @text_color;
+	transition-property: background-color;
+	transition-duration: .5s;
+}
+
+window#waybar.hidden {
+	opacity: 0.2;
+}
+
+label#window {
+	text-shadow: 0px 0px 3px @color1;
+}
+
+.module {
+	margin: 5px;
+}
+
+/* Each module */
+#custom-menu,
+#workspaces,
+#idle_inhibitor,
+#custom-clipboard,
+#taskbar,
+#mode,
+#language,
+#network,
+#memory,
+#cpu,
+#battery,
+#backlight,
+#tray,
+#clock,
+#custom-power {
+	padding-left: 10px;
+	padding-right: 10px;
+	color: @text_color;
+	background-color: @background_color;
+}
+
+/* -----------------------------------------------------------------------------
+ * Module styles
+ * -------------------------------------------------------------------------- */
+
+#workspaces button {
+	border-top: 2px solid transparent;
+	/* To compensate for the top border and still have vertical centering */
+	padding-bottom: 2px;
+	padding-left: 10px;
+	padding-right: 10px;
+	color: @text_color;
+}
+
+#workspaces button.focused {
+	border-color: @accent_color;
+}
+
+#workspaces button.urgent {
+	border-color: @error_color;
+}
+
+#workspaces button:hover {
+	color: @alternative_color;
+}
+
+#network.disconnected {
+	color: @warning_color;
+}
+
+#memory {
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+}
+
+#memory.warning {
+	color: @warning_color;
+}
+
+#memory.critical {
+	color: @error_color;
+	animation-name: blink-critical;
+	animation-duration: 2s;
+}
+
+
+#cpu {
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+}
+
+#cpu.warning {
+	color: @warning_color;
+}
+
+#cpu.critical {
+	color: @error_color;
+}
+
+#battery {
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+}
+
+#battery.warning {
+	color: @warning_color;
+}
+
+#battery.critical {
+	color: @error_color;
+}
+
+#battery.warning.discharging {
+	animation-name: blink-warning;
+	animation-duration: 3s;
+}
+
+#battery.critical.discharging {
+	animation-name: blink-critical;
+	animation-duration: 2s;
+}
+
+#clock {
+	font-weight: bold;
+}

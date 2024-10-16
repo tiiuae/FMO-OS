@@ -1,0 +1,9 @@
+/* Dracula theme */
+* {
+    background:     #1e1f29;
+    background-alt: #282a36;
+    foreground:     #f8f8f2;
+    selected:       #bd93f9;
+    active:         #6272a4;
+    urgent:         #ff5555;
+}

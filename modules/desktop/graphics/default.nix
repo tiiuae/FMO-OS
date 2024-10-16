@@ -5,10 +5,13 @@
   config,
   lib,
   ...
-}:{
+}: {
   imports = [
     ./sway/sway.nix
-    ./sway/sway.ini.nix
+    #./sway/sway.ini.nix
+    ./sway/rofi
+    ./sway/waybar
+    ./sway/wlogout
     ./fonts.nix
   ];
 }
