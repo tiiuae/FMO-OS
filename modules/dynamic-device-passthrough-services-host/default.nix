@@ -19,9 +19,7 @@ in {
 
     systemd.services."fmo-dynamic-device-passthrough-service" = {
       script = ''
-        if ! [ -f /var/host/vmddp.conf ]; then
-          ${pkgs.fmo-tool}/bin/fmo-tool ddp generate
-        fi
+        ${pkgs.fmo-tool}/bin/fmo-tool ddp generate
         ${pkgs.vhotplug}/bin/vhotplug -a -c /var/host/vmddp.conf
       '';
       serviceConfig = {
