@@ -43,7 +43,7 @@ pkgs.python3Packages.buildPythonApplication {
 
   src = builtins.fetchGit {
     url = "git@github.com:tiiuae/fmo-tool.git";
-    rev = "40ca851d4f51af7ecf48939394609c6520b5d549";
-    ref = "refs/heads/integrate_ddp";
+    rev = "e286128004d32a37c69a0ea6cae73b872e715a03";
+    ref = "refs/heads/main";
   };
 }
