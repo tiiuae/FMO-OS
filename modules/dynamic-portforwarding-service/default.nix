@@ -46,6 +46,8 @@ in {
     systemd.services.fmo-dynamic-portforwarding-service = {
       script = ''
           IP=$(${pkgs.gawk}/bin/gawk '{print $1}' ${cfg.ipaddress-path} || echo ${cfg.ipaddress})
+          sync
+          lines=$(cat ${cfg.config-path})
 
           while IFS= read -r line; do
             SRC_IP=$(echo $line | ${pkgs.gawk}/bin/gawk '{print $1}')
@@ -59,7 +61,7 @@ in {
             echo "Apply a new port forwarding: $SRC_IP:$SRC_PORT to $DST_IP:$DST_PORT proto: $PROTO"
             ${pkgs.iptables}/bin/iptables -I INPUT -p $PROTO --dport $SRC_PORT -j ACCEPT
             ${pkgs.iptables}/bin/iptables -t nat -I PREROUTING -p $PROTO -d $SRC_IP --dport $SRC_PORT -j DNAT --to-destination $DST_IP:$DST_PORT
-          done < ${cfg.config-path}
+          done <<< "$lines"
       '';
 
       wantedBy = ["network.target"];
