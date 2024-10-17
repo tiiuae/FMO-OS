@@ -253,13 +253,22 @@
                 proto = "virtiofs";
                 socket = "fogdata.sock";
               }
+              {
+                tag = "ssh-public-key";
+                source = "/run/ssh-public-key";
+                mountPoint = "/run/ssh-public-key";
+              }
             ]; # microvm.shares
           };# microvm
+          fileSystems."/run/ssh-public-key".options = ["ro"];
           services = {
             fmo-hostname-service = {
               enable = true;
               hostname-path = "/var/lib/fogdata/hostname";
             }; # services.fmo-hostnam-service
+            fmo-psk-distribution-service-vm = {
+              enable = true;
+            }; # fmo-psk-distribution-service-vm
             fmo-dynamic-device-passthrough = {
               enable = true;
               devices = [
