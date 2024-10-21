@@ -6,6 +6,8 @@
 _: {
   nixpkgs.overlays = [
     # WAR: libsecret should be removed when the upstream error is fixed
+    (import ./fmo-adapter)
+    (import ./fmo-tool)
     (import ./libsecret)
     (import ./nmLauncher)
     (import ./nwg-bar)
@@ -15,7 +17,6 @@ _: {
     (import ./sway-scripts)
     (import ./screen-recorder)
     (import ./terminator)
-    (import ./fmo-tool)
     (import ./vhotplug)
   ];
 }

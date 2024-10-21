@@ -25,6 +25,16 @@
           }; # services
         }]; # extraModules
       }; # dockervm
+      adaptervm = {
+        extraModules = [
+        {
+          services = {
+            registration-agent-laptop = {
+              enable = false;
+            }; # services.registration-agent-laptop
+          }; # services
+        }]; # extraModules
+      }; # adaptervm
     }; # vms
   }; # sysconf
 }

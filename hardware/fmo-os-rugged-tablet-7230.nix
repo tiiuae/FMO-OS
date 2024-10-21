@@ -96,6 +96,12 @@
                 "ethint0"
               ];
             };
+            # Route FC sec-udp traffic to adaptervm
+            interfaces.ethint0.ipv4.routes = [{
+              address = "192.168.133.0";
+              prefixLength = 24;
+              via = "192.168.101.12";
+            }];
           }; # networking
           systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
 
@@ -371,9 +377,14 @@
         ipaddr = "192.168.101.12";
         defaultgw = "192.168.101.1";
         systemPackages = [
-          "vim"
-          "tcpdump"
           "gpsd"
+          "jq"
+          "mustache-go"
+          "opensc"
+          "openssl"
+          "tcpdump"
+          "vim"
+          "yubico-piv-tool"
         ]; # systemPackages
         extraModules = [
         {
@@ -404,7 +415,7 @@
                 mountPoint = "/var/lib/fogdata";
                 tag = "fogdatafs";
                 proto = "virtiofs";
-                socket = "fogdata.sock";
+                socket = "fogdata-adaptervm.sock";
               }
             ]; # microvm.shares
           };# microvm
@@ -417,7 +428,7 @@
             }; # services.udev
             fmo-hostname-service = {
               enable = true;
-              hostname-path = "/var/lib/fogdata/hostname";
+              hostname-override = "adaptervm";
             }; # services.fmo-hostnam-service
             fmo-dynamic-device-passthrough = {
               enable = true;
@@ -430,7 +441,8 @@
               ];
             }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
-              enable = false;
+              enable = true;
+              exec-compose = "no";
               compose-path = "/var/lib/fogdata/docker-compose.yml";
               update-path = "/var/lib/fogdata/docker-compose.yml.new";
               backup-path = "/var/lib/fogdata/docker-compose.yml.backup";
@@ -445,7 +457,7 @@
             }; # services.avahi
             registration-agent-laptop = {
               enable = false;
-              run_on_boot = true;
+              run_on_boot = false;
               certs_path = "/var/lib/fogdata/certs";
               config_path = "/var/lib/fogdata";
               token_path = "/var/lib/fogdata";
