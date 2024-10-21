@@ -61,6 +61,7 @@
               # Add usb to kvm group
               SUBSYSTEM=="usb", ATTR{idVendor}=="0525", ATTR{idProduct}=="a4a2", GROUP+="kvm"
               SUBSYSTEM=="usb", ATTR{idVendor}=="1546", ATTR{idProduct}=="01a9", GROUP+="kvm"
+              SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", GROUP+="kvm"
             '';
           }; # services.udev
         }; # services
@@ -261,6 +262,8 @@
               "-usb"
               "-device"
               "usb-host,vendorid=0x1546,productid=0x01a9"
+              "-device"
+              "usb-host,vendorid=0x1050,productid=0x0407"
             ]; # microvm.qemu.extraArgs
             volumes = [
               {
@@ -309,6 +312,12 @@
           };# microvm
           fileSystems."/run/ssh-public-key".options = ["ro"];
           services = {
+            udev = {
+              extraRules = ''
+                # Add usb to kvm group
+                SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", MODE="0666"
+              '';
+            }; # services.udev
             fmo-hostname-service = {
               enable = true;
               hostname-path = "/var/lib/fogdata/hostname";
@@ -354,6 +363,100 @@
           networking.firewall.enable = false;
         }]; # extraModules
       }; # dockervm
+
+      adaptervm = {
+        enable = true;
+        name = "adaptervm";
+        macaddr = "02:00:00:01:01:03";
+        ipaddr = "192.168.101.12";
+        defaultgw = "192.168.101.1";
+        systemPackages = [
+          "vim"
+          "tcpdump"
+          "gpsd"
+        ]; # systemPackages
+        extraModules = [
+        {
+          users.users."ghaf".extraGroups = ["docker" "dialout"];
+          systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
+          microvm = {
+            mem = 4096;
+            vcpu = 2;
+            # WAR: Default microvm's way to passthrough usb devices is not working
+            # Lets use qemu.extraArgs for that
+            qemu.extraArgs = [
+              "-usb"
+              "-device"
+              "usb-host,vendorid=0x1546,productid=0x01a9"
+              "-device"
+              "usb-host,vendorid=0x1050,productid=0x0407"
+            ]; # microvm.qemu.extraArgs
+            volumes = [{
+              image = "/var/tmp/adaptervm.img";
+              mountPoint = "/var/lib/adapter";
+              size = 51200;
+              autoCreate = true;
+              fsType = "ext4";
+            }];# microvm.volumes
+            shares = [
+              {
+                source = "/var/fogdata";
+                mountPoint = "/var/lib/fogdata";
+                tag = "fogdatafs";
+                proto = "virtiofs";
+                socket = "fogdata.sock";
+              }
+            ]; # microvm.shares
+          };# microvm
+          services = {
+            udev = {
+              extraRules = ''
+                # Add usb to kvm group
+                SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", MODE="0666"
+              '';
+            }; # services.udev
+            fmo-hostname-service = {
+              enable = true;
+              hostname-path = "/var/lib/fogdata/hostname";
+            }; # services.fmo-hostnam-service
+            fmo-dynamic-device-passthrough = {
+              enable = true;
+              devices = [
+                {
+                  bus = "usb";
+                  vendorid = "1546";
+                  productid = "01a9";
+                }
+              ];
+            }; # services.fmo-dynamic-device-passthrough
+            fmo-dci = {
+              enable = false;
+              compose-path = "/var/lib/fogdata/docker-compose.yml";
+              update-path = "/var/lib/fogdata/docker-compose.yml.new";
+              backup-path = "/var/lib/fogdata/docker-compose.yml.backup";
+              pat-path = "/var/lib/fogdata/PAT.pat";
+              preloaded-images = "tii-offline-map-data-loader.tar.gz";
+              docker-url = "cr.airoplatform.com";
+              docker-url-path = "/var/lib/fogdata/cr.url";
+            }; # services.fmo-dci
+            avahi = {
+              enable = true;
+              nssmdns = true;
+            }; # services.avahi
+            registration-agent-laptop = {
+              enable = false;
+              run_on_boot = true;
+              certs_path = "/var/lib/fogdata/certs";
+              config_path = "/var/lib/fogdata";
+              token_path = "/var/lib/fogdata";
+              hostname_path = "/var/lib/fogdata";
+              ip_path = "/var/lib/fogdata";
+              post_install_path = "/var/lib/fogdata/certs";
+            }; # services.registration-agent-laptop
+          }; # services
+          networking.firewall.enable = false;
+        }]; # extraModules
+      }; # adaptervm
     }; # vms
   }; # system
 }
