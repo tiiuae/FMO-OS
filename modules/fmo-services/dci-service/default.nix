@@ -1,8 +1,12 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{ lib, pkgs, config, ... }:
-with lib;
-let
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.services.fmo-dci;
   preload_path = ./images;
 in {
@@ -49,7 +53,7 @@ in {
     virtualisation.docker.enable = true;
 
     systemd.services.fmo-dci = {
-    script = ''
+      script = ''
         USR=$(${pkgs.gawk}/bin/gawk '{print $1}' ${cfg.pat-path} || echo "")
         PAT=$(${pkgs.gawk}/bin/gawk '{print $2}' ${cfg.pat-path} || echo "")
         DCPATH=$(echo ${cfg.compose-path})
@@ -114,11 +118,9 @@ in {
       after = [
         "docker.service"
         "docker.socket"
-        # WAR: warning: fmo-dci.service is ordered after 'network-online.target' 
-        # but doesn't depend on it
-        # JIRA: FMO-44 for monitoring this issue.
         "network-online.target"
       ];
+      requires = ["network-online.target"];
 
       # TODO: restart always
       serviceConfig = {
