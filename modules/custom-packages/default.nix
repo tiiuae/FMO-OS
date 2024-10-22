@@ -13,6 +13,7 @@ _: {
     (import ./registration-agent)
     (import ./squeekboard)
     (import ./sway-scripts)
+    (import ./screen-recorder)
     (import ./terminator)
     (import ./fmo-tool)
     (import ./vhotplug)
