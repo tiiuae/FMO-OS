@@ -7,7 +7,7 @@
     name = "fmo-os-rugged-tablet-7230";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
-    release = "v1.0.0a";
+    release = "v1.1.0a";
 
     fmo-system = {
       RAversion = "v0.8.4";
