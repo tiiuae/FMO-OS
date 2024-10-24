@@ -12,8 +12,8 @@ set -euo pipefail
 
 # Check if Nix is already installed
 if nix_path="$(type -p nix || command -v nix)"; then
-        echo "Aborting: Nix is already installed at ${nix_path}"
-        exit
+    echo "Aborting: Nix is already installed at ${nix_path}"
+    exit
 fi
 
 echo "Installing Nix version ${NIX_VERSION}"
@@ -41,9 +41,9 @@ add_config "extra-nix-path = nixpkgs=flake:nixpkgs"
 add_config "trusted-users = root ${USER-}"
 
 # Add default NixOS binary cache
-add_config "substituters = https://cache.nixos.org/ https://cache.vedenemo.dev"
+add_config "substituters = https://cache.nixos.org/"
 add_config "trusted-substituters = https://cache.nixos.org/"
-add_config "trusted-public-keys = cache.vedenemo.dev:8NhplARANhClUSWJyLVk4WMyy1Wb4rhmWW2u8AejH9E= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+add_config "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
 add_config "substitute = true"
 
 # Optimize store disk usage
@@ -79,9 +79,9 @@ unset -f add_config
 
 # Nix installer flags
 installer_options=(
-        --nix-extra-conf-file "${workdir}/nix.conf"
-        --daemon
-        --yes
+    --nix-extra-conf-file "${workdir}/nix.conf"
+    --daemon
+    --yes
 )
 
 echo "Nix installer options:"
@@ -90,12 +90,12 @@ echo "${installer_options[*]}"
 # There is --retry-on-errors, but only newer curl versions support that
 curl_retries=5
 while ! curl -sS -o "${workdir}/install" -v --fail -L "https://releases.nixos.org/nix/nix-${NIX_VERSION}/install"; do
-        sleep 1
-        ((curl_retries--))
-        if [[ ${curl_retries} -le 0 ]]; then
-                echo "curl retries failed" >&2
-                exit 1
-        fi
+    sleep 1
+    ((curl_retries--))
+    if [[ ${curl_retries} -le 0 ]]; then
+        echo "curl retries failed" >&2
+        exit 1
+    fi
 done
 
 sh "${workdir}/install" "${installer_options[@]}"
