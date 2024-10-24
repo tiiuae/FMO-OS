@@ -149,15 +149,15 @@
                 }
                 {
                   dip = "192.168.101.11";
-                  dport = "4223";
-                  sport = "4223";
+                  dport = "7422";
+                  sport = "7422";
                   proto = "tcp";
                 }
                 {
                   dip = "192.168.101.11";
-                  dport = "4223";
-                  sport = "4223";
-                  proto = "udp";
+                  dport = "7423";
+                  sport = "7423";
+                  proto = "tcp";
                 }
                 {
                   dip = "192.168.101.11";
