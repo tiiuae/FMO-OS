@@ -96,12 +96,12 @@
                 "ethint0"
               ];
             };
-            # Route FC sec-udp traffic to adaptervm 
-            interfaces.mesh0.ipv4.routes = [{ 
-              address = "192.168.133.0"; 
-              prefixLength = 24; 
-              via = "192.168.101.12"; 
-            }]; 
+            # Route FC sec-udp traffic to adaptervm
+            interfaces.mesh0.ipv4.routes = [{
+              address = "192.168.133.0";
+              prefixLength = 24;
+              via = "192.168.101.12";
+            }];
           }; # networking
           systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
 
@@ -384,7 +384,8 @@
               ];
             }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
-              enable = false;
+              enable = true;
+              exec-compose = "no";
               compose-path = "/var/lib/fogdata/docker-compose.yml";
               update-path = "/var/lib/fogdata/docker-compose.yml.new";
               backup-path = "/var/lib/fogdata/docker-compose.yml.backup";

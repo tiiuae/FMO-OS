@@ -9,6 +9,11 @@ in {
   options.services.fmo-dci = {
     enable = mkEnableOption "Docker Compose Infrastructure service";
 
+    exec-compose = mkOption {
+      type = types.str;
+      default = "yes";
+      description = "Execute docker compose as part of the service";
+    };
     pat-path = mkOption {
       type = types.str;
       description = "Path to PAT .pat file";
@@ -49,7 +54,7 @@ in {
     virtualisation.docker.enable = true;
 
     systemd.services.fmo-dci = {
-    script = ''
+      script = ''
         USR=$(${pkgs.gawk}/bin/gawk '{print $1}' ${cfg.pat-path} || echo "")
         PAT=$(${pkgs.gawk}/bin/gawk '{print $2}' ${cfg.pat-path} || echo "")
         DCPATH=$(echo ${cfg.compose-path})
@@ -103,8 +108,10 @@ in {
           fi
         done
 
-        echo "Start docker-compose"
-        ${pkgs.docker-compose}/bin/docker-compose -f $DCPATH up
+        if [ "${cfg.exec-compose}" == "yes" ]; then
+          echo "Start docker-compose"
+          ${pkgs.docker-compose}/bin/docker-compose -f $DCPATH up
+        fi
       '';
 
       wantedBy = ["multi-user.target"];
