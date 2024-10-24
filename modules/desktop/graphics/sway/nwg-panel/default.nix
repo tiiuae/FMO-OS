@@ -91,8 +91,29 @@
     };
   };
 
+  Executors = {
+    executor-recording =  {
+      script =  "${pkgs.screenRecord}/bin/screenRecord";
+      tooltip-text =  "";
+      on-left-click =  "${pkgs.screenRecord}/bin/screenRecord s";
+      on-middle-click =  "";
+      on-right-click =  "";
+      on-scroll-up =  "";
+      on-scroll-down =  "";
+      root-css-name =  "";
+      css-name =  "";
+      icon-placement =  "left";
+      icon-size =  25;
+      interval =  1;
+      angle =  0.0;
+      sigrt =  34;
+      use-sigrt =  false;
+    };
+  };
+
   panel-top-modules = {
     modules-left = (mkLauncherModules config.ghaf.graphics.app-launchers.launchers);
+    modules-right = [ "tray" "executor-cpu" "executor-memory" "keyboard-layout" "executor-recording" ];
   };
 
   panel-bottom-modules = {
@@ -101,7 +122,7 @@
   };
 
   panelConfig = builtins.toJSON [
-                  (panelTopConfig // launcherIcons
+                  (panelTopConfig // launcherIcons // Executors
                     // panel-top-modules)
 
                   (panelBottomConfig // powerIcons // keyboardIcons // wsSwitchIcons

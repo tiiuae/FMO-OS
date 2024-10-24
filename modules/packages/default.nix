@@ -9,6 +9,7 @@ _: {
     (import ./nmLauncher)
     (import ./nwg-panel)
     (import ./registration-agent)
+    (import ./screen-recorder)
     (import ./squeekboard)
     (import ./sway-scripts)
     (import ./terminator)

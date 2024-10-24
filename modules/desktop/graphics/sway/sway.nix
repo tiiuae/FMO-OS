@@ -57,8 +57,10 @@ in
 
     # Refer in https://nixos.wiki/wiki/Sway
     #TODO: remove some unused apps
-    environment.systemPackages = with pkgs; [
-      alacritty # gpu accelerated terminal
+    environment.systemPackages = with pkgs; [ jq
+      screenRecord
+      wf-recorder
+      killall
       dbus-sway-environment
       configure-gtk
       wayland
