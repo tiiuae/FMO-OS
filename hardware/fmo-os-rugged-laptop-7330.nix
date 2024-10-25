@@ -179,7 +179,31 @@
               }
             ]; # microvm.devices
 
+            volumes = [
+              {
+                image = "/var/tmp/netvm_internal.img";
+                mountPoint = "/var/lib/internal";
+                size = 10240;
+                autoCreate = true;
+                fsType = "ext4";
+              }
+            ];# microvm.volumes
+
             shares = [
+              {
+                source = "/var/vms_shares/common";
+                mountPoint = "/var/vms_share/common";
+                tag = "common_share_netvm";
+                proto = "virtiofs";
+                socket = "common_share_netvm.sock";
+              }
+              {
+                source = "/var/vms_shares/netvm";
+                mountPoint = "/var/vms_share/host";
+                tag = "netvm_share";
+                proto = "virtiofs";
+                socket = "netvm_share.sock";
+              }
               {
                 source = "/var/netvm/netconf";
                 mountPoint = "/etc/NetworkManager/system-connections";
@@ -225,14 +249,37 @@
                 path = "vendorid=0x1546,productid=0x01a9";
               }
             ]; # microvm.devices
-            volumes = [{
-              image = "/var/tmp/dockervm.img";
-              mountPoint = "/var/lib/docker";
-              size = 51200;
-              autoCreate = true;
-              fsType = "ext4";
-            }];# microvm.volumes
+            volumes = [
+              {
+                image = "/var/tmp/dockervm_internal.img";
+                mountPoint = "/var/lib/internal";
+                size = 10240;
+                autoCreate = true;
+                fsType = "ext4";
+              }
+              {
+                image = "/var/tmp/dockervm.img";
+                mountPoint = "/var/lib/docker";
+                size = 51200;
+                autoCreate = true;
+                fsType = "ext4";
+              }
+            ];# microvm.volumes
             shares = [
+              {
+                source = "/var/vms_shares/common";
+                mountPoint = "/var/vms_share/common";
+                tag = "common_share_dockervm";
+                proto = "virtiofs";
+                socket = "common_share_dockervm.sock";
+              }
+              {
+                source = "/var/vms_shares/dockervm";
+                mountPoint = "/var/vms_share/host";
+                tag = "dockervm_share";
+                proto = "virtiofs";
+                socket = "dockervm_share.sock";
+              }
               {
                 source = "/var/fogdata";
                 mountPoint = "/var/lib/fogdata";
