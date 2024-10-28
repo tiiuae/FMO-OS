@@ -26,7 +26,7 @@ let
     in installers;
   
 
-  installer = variant: let
+  installer = variant: compressed: let
     system = "x86_64-linux";
 
     installerImgCfg = lib.nixosSystem {
@@ -87,20 +87,24 @@ let
             installer.${installerconf.installer.name} = installerApp installerconf.installer;
           }
           {
-            isoImage.squashfsCompression = "lz4"; 
+            isoImage.squashfsCompression = if compressed=="compressed" then "zstd" else "lz4";
           }
         ]
         ++ (addSystemPackages installerconf.systemPackages)
         ++ (if lib.hasAttr "extraModules" installerconf then installerconf.extraModules else []);
     };
   in {
-    name = "${installerconf.name}-${variant}";
+    name = if compressed == "compressed"
+          then "${installerconf.name}-${variant}-compressed"
+          else "${installerconf.name}-${variant}";
     inherit installerImgCfg system;
     installerImgDrv = installerImgCfg.config.system.build.${installerImgCfg.config.formatAttr};
   };
   targets = [
-    (installer "debug")
-    (installer "release")
+    (installer "debug" "")
+    (installer "release" "")
+    (installer "debug" "compressed")
+    (installer "release" "compressed")
   ];
 in {
   flake = {
