@@ -3,6 +3,24 @@
 * A ghaf-based operating system designed specifically for FMO devices
 * Currently support: Dell Latitude 7230 Rugged Extreme Tablet & Dell Latitude 7330 Rugged Extreme Laptop
 ## Release note
+v1.1.0a
+* oras: /fmo/pmc-installer:v1.1.0a
+```
+- Registration Agent version: v0.8.4
+- Chromium replaced with Google-Chrome
+- Port 4223 has been removed
+- Ports 7422, 7423 has been added
+- Installer now shows only nvme - partition for install
+- Added screen recording tool, records are stored at /home/ghaf/recordings/<datetime>.mp4
+- Added fmo-tool: system management tool, documentation link: https://github.com/tiiuae/fmo-tool/blob/main/README.md
+- Added Dynamic PortForwarding (DPF) feature: now you can open/close ports using fmo-tool
+- Added Dynamic Device Passthrough (DDP) feature: now you can passthrough USB devices (like GPS, flash, Ybikey) using fmo-tool
+- No need to insert password or delete .ssh/knownhosts, now you may ssh to VMs using fmo-tool
+- Added ability to control Docker Compose Infrastructure (DCI) with fmo-tool
+- VMs could be controlled with fmo-tool as well, started, stopped, restarted
+- Also fmo-tool can show you current image version, RA version, IP configuration
+- Image compression features were added, but not used for that release, yet
+```
 v1.0.2pre-RA_v1.0.0rc_enc_en
 * oras: /fmo/pmc-installer:v1.0.2pre-RA_v1.0.0rc_enc_en
 ```

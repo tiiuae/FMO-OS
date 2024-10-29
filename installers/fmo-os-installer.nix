@@ -29,11 +29,11 @@
 
           registration-agent-laptop ={
             enable = true;
-            certs_path = "/home/ghaf/root/var/fogdata/certs";
-            config_path = "/home/ghaf/root/var/fogdata";
-            token_path = "/home/ghaf/root/var/fogdata";
-            hostname_path = "/home/ghaf/root/var/fogdata";
-            ip_path = "/home/ghaf/root/var/fogdata";
+            certs_path = "/var/lib/fogdata/certs";
+            config_path = "/var/lib/fogdata";
+            token_path = "/var/lib/fogdata";
+            hostname_path = "/var/lib/fogdata";
+            ip_path = "/var/lib/fogdata";
             post_install_path = "/var/lib/fogdata/certs";
           }; # registration-agent-laptop
         }; # services
@@ -53,8 +53,9 @@
       docker_url_path = "/var/fogdata/cr.url";
       custom_script_path = "registration-agent-laptop";
       custom_script_env_path = [
-        "/home/ghaf/root/var/fogdata"
-        "/home/ghaf/root/var/fogdata/certs"
+        "/var/lib/fogdata"
+        "/var/fogdata"
+        "/var/fogdata/certs"
       ];
     }; # installer
 
