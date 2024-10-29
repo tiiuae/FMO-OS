@@ -41,9 +41,9 @@ add_config "extra-nix-path = nixpkgs=flake:nixpkgs"
 add_config "trusted-users = root ${USER-}"
 
 # Add default NixOS binary cache
-add_config "substituters = https://cache.nixos.org/"
-add_config "trusted-substituters = https://cache.nixos.org/"
-add_config "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+add_config "substituters = https://cache.nixos.org/ https://prod-cache.vedenemo.dev"
+add_config "trusted-substituters = https://cache.nixos.org/ https://prod-cache.vedenemo.dev"
+add_config "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= prod-cache.vedenemo.dev~1:JcytRNMJJdYJVQCYwLNsrfVhct5dhCK2D3fa6O1WHOI="
 add_config "substitute = true"
 
 # Optimize store disk usage
