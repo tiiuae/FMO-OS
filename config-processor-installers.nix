@@ -5,9 +5,7 @@
   self,
   lib,
   ghafOS,
-}: {
-  sysconf,
-}:
+}: sysconf:
 let
   inherit (import ./utils {inherit lib self ghafOS;}) updateAttrs addSystemPackages;
 
@@ -15,10 +13,7 @@ let
   oss_list_name = "installer_os_list";
   oss_list_path = "/etc/${oss_list_name}";
 
-  installerconf = if lib.hasAttr "extend" sysconf
-               then updateAttrs false (import (lib.path.append ./installers sysconf.extend) ).sysconf sysconf
-               else sysconf;
-
+  installerconf = sysconf;
 
   installerApp = inst_app: let
       installers = (builtins.removeAttrs inst_app ["name"]) //

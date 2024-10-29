@@ -7,6 +7,11 @@
     name = "fmo-os-rugged-tablet-7230";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
+    release = "v1.1.0a";
+
+    fmo-system = {
+      RAversion = "v0.8.4";
+    };
 
     systemPackages = [
       "vim"
@@ -36,8 +41,20 @@
 
         services = {
           fmo-psk-distribution-service-host = {
-              enable = true;
+            enable = true;
           }; # services.fmo-psk-distribution-service-host
+          fmo-dynamic-portforwarding-service-host = {
+            enable = true;
+            config-paths = {
+              netvm = "/var/netvm/netconf/dpf.config";
+            };
+          }; # services.dynamic-portforwarding-service
+          fmo-dynamic-device-passthrough-service-host = {
+            enable = true;
+          }; # services.dynamic-device-passthrough-service-host
+          fmo-config = {
+            enable = true;
+          }; # services.fmo-config
           registration-agent-laptop = {
             enable = true;
           }; # services.registration-agent-laptop
@@ -100,12 +117,13 @@
 
             fmo-psk-distribution-service-vm = {
               enable = true;
-            };
+            }; # services.fmo-psk-distribution-service-vm
 
-            portforwarding-service = {
+            dynamic-portforwarding-service = {
               enable = true;
               ipaddress = "192.168.100.12";
               ipaddress-path = "/etc/NetworkManager/system-connections/ip-address";
+              config-path = "/etc/NetworkManager/system-connections/dpf.config";
               configuration = [
                 {
                   dip = "192.168.101.11";
@@ -141,6 +159,18 @@
                   dip = "192.168.101.11";
                   dport = "7423";
                   sport = "7423";
+                  proto = "tcp";
+                }
+                {
+                  dip = "192.168.101.11";
+                  dport = "123";
+                  sport = "123";
+                  proto = "udp";
+                }
+                {
+                  dip = "192.168.101.11";
+                  dport = "123";
+                  sport = "123";
                   proto = "tcp";
                 }
               ];
@@ -268,13 +298,32 @@
                 proto = "virtiofs";
                 socket = "fogdata.sock";
               }
+              {
+                tag = "ssh-public-key";
+                source = "/run/ssh-public-key";
+                mountPoint = "/run/ssh-public-key";
+              }
             ]; # microvm.shares
           };# microvm
+          fileSystems."/run/ssh-public-key".options = ["ro"];
           services = {
             fmo-hostname-service = {
               enable = true;
               hostname-path = "/var/lib/fogdata/hostname";
             }; # services.fmo-hostnam-service
+            fmo-psk-distribution-service-vm = {
+              enable = true;
+            }; # services.fmo-psk-distribution-service-vm
+            fmo-dynamic-device-passthrough = {
+              enable = true;
+              devices = [
+                {
+                  bus = "usb";
+                  vendorid = "1546";
+                  productid = "01a9";
+                }
+              ];
+            }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
               enable = true;
               compose-path = "/var/lib/fogdata/docker-compose.yml";

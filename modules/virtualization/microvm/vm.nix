@@ -33,6 +33,7 @@
         nixpkgs.hostPlatform.system = configHost.nixpkgs.hostPlatform.system;
 
         microvm.hypervisor = "qemu";
+        microvm.optimize.enable = false;
 
         networking = {
           enableIPv6 = false;
@@ -61,6 +62,10 @@
             mountPoint = "/nix/.ro-store";
          }
         ]; # microvm.shares
+        microvm.qemu.extraArgs = [
+          "-device"
+          "qemu-xhci"
+        ];
         microvm.writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
         networking.nat = {
@@ -98,6 +103,7 @@
       })
       addSystemPackages
       self.nixosModules.fmo-common
+      self.nixosModules.fmo-vm
     ];
   };
   cfg = config.ghaf.virtualization.microvm.${vmconf.name};
