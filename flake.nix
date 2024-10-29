@@ -5,11 +5,11 @@
 
   nixConfig = {
     extra-trusted-substituters = [
-      "https://cache.vedenemo.dev"
+      "https://prod-cache.vedenemo.dev"
       "https://cache.ssrcdevops.tii.ae"
     ];
     extra-trusted-public-keys = [
-      "cache.vedenemo.dev:RGHheQnb6rXGK5v9gexJZ8iWTPX6OcSeS56YeXYzOcg="
+      "prod-cache.vedenemo.dev~1:JcytRNMJJdYJVQCYwLNsrfVhct5dhCK2D3fa6O1WHOI="
       "cache.ssrcdevops.tii.ae:oOrzj9iCppf+me5/3sN/BxEkp5SaFkHfKTPPZ97xXQk="
     ];
   };
@@ -18,7 +18,11 @@
     ghafOS.url = "github:tiiuae/ghaf";
   };
 
-  outputs = inputs @ {ghafOS, self, ...}: let
+  outputs = inputs @ {
+    ghafOS,
+    self,
+    ...
+  }: let
     # Retrieve inputs from Ghaf
     nixpkgs = ghafOS.inputs.nixpkgs;
     flake-parts = ghafOS.inputs.flake-parts;
