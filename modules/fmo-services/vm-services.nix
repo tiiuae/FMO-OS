@@ -7,9 +7,9 @@
   imports = [
     ./dci-service
     ./hostname-service
-    ./portforwarding-service
-    ./psk-distribution-host
+    ./dynamic-portforwarding-service
+    ./dynamic-device-passthrough-service
     ./psk-distribution-vm
-    ./registration-agent-laptop
+    ./registration-agent-laptop    
   ];
 }

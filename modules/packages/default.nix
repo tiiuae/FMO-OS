@@ -5,6 +5,7 @@
 #
 _: {
   nixpkgs.overlays = [
+    (import ./fmo-tool)
     (import ./lisgd)
     (import ./nmLauncher)
     (import ./nwg-panel)
@@ -13,5 +14,6 @@ _: {
     (import ./squeekboard)
     (import ./sway-scripts)
     (import ./terminator)
+    (import ./vhotplug)
   ];
 }
