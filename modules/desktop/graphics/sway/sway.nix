@@ -47,6 +47,12 @@ in
 
   options.ghaf.graphics.sway = {
     enable = lib.mkEnableOption "sway";
+
+    extraConfig = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "Extra configuration lines to add to Sway config";
+    };
   };
 
   config = lib.mkIf cfg.enable {
