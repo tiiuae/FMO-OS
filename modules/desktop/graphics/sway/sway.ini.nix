@@ -7,14 +7,19 @@
   ...
 }: let
   cfg = config.ghaf.graphics.sway;
-  sway_config = pkgs.substituteAll {
-                  dir = "share";
-                  isExecutable = false;
-                  pname = "config";
-                  src = ./config;
-                  wallpaper = "${../assets/wallpaper.jpg}";
-                };
 
+  swayConfig = pkgs.writeTextFile {
+    name = "generated-sway-config";
+    destination = "/config";
+    text = ''
+      ${lib.optionalString (cfg.extraConfig != null) cfg.extraConfig}
+
+      # Default wallpaper
+      output * bg ${../assets/wallpaper.jpg} fill
+
+      ${builtins.readFile ./config}
+    '';
+  };
 in {
   imports = [
     ./nwg-panel
@@ -37,7 +42,7 @@ in {
           owner = config.ghaf.users.accounts.user;
         };
         sway-config = {
-          source = "${sway_config}/share/config";
+          source = "${swayConfig}/config";
           des-path = "${config.users.users.ghaf.home}/.config/sway";
           write-once = true;
           owner = config.ghaf.users.accounts.user;

@@ -66,6 +66,10 @@
             '';
           }; # services.udev
         }; # services
+        ghaf.graphics.sway.extraConfig = ''
+          # Map touch screen input to internal display
+          input "3823:49156:EETI8082:00_0EEF:C004" map_to_output "eDP-1"
+        ''; # graphics.sway
       }
     ]; # extraModules;
 
