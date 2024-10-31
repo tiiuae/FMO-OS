@@ -46,7 +46,7 @@
     ];
     updateAttrs = (import ./utils/updateAttrs.nix).updateAttrs;
     inheritConfig = confPath: { sysconf }: if lib.hasAttr "extend" sysconf
-          then updateAttrs false (import (lib.path.append confPath sysconf.extend) ).sysconf sysconf
+          then updateAttrs ["oss"] (import (lib.path.append confPath sysconf.extend) ).sysconf sysconf
           else sysconf;
     generateHwConfig = import ./config-processor-hardware.nix {inherit ghafOS self lib;};
     generateInstConfig = import ./config-processor-installers.nix {inherit ghafOS self lib;};
