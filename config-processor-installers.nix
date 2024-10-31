@@ -45,15 +45,13 @@ let
                    
             # Installer system profile
             # Use less privileged ghaf user
-            users.users.ghaf = {
-              isNormalUser = true;
-              extraGroups = ["wheel" "networkmanager" "video"];
-              # Allow the graphical user to login without password
-              initialHashedPassword = "";
+            users = {
+              allowNoPasswordLogin = true;
+              users.ghaf = {
+                isNormalUser = true;
+                extraGroups = ["wheel" "networkmanager" "video"];
+              };
             };
-
-            # Allow the user to log in as root without a password.
-            users.users.root.initialHashedPassword = "";
 
             # Allow passwordless sudo from ghaf user
             security.sudo = {

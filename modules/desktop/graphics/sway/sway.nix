@@ -57,13 +57,12 @@ in
 
   config = lib.mkIf cfg.enable {
 
-    ghaf.graphics.window-manager-common.enable = true;
-
     xdg.icons.enable = true;
 
     # Refer in https://nixos.wiki/wiki/Sway
     #TODO: remove some unused apps
     environment.systemPackages = with pkgs; [ 
+      libinput
       jq
       screenRecord
       wf-recorder
@@ -76,7 +75,7 @@ in
       gsettings-desktop-schemas
       dracula-theme # gtk theme
       yaru-remix-theme
-      gnome3.adwaita-icon-theme  # default gnome cursors
+      adwaita-icon-theme  # default gnome cursors
       swaylock
       swayidle
       grim # screenshot functionality
@@ -128,24 +127,21 @@ in
     ];
   };
 
-  # configuring sway itself (assmung a display manager starts it)
-  systemd.user.targets.sway-session = {
-    description = "Sway compositor session";
-    documentation = [ "man:systemd.special(7)" ];
-    bindsTo = [ "graphical-session.target" ];
-    wants = [ "graphical-session-pre.target" ];
-    after = [ "graphical-session-pre.target" ];
-  };
-
   # Sway service
-  services.greetd = {
-    enable = true;
-    settings = rec {
-      initial_session = {
-        command = "${pkgs.sway}/bin/sway";
-        user = "ghaf";
+  services = {
+    greetd = {
+      enable = true;
+      settings = rec {
+        initial_session = {
+          command = "${pkgs.sway}/bin/sway";
+          user = "ghaf";
+        };
+        default_session = initial_session;
       };
-      default_session = initial_session;
+    };
+    seatd = {
+      enable = true;
+      group = "video";
     };
   };
 

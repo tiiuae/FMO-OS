@@ -23,9 +23,6 @@
           };
         };
 
-        # noXlibs=false; needed for NetworkManager stuff
-        environment.noXlibs = false;
-
         networking.hostName = vmconf.name;
         system.stateVersion = lib.trivial.release;
 
