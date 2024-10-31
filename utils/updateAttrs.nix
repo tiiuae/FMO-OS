@@ -5,24 +5,23 @@ rec {
                 if builtins.elem e acc then acc else acc ++ [ e ]) [];
 
   concatOrOverwriteList = (
-    # Bool flag to choose to overwrite rhs list wih lhs or concatenate both lists
-    # true - overwrite
-    # false - concatenate
+    # List of which attributes to be overwritten instead of being concatenated
     pred:
+    # Current attribute
+    currentname:
     # Left attribute set of the merge.
     lhs:
     # Right attribute set of the merge.
     rhs:
-    if pred
+    # If the current attribute exists in overwritting list, then overwrite it
+    if builtins.elem currentname pred
     then
       lhs
     else
       unique (builtins.concatLists [lhs rhs]));
 
   updateAttrs =
-    # Bool flag to choose to overwrite rhs list wih lhs or concatenate both lists
-    # true - overwrite
-    # false - concatenate
+    # List of which attributes to be overwritten instead of being concatenated
     overwriteList:
     # Left attribute set of the merge.
     lhs:
@@ -40,7 +39,7 @@ rec {
           then
             [ (f [] (builtins.concatLists [(builtins.head values) (builtins.elemAt values 1)])) ]
           else
-            concatOrOverwriteList overwriteList (builtins.head values) (builtins.elemAt values 1)
+            concatOrOverwriteList overwriteList n (builtins.head values) (builtins.elemAt values 1)
         else
           if (builtins.isAttrs (builtins.elemAt values 1) && builtins.isAttrs (builtins.head values))
           then
