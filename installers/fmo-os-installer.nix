@@ -14,7 +14,6 @@
 
     extraModules = [
       {
-        environment.noXlibs = false;
         # For WLAN firmwares
         hardware.enableRedistributableFirmware = true;
 
