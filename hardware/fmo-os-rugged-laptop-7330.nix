@@ -96,12 +96,17 @@
                 "ethint0"
               ];
             };
-            # Route FC sec-udp traffic to adaptervm
-            interfaces.ethint0.ipv4.routes = [{
-              address = "192.168.133.0";
-              prefixLength = 24;
-              via = "192.168.101.12";
-            }];
+            # Route traffic to adaptervm
+            interfaces.ethint0.ipv4.routes = [
+              {address = "192.168.133.0"; prefixLength = 24; via = "192.168.101.12";}
+              {address = "172.24.0.13"; prefixLength = 32; via = "192.168.101.12";}
+            ];
+            firewall = {
+              extraCommands = ''
+                iptables -t nat -A PREROUTING -p udp -s 192.168.128.220 -j DNAT --to-destination 172.24.0.13
+                iptables -t nat -A POSTROUTING -p udp -d 172.24.0.13 -j MASQUERADE
+              '';
+            };
           }; # networking
           systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
 
@@ -397,6 +402,7 @@
         ipaddr = "192.168.101.12";
         defaultgw = "192.168.101.1";
         systemPackages = [
+          "croc"
           "gpsd"
           "jq"
           "mustache-go"
