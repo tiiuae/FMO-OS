@@ -17,7 +17,6 @@
       "vim"
       "tcpdump"
       "gpsd"
-      "chromium"
     ]; # systemPackages
 
     launchers = [
@@ -25,7 +24,7 @@
         app = "terminal";
       }
       {
-        app = "chromium";
+        app = "google-chrome";
         extraArgs = "192.168.101.11";
       }
       {
