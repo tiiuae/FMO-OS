@@ -96,17 +96,6 @@
                 "ethint0"
               ];
             };
-            # Route traffic to adaptervm
-            localCommands = ''
-              ip route add 192.168.133.0/24 via 192.168.101.12 dev ethint0
-              ip route add 172.24.0.13/32 via 192.168.101.12 dev ethint0
-            '';
-            firewall = {
-              extraCommands = ''
-                iptables -t nat -A OUTPUT -p udp --sport 22223 -j DNAT --to-destination 172.24.0.13
-                iptables -t nat -A POSTROUTING -p udp -d 172.24.0.13 -j MASQUERADE
-              '';
-            };
           }; # networking
           systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
 
@@ -135,54 +124,50 @@
               ipaddress-path = "/etc/NetworkManager/system-connections/ip-address";
               config-path = "/etc/NetworkManager/system-connections/dpf.config";
               configuration = [
-                {
-                  dip = "192.168.101.11";
-                  dport = "4222";
-                  sport = "4222";
-                  proto = "tcp";
-                }
-                {
-                  dip = "192.168.101.11";
-                  dport = "4222";
-                  sport = "4222";
-                  proto = "udp";
-                }
-                {
-                  dip = "192.168.101.11";
-                  dport = "7222";
-                  sport = "7222";
-                  proto = "tcp";
-                }
-                {
-                  dip = "192.168.101.11";
-                  dport = "7222";
-                  sport = "7222";
-                  proto = "udp";
-                }
-                {
-                  dip = "192.168.101.11";
-                  dport = "7422";
-                  sport = "7422";
-                  proto = "tcp";
-                }
-                {
-                  dip = "192.168.101.11";
-                  dport = "7423";
-                  sport = "7423";
-                  proto = "tcp";
-                }
-                {
-                  dip = "192.168.101.11";
-                  dport = "123";
-                  sport = "123";
-                  proto = "udp";
-                }
-                {
-                  dip = "192.168.101.11";
-                  dport = "123";
-                  sport = "123";
-                  proto = "tcp";
-                }
+                # dockervm
+                { dip = "192.168.101.11"; dport = "4222"; sport = "4222"; proto = "tcp"; }
+                { dip = "192.168.101.11"; dport = "4222"; sport = "4222"; proto = "udp"; }
+                { dip = "192.168.101.11"; dport = "7222"; sport = "7222"; proto = "tcp"; }
+                { dip = "192.168.101.11"; dport = "7222"; sport = "7222"; proto = "udp"; }
+                { dip = "192.168.101.11"; dport = "7422"; sport = "7422"; proto = "tcp"; }
+                { dip = "192.168.101.11"; dport = "7423"; sport = "7423"; proto = "tcp"; }
+                { dip = "192.168.101.11"; dport = "123"; sport = "123"; proto = "udp"; }
+                { dip = "192.168.101.11"; dport = "123"; sport = "123"; proto = "tcp"; }
+                # adaptervm
+                { dip = "192.168.101.12"; dport = "22223"; sport = "22223"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "10023"; sport = "10023"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "10013"; sport = "10013"; proto = "udp"; }
+                # adaptervm NATS reservations; max five drones, three ports each both tcp and udp
+                { dip = "192.168.101.12"; dport = "4222"; sport = "4222"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4223"; sport = "4223"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4224"; sport = "4224"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4225"; sport = "4225"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4226"; sport = "4226"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "8222"; sport = "8222"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "8223"; sport = "8223"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "8224"; sport = "8224"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "8225"; sport = "8225"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "8226"; sport = "8226"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4282"; sport = "4282"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4283"; sport = "4283"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4284"; sport = "4284"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4285"; sport = "4285"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4286"; sport = "4286"; proto = "tcp"; }
+                { dip = "192.168.101.12"; dport = "4222"; sport = "4222"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4223"; sport = "4223"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4224"; sport = "4224"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4225"; sport = "4225"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4226"; sport = "4226"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "8222"; sport = "8222"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "8223"; sport = "8223"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "8224"; sport = "8224"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "8225"; sport = "8225"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "8226"; sport = "8226"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4282"; sport = "4282"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4283"; sport = "4283"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4284"; sport = "4284"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4285"; sport = "4285"; proto = "udp"; }
+                { dip = "192.168.101.12"; dport = "4286"; sport = "4286"; proto = "udp"; }
               ];
             }; # services.dynamic-portforwarding-service
           }; # services
@@ -490,16 +475,6 @@
               enable = true;
               nssmdns = true;
             }; # services.avahi
-            registration-agent-laptop = {
-              enable = false;
-              run_on_boot = false;
-              certs_path = "/var/lib/fogdata/certs";
-              config_path = "/var/lib/fogdata";
-              token_path = "/var/lib/fogdata";
-              hostname_path = "/var/lib/fogdata";
-              ip_path = "/var/lib/fogdata";
-              post_install_path = "/var/lib/fogdata/certs";
-            }; # services.registration-agent-laptop
             pcscd.enable = true;
           }; # services
           networking.firewall.enable = false;
