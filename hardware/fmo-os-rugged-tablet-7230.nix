@@ -408,14 +408,37 @@
               "-device"
               "usb-host,vendorid=0x1050,productid=0x0407"
             ]; # microvm.qemu.extraArgs
-            volumes = [{
-              image = "/var/tmp/adaptervm.img";
-              mountPoint = "/var/lib/adapter";
-              size = 51200;
-              autoCreate = true;
-              fsType = "ext4";
-            }];# microvm.volumes
+            volumes = [
+              {
+                image = "/var/tmp/adaptervm_internal.img";
+                mountPoint = "/var/lib/internal";
+                size = 10240;
+                autoCreate = true;
+                fsType = "ext4";
+              }
+              {
+                image = "/var/tmp/adaptervm.img";
+                mountPoint = "/var/lib/adapter";
+                size = 51200;
+                autoCreate = true;
+                fsType = "ext4";
+              }
+            ];# microvm.volumes
             shares = [
+              {
+                source = "/var/vms_shares/common";
+                mountPoint = "/var/vms_share/common";
+                tag = "common_share_adaptervm";
+                proto = "virtiofs";
+                socket = "common_share_adaptervm.sock";
+              }
+              {
+                source = "/var/vms_shares/adaptervm";
+                mountPoint = "/var/vms_share/host";
+                tag = "adaptervm_share";
+                proto = "virtiofs";
+                socket = "adaptervm_share.sock";
+              }
               {
                 source = "/var/fogdata";
                 mountPoint = "/var/lib/fogdata";
@@ -423,8 +446,14 @@
                 proto = "virtiofs";
                 socket = "fogdata-adaptervm.sock";
               }
+              {
+                tag = "ssh-public-key";
+                source = "/run/ssh-public-key";
+                mountPoint = "/run/ssh-public-key";
+              }
             ]; # microvm.shares
           };# microvm
+          fileSystems."/run/ssh-public-key".options = ["ro"];
           services = {
             udev = {
               extraRules = ''
