@@ -41,7 +41,13 @@ let
 
             hardware.enableAllFirmware = true;
 
-            ghaf.development.usb-serial.enable = variant == "debug";
+            ghaf = {
+              profiles = {
+                # variant type, turn on debug or release
+                debug.enable = variant == "debug";
+                release.enable = variant == "release";
+              };
+            };
                    
             # Installer system profile
             # Use less privileged ghaf user
