@@ -2,7 +2,224 @@
 * Operating System for Flight and Mission Operations devices
 * A ghaf-based operating system designed specifically for FMO devices
 * Currently support: Dell Latitude 7230 Rugged Extreme Tablet & Dell Latitude 7330 Rugged Extreme Laptop
-## Release note
+
+# Table of Contents
+1. [How to compile](#how-to-compile)
+1. [Using cachix to build speed up](#using-cachix-to-build-speed-up)
+1. [How to modify or add new hardware](#how-to-modify-or-add-new-hardware)
+1. [Hardware description file structure](#hardware-description-file-structure)
+1. [How to add a new virtual machine for existing HW](#how-to-add-a-new-virtual-machine-for-existing-HW)
+1. [Ghaf documentation links](#ghaf-documentation-links)
+1. [Release notes](#release-notes)
+
+# How to compile
+- Clone the project:
+  ```bash
+  $ git clone https://github.com/tiiuae/FMO-OS.git
+  ```
+- Move to source folder
+  ```bash
+  $ cd FMO-OS
+  ```
+- Install NIX (you also can make it manually or use NIX-OS, then you may skip this part):
+  ```bash
+  $ bash .github/actions/build-action/install_nix.sh
+  ...
+  ...
+  [ 1 ]
+  Nix won't work in active shell sessions until you restart them.
+  ```
+- No you need to restart your session:
+```bash
+$ exit
+```
+- Reloging your session and go to the source folder again:
+```bash
+$ cd FMO-OS
+```
+- Check build targets:
+```bash
+$ nix flake show
+...
+...
+└───packages
+    └───x86_64-linux
+        ├───fmo-os-installer-debug: package 'nixos.iso'
+        ├───fmo-os-installer-debug-compressed: package 'nixos.iso'
+        ├───fmo-os-installer-public-debug: package 'nixos.iso'
+        ├───fmo-os-installer-public-debug-compressed: package 'nixos.iso'
+        ├───fmo-os-installer-public-release: package 'nixos.iso'
+        ├───fmo-os-installer-public-release-compressed: package 'nixos.iso'
+        ├───fmo-os-installer-release: package 'nixos.iso'
+        ├───fmo-os-installer-release-compressed: package 'nixos.iso'
+
+```
+- Build FMO-OS installer image (you need to have github ssh keys installed on your system):
+```bash
+$ nix build -L .#fmo-os-installer-debug
+```
+
+# Using cachix to build speed up
+- You may use binary $ to speed up your builds
+- Install cachix:
+```bash
+$ nix-env -iA cachix -f https://cachix.org/api/v1/install
+```
+- Authenticate:
+```bash
+$ cachix authtoken {put_your_token here}
+```
+- Use $ix to build:
+```bash
+$ cachix use fmo-os
+$ nix build -L .#fmo-os-installer-debug
+```
+
+# How to modify or add new hardware
+
+All work with hardware starts from adding/modifying HW description files:
+```bash
+$ $ ls -l hardware/
+total 36
+-rw-rw-r-- 1 vboxuser vboxuser  2764 Nov  6 11:59 example.nix
+-rw-rw-r-- 1 vboxuser vboxuser   769 Nov  6 11:59 fmo-os-rugged-laptop-7330-public.nix
+-rw-rw-r-- 1 vboxuser vboxuser 12068 Nov  6 11:59 fmo-os-rugged-laptop-7330.nix
+-rw-rw-r-- 1 vboxuser vboxuser   763 Nov  6 11:59 fmo-os-rugged-tablet-7230-public.nix
+-rw-rw-r-- 1 vboxuser vboxuser 11571 Nov  6 11:59 fmo-os-rugged-tablet-7230.nix 
+```
+- If you wish to add a new hardware you may start from copying `hardware/example.nix` and modifying it
+- If you wish to modify existing hardware you can start from modifying any of other HW descriptions
+- HW description with `-public` suffix means that it can be built as open-source SW without any proprietary software included
+
+# Hardware description file structure
+Hardware description file is 100% valid nix file made to be as close to regular JSON file as possible to make it readable and modifyable to those who have never seen NIX before.
+
+Typical hardware description file structure is following:
+```nix
+{
+  # system and host description
+  sysconf = {
+    name = "example";
+    description = "example OS with 2 VMs";
+    systemPackages = [
+      "vim"
+      "tcpdump"
+    ]; # systemPackages
+
+    # VMs description
+    vms = {
+      # NetVM -- the network VM
+      netvm = {
+        enable = true;
+        name = "netvm";
+        macaddr = "02:00:00:01:01:01";
+        ipaddr = "192.168.101.1";
+        systemPackages = [
+          "vim"
+          "tcpdump"
+        ]; # systemPackages
+        extraModules = [
+        {
+          networking = {
+            nat.enable = true;
+          }; # networking
+
+          microvm.devices = [
+            {
+              bus = "pci";
+              # Add yours network device here
+              path = "0000:72:00.0";
+            }
+          ]; # microvm.devices
+
+          # For WLAN firmwares
+          hardware.enableRedistributableFirmware = true;
+        }]; # extraModules
+      }; # netvm
+
+      # Dummy VM
+      dummyvm = {
+        enable = true;
+        name = "dummyvm";
+        macaddr = "02:00:00:01:01:03";
+        ipaddr = "192.168.101.12";
+        defaultgw = "192.168.101.1";
+        extraModules = [
+        {
+         networking.firewall.enable = false;
+        }]; # extraModules
+      }; # dummyvm
+    }; # vms
+  }; # system
+}
+```
+System description starts from:
+```nix
+{
+  sysconf = {
+  };
+}
+```
+`sysconf` is dictionary which describes whole system configuration. Also all root fields in `sysconf` mainly describe system HOST configuration, except `vms` field which describes virtual machines configurations.
+
+For examlple to add system packages to HOST you may use following configuration:
+```nix
+{
+  # system and host description
+  sysconf = {
+...
+    systemPackages = [
+      "your_super_package_to_add"
+      "tcpdump"
+    ]; # systemPackages
+  };
+}
+```
+
+If you wish to modify or add some default nix services or even add yours own service to HOST you need to use root's `extraModules` list:
+```nix
+extraModules = [];
+```
+
+`vms` field contains Virtual Machines configurations dictionary. Every field in this dict describes dedicated Virtual Machine and follow the same rules as HOST description.
+
+
+# How to add a new virtual machine for existing HW
+- Open Hardware Description file you want to modify
+- Find `vms` section
+- Add a new VM to `vms` section:
+```nix
+{
+  sysconf = {
+    ...
+    vms = {
+      ....
+      # Dummy VM
+      dummyvm = {
+        enable = true;
+        name = "dummyvm";
+        macaddr = "02:00:00:01:01:03";
+        ipaddr = "192.168.101.12";
+        defaultgw = "192.168.101.1";
+        extraModules = [
+        {
+         networking.firewall.enable = false;
+        }]; # extraModules
+      }; # dummyvm
+    ...
+    }; # vms
+  }; # sysconf
+}
+```
+- `name`, `ipaddr`, `macaddr` - mandatory and should be uniq
+- `extraModules` can be used to add additional services to VM
+
+
+# Ghaf documentation links
+
+The Ghaf Framework documentation site is located at [link](https://tiiuae.github.io/ghaf/)
+
+# Release notes
 v1.1.0a
 * oras: /fmo/pmc-installer:v1.1.0a
 ```
