@@ -80,34 +80,6 @@ read_pin() {
     do_exit
 }
 
-get_compose_image() {
-    for i in {1..3}; do
-        COMPOSE_IMAGE=""
-        read -p "Enter adapter image [${DEFAULT_IMAGE}]: " COMPOSE_IMAGE
-        COMPOSE_IMAGE=${COMPOSE_IMAGE:-${DEFAULT_IMAGE}}
-        if (( $(awk -F: '{print length($1)}' <<< "${COMPOSE_IMAGE}") == $(awk '{print length($1)}' <<< "${COMPOSE_IMAGE}") )); then
-            read -p "Enter tag for \"${COMPOSE_IMAGE}\": " TAG
-            COMPOSE_IMAGE=${COMPOSE_IMAGE}:${TAG}
-        fi
-
-        docker pull ${COMPOSE_IMAGE}
-
-        if (( $? == 0 )); then
-            local container_id=$(docker create ${COMPOSE_IMAGE})
-            docker cp $container_id:/data/ ${WORKDIR}
-            docker cp $container_id:/templates/ ${WORKDIR}
-            docker cp $container_id:/scripts/ ${WORKDIR}
-            docker rm $container_id
-
-            return
-        fi
-
-        echo "Fetching adapter image \"${COMPOSE_IMAGE}\" failed."
-    done
-
-    do_exit
-}
-
 prepare_components() {
     # extract required components' images into ${COMPONENT_FILE}
     jq '[ .Components[] |
@@ -131,15 +103,15 @@ start_provisioning_server() {
 
     mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/provisioning-server-env.template >${WORKDIR}/.env
 
-    local PKCS11_MODULE=$(find /nix/store/ -name "libykcs11.so" | grep "system-path/lib" | head -n 1)
-    if [ "${PKCS11_MODULE}x" == "x" ]; then
+    local PKCS11_MODULE="/run/current-system/sw/lib/libykcs11.so"
+    if [ ! -f ${PKCS11_MODULE} ]; then
         echo 'Could not locate "libykcs11.so", exiting'
         do_exit
     fi
 
-    sed -i "s/xyzPATHxyz/${WORKDIR}/g" ${WORKDIR}/.env
-    sed -i "s/xyzPKCS11xyz/${PKCS11_MODULE}/g" ${WORKDIR}/.env
-    sed -i "s/xyzPINxyz/${PIN}/g" ${WORKDIR}/.env
+    sed -i "s|xyzPATHxyz|${WORKDIR}|g" ${WORKDIR}/.env
+    sed -i "s|xyzPKCS11xyz|${PKCS11_MODULE}|g" ${WORKDIR}/.env
+    sed -i "s|xyzPINxyz|${PIN}|g" ${WORKDIR}/.env
 
     ${WORKDIR}/provisioning-server &
     PROVISIONING_PID=$!
@@ -160,15 +132,15 @@ prepare_drones() {
 
         DRONES+=("${device_alias}")
 
-        mkdir ${device_dir}
-        mkdir ${device_dir}/cfg
-        mkdir ${device_dir}/cert
-        mkdir ${device_dir}/mount
+        mkdir -p ${device_dir}
+        mkdir -p ${device_dir}/cfg
+        mkdir -p ${device_dir}/cert
+        mkdir -p ${device_dir}/mount
         mkdir -p ${device_dir}/enclave/nats
         mkdir -p ${device_dir}/softhsm/pins
-        mkdir ${device_dir}/softhsm/so-pins
-        mkdir ${device_dir}/softhsm/swarm
-        mkdir ${device_dir}/softhsm/tokens
+        mkdir -p ${device_dir}/softhsm/so-pins
+        mkdir -p ${device_dir}/softhsm/swarm
+        mkdir -p ${device_dir}/softhsm/tokens
 
         cp ${WORKDIR}/data/DEFAULT_FASTRTPS_PROFILES_1.xml ${device_dir}/mount
 
@@ -215,16 +187,16 @@ if [ ! -d ${WORKDIR} ]; then
     mkdir -p ${WORKDIR}
 fi
 
-mkdir ${WORKDIR}/data
-mkdir ${WORKDIR}/scripts
-mkdir ${WORKDIR}/templates
-mkdir ${WORKDIR}/devices
-mkdir ${WORKDIR}/devices/common
+mkdir -p ${WORKDIR}/data
+mkdir -p ${WORKDIR}/scripts
+mkdir -p ${WORKDIR}/templates
+mkdir -p ${WORKDIR}/devices
+mkdir -p ${WORKDIR}/devices/common
 
 docker-login.sh
 start_pcscd
 read_pin
-get_compose_image
+compose-image.sh
 prepare_components
 start_provisioning_server
 prepare_drones

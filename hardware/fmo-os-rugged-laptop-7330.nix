@@ -383,6 +383,7 @@
           "mustache-go"
           "opensc"
           "openssl"
+          "p11-kit"
           "tcpdump"
           "vim"
           "yubico-piv-tool"
