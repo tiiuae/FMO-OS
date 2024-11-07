@@ -137,7 +137,7 @@
                 { dip = "192.168.101.12"; dport = "22223"; sport = "22223"; proto = "udp"; }
                 { dip = "192.168.101.12"; dport = "10023"; sport = "10023"; proto = "udp"; }
                 { dip = "192.168.101.12"; dport = "10013"; sport = "10013"; proto = "udp"; }
-                # adaptervm NATS reservations; max five drones, three ports each both tcp and udp
+                # adaptervm NATS reservations; max five drones, two ports each both tcp and udp
                 { dip = "192.168.101.12"; dport = "4222"; sport = "4222"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "4223"; sport = "4223"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "4224"; sport = "4224"; proto = "tcp"; }
@@ -148,11 +148,6 @@
                 { dip = "192.168.101.12"; dport = "8224"; sport = "8224"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "8225"; sport = "8225"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "8226"; sport = "8226"; proto = "tcp"; }
-                { dip = "192.168.101.12"; dport = "4282"; sport = "4282"; proto = "tcp"; }
-                { dip = "192.168.101.12"; dport = "4283"; sport = "4283"; proto = "tcp"; }
-                { dip = "192.168.101.12"; dport = "4284"; sport = "4284"; proto = "tcp"; }
-                { dip = "192.168.101.12"; dport = "4285"; sport = "4285"; proto = "tcp"; }
-                { dip = "192.168.101.12"; dport = "4286"; sport = "4286"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "4222"; sport = "4222"; proto = "udp"; }
                 { dip = "192.168.101.12"; dport = "4223"; sport = "4223"; proto = "udp"; }
                 { dip = "192.168.101.12"; dport = "4224"; sport = "4224"; proto = "udp"; }
@@ -163,11 +158,6 @@
                 { dip = "192.168.101.12"; dport = "8224"; sport = "8224"; proto = "udp"; }
                 { dip = "192.168.101.12"; dport = "8225"; sport = "8225"; proto = "udp"; }
                 { dip = "192.168.101.12"; dport = "8226"; sport = "8226"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4282"; sport = "4282"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4283"; sport = "4283"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4284"; sport = "4284"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4285"; sport = "4285"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4286"; sport = "4286"; proto = "udp"; }
               ];
             }; # services.dynamic-portforwarding-service
           }; # services
