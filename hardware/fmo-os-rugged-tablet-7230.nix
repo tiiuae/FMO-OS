@@ -91,9 +91,6 @@
               enable = true;
               internalIPs = [ "192.168.101.0/24" ];
             }; # networking.nat
-            wireless = {
-              enable = true;
-            };
             networkmanager = {
               enable = true;
               unmanaged = [
