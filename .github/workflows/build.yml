@@ -7,7 +7,8 @@ name: build
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]*'
+      - "v[0-9]+.[0-9]+.[0-9]*"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,16 +25,47 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
-      - name: Extract tag version
-        id: tag
-        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fetch-depth: 0
+      - name: Generate build version
+        id: build-version
+        shell: bash
+        run: |
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:7}"
+          REF="${{ github.ref }}"
+          REF_TYPE="${{ github.ref_type }}"
+          REF_NAME="${{ github.ref_name }}"
+
+          # Set default to "git-<short-sha>"
+          BUILD_VERSION="git-$SHORT_SHA"
+
+          if [[ "$REF_TYPE" == "tag" ]]; then
+            BUILD_VERSION="$REF_NAME"
+          elif [[ "$REF_TYPE" == "branch" ]]; then
+            # Check if there's a reachable tag on the branch
+            if git name-rev --name-only --tags --no-undefined "$REF" 2>/dev/null; then
+              # Format: <tag-name>-<#-of-commits-since-tag>-<abbrev-hash>
+              BUILD_VERSION="$(git describe --tags --abbrev=7 "$REF")"
+            else
+              # No reachable parent tag on branch
+              BUILD_VERSION="$REF_NAME-g$SHORT_SHA"
+            fi
+          fi
+
+          echo "SHA:           $SHA"
+          echo "SHORT_SHA:     $SHORT_SHA"
+          echo "REF:           $REF"
+          echo "REF_TYPE:      $REF_TYPE"
+          echo "REF_NAME:      $REF_NAME"
+          echo "BUILD_VERSION: $BUILD_VERSION"
+          echo "BUILD_VERSION=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
           tool-cache: false
-        
+
           # all of these default to true, but feel free to set to
           # "false" if necessary for your workflow
           android: true
@@ -46,7 +78,7 @@ jobs:
         id: build
         uses: ./.github/actions/build-action
         with:
-          build_target: 'fmo-os-installer-debug'
+          build_target: "fmo-os-installer-debug"
           CACHIX_TOKEN: ${{ secrets.CACHIX_TOKEN }}
           RA_TOKEN: ${{ secrets.RA_TOKEN }}
       - name: Push to JFrog artifactory
@@ -55,14 +87,13 @@ jobs:
           JFROG_UNAME: ${{ secrets.JFROG_UNAME }}
           JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
           JFROG_URL: ${{ secrets.JFROG_URL }}
-          input-paths:  |
-            ${{ steps.build.outputs.outimg }}:tii-fmo-os/releases/FMO-OS_inst_${{ steps.tag.outputs.TAG_VERSION }}.iso
+          input-paths: |
+            ${{ steps.build.outputs.outimg }}:tii-fmo-os/releases/FMO-OS_inst_${{ steps.build-version.outputs.BUILD_VERSION }}.iso
       - name: Push to Harbor artifactory
         uses: ./.github/actions/upload-action-harbor
         with:
           HARBOR_UNAME: ${{ secrets.HARBOR_UNAME }}
           HARBOR_TOKEN: ${{ secrets.HARBOR_TOKEN }}
           HARBOR_URL: ${{ secrets.HARBOR_URL }}
-          input-paths:  |
-            ${{ steps.build.outputs.outimg }}:fmo/pmc-installer:${{ steps.tag.outputs.TAG_VERSION }}
-
+          input-paths: |
+            ${{ steps.build.outputs.outimg }}:fmo/pmc-installer:${{ steps.build-version.outputs.BUILD_VERSION }}
