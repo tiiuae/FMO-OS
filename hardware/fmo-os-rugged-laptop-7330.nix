@@ -268,8 +268,6 @@
               "-usb"
               "-device"
               "usb-host,vendorid=0x1546,productid=0x01a9"
-              "-device"
-              "usb-host,vendorid=0x1050,productid=0x0407"
             ]; # microvm.qemu.extraArgs
             volumes = [
               {
@@ -318,12 +316,6 @@
           };# microvm
           fileSystems."/run/ssh-public-key".options = ["ro"];
           services = {
-            udev = {
-              extraRules = ''
-                # Add usb to kvm group
-                SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", MODE="0666"
-              '';
-            }; # services.udev
             fmo-hostname-service = {
               enable = true;
               hostname-path = "/var/lib/fogdata/hostname";
@@ -383,6 +375,7 @@
           "mustache-go"
           "opensc"
           "openssl"
+          "p11-kit"
           "tcpdump"
           "vim"
           "yubico-piv-tool"
@@ -398,8 +391,6 @@
             # Lets use qemu.extraArgs for that
             qemu.extraArgs = [
               "-usb"
-              "-device"
-              "usb-host,vendorid=0x1546,productid=0x01a9"
               "-device"
               "usb-host,vendorid=0x1050,productid=0x0407"
             ]; # microvm.qemu.extraArgs
@@ -460,16 +451,6 @@
               enable = true;
               hostname-override = "adaptervm";
             }; # services.fmo-hostnam-service
-            fmo-dynamic-device-passthrough = {
-              enable = true;
-              devices = [
-                {
-                  bus = "usb";
-                  vendorid = "1546";
-                  productid = "01a9";
-                }
-              ];
-            }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
               enable = true;
               compose-path = "/var/lib/fogdata/docker-compose.yml";
