@@ -363,7 +363,6 @@
           "mustache-go"
           "opensc"
           "openssl"
-          "p11-kit"
           "tcpdump"
           "vim"
           "yubico-piv-tool"
@@ -453,7 +452,6 @@
             }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
               enable = true;
-              exec-compose = "no";
               compose-path = "/var/lib/fogdata/docker-compose.yml";
               update-path = "/var/lib/fogdata/docker-compose.yml.new";
               backup-path = "/var/lib/fogdata/docker-compose.yml.backup";

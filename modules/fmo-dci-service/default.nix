@@ -9,11 +9,6 @@ in {
   options.services.fmo-dci = {
     enable = mkEnableOption "Docker Compose Infrastructure service";
 
-    exec-compose = mkOption {
-      type = types.str;
-      default = "yes";
-      description = "Execute docker compose as part of the service";
-    };
     pat-path = mkOption {
       type = types.str;
       description = "Path to PAT .pat file";
@@ -107,11 +102,6 @@ in {
             echo "Preloaded image $IM_NAME does not exist, skip..."
           fi
         done
-
-        if [ "${cfg.exec-compose}" == "yes" ]; then
-          echo "Start docker-compose"
-          ${pkgs.docker-compose}/bin/docker-compose -f $DCPATH up
-        fi
       '';
 
       wantedBy = ["multi-user.target"];

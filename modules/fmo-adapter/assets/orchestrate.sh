@@ -98,7 +98,7 @@ prepare_components() {
 
 start_provisioning_server() {
     local container_id=$(docker create ${PROVISIONING_IMAGE})
-    docker cp $container_id:/provisioning-server ${WORKDIR}
+    docker cp $container_id:/app/provisioning-server ${WORKDIR}
     docker rm $container_id
 
     mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/provisioning-server-env.template >${WORKDIR}/.env
@@ -181,7 +181,7 @@ prepare_drones() {
 read -p "Enter working folder [${PWD}]: " WORKDIR
 WORKDIR=${WORKDIR:-${PWD}}
 COMPONENT_FILE="${WORKDIR}/data/components.json"
-MANIFEST_FILE="${WORKDIR}/data/foghyper/fog_system/manifest.json"
+MANIFEST_FILE="${WORKDIR}/data/manifest.json"
 
 if [ ! -d ${WORKDIR} ]; then
     mkdir -p ${WORKDIR}
