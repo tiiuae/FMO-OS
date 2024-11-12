@@ -445,7 +445,13 @@
               enable = true;
               nssmdns = true;
             }; # services.avahi
-            pcscd.enable = true;
+            pcscd = {
+              enable = true;
+              # wantedBy = ["multi-user.target"];
+              # serviceConfig = {
+              #   Restart = "yes";
+              # };
+            }; # services.pcscd
           }; # services
           networking.firewall.enable = false;
         }]; # extraModules

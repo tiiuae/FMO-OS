@@ -57,13 +57,21 @@ PROVISIONING_IMAGE=""
 
 DRONES=()
 
+docker_login() {
+    docker-login.sh
+    if (( $? != 0 )); then
+        echo "Docker login failed, exiting."
+        do_exit
+    fi
+}
+
 start_pcscd() {
     local count=$(ps aux | grep -w "pcscd" | grep -v "grep" | wc -l)
     if (( ${count} != 0 )); then
         return
     fi
 
-    pcscd &
+    sudo bash -c 'pcscd &'
     PCSCD_PID=$!
 }
 
@@ -78,6 +86,14 @@ read_pin() {
     done
 
     do_exit
+}
+
+get_compose_image() {
+    compose-image.sh
+    if (( $? != 0 )); then
+        echo "Compose image retrieval failed, exiting."
+        do_exit
+    fi
 }
 
 prepare_components() {
@@ -101,9 +117,13 @@ start_provisioning_server() {
     docker cp $container_id:/app/provisioning-server ${WORKDIR}
     docker rm $container_id
 
+    local cfg_file=$(find ./data -name "*_cfg.json" | head -1)
+
+    echo "Using ${cfg_file} for provisioning server configuration"
+
     mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/provisioning-server-env.template >${WORKDIR}/.env
 
-    local PKCS11_MODULE="/run/current-system/sw/lib/libykcs11.so"
+    local PKCS11_MODULE=/run/current-system/sw/lib/libykcs11.so
     if [ ! -f ${PKCS11_MODULE} ]; then
         echo 'Could not locate "libykcs11.so", exiting'
         do_exit
@@ -150,14 +170,10 @@ prepare_drones() {
         mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/compose.template >${device_dir}/docker-compose.yaml
         mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/certificate-setup.template >${device_dir}/certificate-setup.json
         mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/proxy.template >${device_dir}/proxy-compose.yaml
+        mustache ${cfg_file} ${WORKDIR}/templates/nats-server-conf.template >${device_dir}/cfg/nats-server.conf
 
         # Start device's pkcs11-proxy instance
-        docker compose -f ${device_dir}/proxy-compose.yaml up -d
-
-        # Each drone requires own drone-nats-server but the configuration is same to all
-        if [ ! -f ${WORKDIR}/devices/common/nats-server.conf ]; then
-            mustache ${cfg_file} ${WORKDIR}/templates/nats-server-conf.template >${WORKDIR}/devices/common/nats-server.conf
-        fi
+        # docker compose -f ${device_dir}/proxy-compose.yaml up -d
 
         docker run --network host --rm --name registration-agent \
             --env-file ${device_dir}/register-env.list --volume ${device_dir}:/data \
@@ -193,16 +209,13 @@ mkdir -p ${WORKDIR}/templates
 mkdir -p ${WORKDIR}/devices
 mkdir -p ${WORKDIR}/devices/common
 
-docker-login.sh
+docker_login
 start_pcscd
 read_pin
-compose-image.sh
+get_compose_image
 prepare_components
 start_provisioning_server
 prepare_drones
-
-echo ${PIN}
-echo ${COMPOSE_IMAGE}
 
 RET=0
 do_exit
