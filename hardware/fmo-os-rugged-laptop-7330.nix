@@ -137,7 +137,7 @@
                 { dip = "192.168.101.12"; dport = "22223"; sport = "22223"; proto = "udp"; }
                 { dip = "192.168.101.12"; dport = "10023"; sport = "10023"; proto = "udp"; }
                 { dip = "192.168.101.12"; dport = "10013"; sport = "10013"; proto = "udp"; }
-                # adaptervm NATS reservations; max five drones, two ports each both tcp and udp
+                # adaptervm NATS reservations; max five drones, two ports each
                 { dip = "192.168.101.12"; dport = "4222"; sport = "4222"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "4223"; sport = "4223"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "4224"; sport = "4224"; proto = "tcp"; }
@@ -148,16 +148,6 @@
                 { dip = "192.168.101.12"; dport = "8224"; sport = "8224"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "8225"; sport = "8225"; proto = "tcp"; }
                 { dip = "192.168.101.12"; dport = "8226"; sport = "8226"; proto = "tcp"; }
-                { dip = "192.168.101.12"; dport = "4222"; sport = "4222"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4223"; sport = "4223"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4224"; sport = "4224"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4225"; sport = "4225"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "4226"; sport = "4226"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "8222"; sport = "8222"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "8223"; sport = "8223"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "8224"; sport = "8224"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "8225"; sport = "8225"; proto = "udp"; }
-                { dip = "192.168.101.12"; dport = "8226"; sport = "8226"; proto = "udp"; }
               ];
             }; # services.dynamic-portforwarding-service
           }; # services
@@ -465,13 +455,7 @@
               enable = true;
               nssmdns = true;
             }; # services.avahi
-            pcscd = {
-              enable = true;
-              # wantedBy = ["multi-user.target"];
-              # serviceConfig = {
-              #   Restart = "yes";
-              # };
-            }; # services.pcscd
+            pcscd.enable = true;
           }; # services
           networking.firewall.enable = false;
         }]; # extraModules
