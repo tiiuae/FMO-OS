@@ -17,5 +17,6 @@ _: {
     (import ./screen-recorder)
     (import ./terminator)
     (import ./vhotplug)
+    (import ./pkcs11-provider)
   ];
 }
