@@ -44,10 +44,11 @@ jobs:
       - name: Build
         id: build
         run: |
-          BUILDER='${{ vars.BUILDER_X86 }}'
-          NIX_FAST_BUILD_GITREF="1775c732"
-          nix run github:Mic92/nix-fast-build/"$NIX_FAST_BUILD_GITREF"#nix-fast-build -- \
-            --flake .#packages.x86_64-linux.fmo-os-installer-debug \
-            --systems "x86_64-linux" \
-            --option accept-flake-config true \
-            --no-download --skip-cached --no-nom
+          nix build -- --option accept-flake-config true .#packages.x86_64-linux.fmo-os-installer-debug
+          #BUILDER='${{ vars.BUILDER_X86 }}'
+          #NIX_FAST_BUILD_GITREF="1775c732"
+          #nix run github:Mic92/nix-fast-build/"$NIX_FAST_BUILD_GITREF"#nix-fast-build -- \
+          #  --flake .#packages.x86_64-linux.fmo-os-installer-debug \
+          #  --systems "x86_64-linux" \
+          #  --option accept-flake-config true \
+          #  --no-download --skip-cached --no-nom
