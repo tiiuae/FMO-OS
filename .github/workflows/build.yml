@@ -43,7 +43,10 @@ jobs:
         uses: cachix/install-nix-action@v30
       - name: Prepare build
         run: |
+           nix-env -iA cachix -f https://cachix.org/api/v1/install
+           cachix --version
            cachix authtoken ${{ secrets.CACHIX_TOKEN }}
+           cachix use fmo-os
 
            SSH_DIR=/root/.ssh
            mkdir -p $SSH_DIR
