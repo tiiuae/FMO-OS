@@ -48,7 +48,7 @@ jobs:
            cachix authtoken ${{ secrets.CACHIX_TOKEN }}
            cachix use fmo-os
 
-           SSH_DIR=/root/.ssh
+           SSH_DIR=$HOME/.ssh
            mkdir -p $SSH_DIR
            echo '${{ secrets.RA_TOKEN }}' > $SSH_DIR/id_rsa
            chmod 0600 $SSH_DIR/id_rsa
