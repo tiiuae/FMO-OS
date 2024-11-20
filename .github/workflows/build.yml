@@ -7,7 +7,7 @@ name: build
 on:
   push:
     branches:
-      - 'gh_actions_updates'
+      - "gh_actions_updates"
 
 permissions:
   contents: read
@@ -18,14 +18,10 @@ jobs:
     timeout-minutes: 360
     name: Build FMO-OS
     steps:
-      # To use this repository's private action,
-      # you must check out the repository
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
+      - uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
@@ -39,30 +35,20 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - name: Install nix
-        uses: cachix/install-nix-action@v30
-      - name: Prepare build
+      - uses: cachix/install-nix-action@v30
+        with:
+          extra_nix_config: accept-flake-config=true
+      - uses: cachix/cachix-action@v15
+        with:
+          name: fmo-os
+          authToken: "${{ secrets.CACHIX_TOKEN }}"
         run: |
-           nix-env -iA cachix -f https://cachix.org/api/v1/install
-           cachix --version
-           cachix authtoken ${{ secrets.CACHIX_TOKEN }}
-           cachix use fmo-os
+          SSH_DIR=$HOME/.ssh
+          mkdir -p $SSH_DIR
+          echo '${{ secrets.RA_TOKEN }}' > $SSH_DIR/id_rsa
+          chmod 0600 $SSH_DIR/id_rsa
+          ssh-keyscan -t ed25519 -H github.com > $SSH_DIR/known_hosts
+          chmod 600 $SSH_DIR/known_hosts
 
-           SSH_DIR=$HOME/.ssh
-           mkdir -p $SSH_DIR
-           echo '${{ secrets.RA_TOKEN }}' > $SSH_DIR/id_rsa
-           chmod 0600 $SSH_DIR/id_rsa
-           ssh-keyscan -t ed25519 -H github.com > $SSH_DIR/known_hosts
-           chmod 600 $SSH_DIR/known_hosts
-      - name: Build
-        id: build
-        run: |
           nix flake show
-          cachix watch-exec fmo-os -- nix build -L --accept-flake-config .#packages.x86_64-linux.fmo-os-installer-debug
-          #BUILDER='${{ vars.BUILDER_X86 }}'
-          #NIX_FAST_BUILD_GITREF="1775c732"
-          #nix run github:Mic92/nix-fast-build/"$NIX_FAST_BUILD_GITREF"#nix-fast-build -- \
-          #  --flake .#packages.x86_64-linux.fmo-os-installer-debug \
-          #  --systems "x86_64-linux" \
-          #  --option accept-flake-config true \
-          #  --no-download --skip-cached --no-nom
+          cachix watch-exec fmo-os -- nix build --print-build-logs .#packages.x86_64-linux.fmo-os-installer-debug
