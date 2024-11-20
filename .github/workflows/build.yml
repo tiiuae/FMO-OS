@@ -41,10 +41,21 @@ jobs:
           swap-storage: true
       - name: Install nix
         uses: cachix/install-nix-action@v30
+      - name: Prepare build
+        run: |
+           cachix authtoken ${{ secrets.CACHIX_TOKEN }}
+
+           SSH_DIR=/root/.ssh
+           mkdir -p $SSH_DIR
+           echo '${{ secrets.RA_TOKEN }}' > $SSH_DIR/id_rsa
+           chmod 0600 $SSH_DIR/id_rsa
+           ssh-keyscan -t ed25519 -H github.com > $SSH_DIR/known_hosts
+           chmod 600 $SSH_DIR/known_hosts
       - name: Build
         id: build
         run: |
-          nix build --option accept-flake-config true .#packages.x86_64-linux.fmo-os-installer-debug
+          nix flake show
+          cachix watch-exec fmo-os -- nix build -L --accept-flake-config .#packages.x86_64-linux.fmo-os-installer-debug
           #BUILDER='${{ vars.BUILDER_X86 }}'
           #NIX_FAST_BUILD_GITREF="1775c732"
           #nix run github:Mic92/nix-fast-build/"$NIX_FAST_BUILD_GITREF"#nix-fast-build -- \
