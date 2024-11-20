@@ -18,10 +18,14 @@ jobs:
     timeout-minutes: 360
     name: Build FMO-OS
     steps:
-      - uses: actions/checkout@v4
+      # To use this repository's private action,
+      # you must check out the repository
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
-      - uses: jlumbroso/free-disk-space@main
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
@@ -35,13 +39,20 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - uses: cachix/install-nix-action@v30
+      - name: Install nix
+        uses: cachix/install-nix-action@v30
         with:
-          extra_nix_config: accept-flake-config=true
-      - uses: cachix/cachix-action@v15
+          extra_nix_config: |
+            accept-flake-config = true
+            trusted-public-keys = prod-cache.vedenemo.dev~1:JcytRNMJJdYJVQCYwLNsrfVhct5dhCK2D3fa6O1WHOI= cache.ssrcdevops.tii.ae:oOrzj9iCppf+me5/3sN/BxEkp5SaFkHfKTPPZ97xXQk=
+            trusted-substituters = https://prod-cache.vedenemo.dev https://cache.ssrcdevops.tii.ae
+            substituters = https://prod-cache.vedenemo.dev https://cache.ssrcdevops.tii.ae
+      - name: Prepare build
+        uses: cachix/cachix-action@v15
         with:
           name: fmo-os
           authToken: "${{ secrets.CACHIX_TOKEN }}"
+      - name: Build
         run: |
           SSH_DIR=$HOME/.ssh
           mkdir -p $SSH_DIR
@@ -52,3 +63,4 @@ jobs:
 
           nix flake show
           cachix watch-exec fmo-os -- nix build --print-build-logs .#packages.x86_64-linux.fmo-os-installer-debug
+          nix-collect-garbage
