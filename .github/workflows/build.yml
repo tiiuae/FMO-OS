@@ -64,6 +64,7 @@ jobs:
         with:
           name: fmo-os
           authToken: "${{ secrets.CACHIX_TOKEN }}"
+          installCommand: nix-env -iA cachix -f https://cachix.org/api/v1/install
       - name: Build
         run: |
           SSH_DIR=$HOME/.ssh
