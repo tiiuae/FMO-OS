@@ -60,11 +60,10 @@ jobs:
           echo "Show nixpkgs version"
           nix-instantiate --eval -E '(import <nixpkgs> {}).lib.version'
       - name: Setup Cachix
-        uses: cachix/cachix-action@v15
-        with:
-          name: fmo-os
-          authToken: "${{ secrets.CACHIX_TOKEN }}"
-          installCommand: nix-env -iA cachix -f https://cachix.org/api/v1/install
+        run: |
+          nix-env -iA cachix -f https://cachix.org/api/v1/install
+          cachix authtoken ${{ secrets.CACHIX_TOKEN }}
+          cachix use fmo-os
       - name: Build
         run: |
           SSH_DIR=$HOME/.ssh
