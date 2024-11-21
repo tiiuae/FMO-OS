@@ -47,24 +47,28 @@ jobs:
         uses: cachix/install-nix-action@v30
         with:
           #nix_path: nixpkgs=${{ steps.nixpkgs_rev.outputs.NIXPKGS_REV }}
-          nix_path: nixpkgs=channel:nixos-unstable
+          #nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: |
             experimental-features = nix-command flakes
             accept-flake-config = true
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= prod-cache.vedenemo.dev~1:JcytRNMJJdYJVQCYwLNsrfVhct5dhCK2D3fa6O1WHOI= cache.ssrcdevops.tii.ae:oOrzj9iCppf+me5/3sN/BxEkp5SaFkHfKTPPZ97xXQk=
             trusted-substituters = https://cache.nixos.org https://prod-cache.vedenemo.dev https://cache.ssrcdevops.tii.ae
             substituters = https://cache.nixos.org https://prod-cache.vedenemo.dev https://cache.ssrcdevops.tii.ae
-      - name: Show nix-info & nixpkgs version
-        run: |
-          echo "Show nix-info"
-          nix-shell -p nix-info --run "nix-info -m"
-          echo "Show nixpkgs version"
-          nix-instantiate --eval -E '(import <nixpkgs> {}).lib.version'
+      #- name: Show nix-info & nixpkgs version
+      #  run: |
+      #    echo "Show nix-info"
+      #    nix-shell -p nix-info --run "nix-info -m"
+      #    echo "Show nixpkgs version"
+      #    nix-instantiate --eval -E '(import <nixpkgs> {}).lib.version'
       - name: Setup Cachix
-        run: |
-          nix-env -iA cachix -f https://cachix.org/api/v1/install
-          cachix authtoken ${{ secrets.CACHIX_TOKEN }}
-          cachix use fmo-os
+        uses: cachix/cachix-action@v15
+        with:
+          name: fmo-os
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+        #run: |
+        #  nix-env -iA cachix -f https://cachix.org/api/v1/install
+        #  cachix authtoken ${{ secrets.CACHIX_TOKEN }}
+        #  cachix use fmo-os
       - name: Build
         run: |
           SSH_DIR=$HOME/.ssh
