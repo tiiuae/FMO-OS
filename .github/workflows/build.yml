@@ -44,7 +44,6 @@ jobs:
         run: |
           echo "NIXPKGS=github:NixOS/nixpkgs/$(jq -r '.nodes.nixpkgs.locked.rev' flake.lock)" >> $GITHUB_OUTPUT
       - name: Install nix
-        id: nix_install
         uses: cachix/install-nix-action@v30
         with:
           nix_path: nixpkgs=${{ steps.nixpkgs_rev.outputs.NIXPKGS }}
@@ -53,12 +52,13 @@ jobs:
             trusted-public-keys = prod-cache.vedenemo.dev~1:JcytRNMJJdYJVQCYwLNsrfVhct5dhCK2D3fa6O1WHOI= cache.ssrcdevops.tii.ae:oOrzj9iCppf+me5/3sN/BxEkp5SaFkHfKTPPZ97xXQk=
             trusted-substituters = https://prod-cache.vedenemo.dev https://cache.ssrcdevops.tii.ae
             substituters = https://prod-cache.vedenemo.dev https://cache.ssrcdevops.tii.ae
-          run: |
-            echo "Nix info"
-            nix-shell -p nix-info --run "nix-info -m"
-            echo "Check nixpkgs version"
-            nix-instantiate --eval -E '(import <nixpkgs> {}).lib.version'
-      - name: Prepare build
+      - name: Show nix-info & nixpkgs version
+        run: |
+          echo "Show nix-info"
+          nix-shell -p nix-info --run "nix-info -m"
+          echo "Show nixpkgs version"
+          nix-instantiate --eval -E '(import <nixpkgs> {}).lib.version'
+      - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
           name: fmo-os
@@ -66,6 +66,7 @@ jobs:
       - name: Build
         run: |
           SSH_DIR=$HOME/.ssh
+
           mkdir -p $SSH_DIR
           echo '${{ secrets.RA_TOKEN }}' > $SSH_DIR/id_rsa
           chmod 0600 $SSH_DIR/id_rsa
