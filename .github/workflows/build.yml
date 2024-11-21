@@ -42,11 +42,11 @@ jobs:
       - name: Get nixpkgs revision
         id: nixpkgs_rev
         run: |
-          echo "NIXPKGS=github:NixOS/nixpkgs/$(jq -r '.nodes.nixpkgs.locked.rev' flake.lock)" >> $GITHUB_OUTPUT
+          echo "NIXPKGS_REV=https://github.com/nixos/nixpkgs/archive/$(jq -r '.nodes.nixpkgs.locked.rev' flake.lock).tar.gz" >> $GITHUB_OUTPUT
       - name: Install nix
         uses: cachix/install-nix-action@v30
         with:
-          nix_path: nixpkgs=${{ steps.nixpkgs_rev.outputs.NIXPKGS }}
+          nix_path: nixpkgs=${{ steps.nixpkgs_rev.outputs.NIXPKGS_REV }}
           extra_nix_config: |
             accept-flake-config = true
             trusted-public-keys = prod-cache.vedenemo.dev~1:JcytRNMJJdYJVQCYwLNsrfVhct5dhCK2D3fa6O1WHOI= cache.ssrcdevops.tii.ae:oOrzj9iCppf+me5/3sN/BxEkp5SaFkHfKTPPZ97xXQk=
