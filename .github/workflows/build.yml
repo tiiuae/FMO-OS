@@ -39,9 +39,12 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
+      - name: Apt install
+        run: sudo apt-get update; sudo apt-get install -y git jq
       - name: Install nix
         uses: cachix/install-nix-action@v30
         with:
+          nix_path: nixpkgs="github:NixOS/nixpkgs/$(jq -r '.nodes.nixpkgs.locked.rev' flake.lock)"
           extra_nix_config: |
             accept-flake-config = true
             trusted-public-keys = prod-cache.vedenemo.dev~1:JcytRNMJJdYJVQCYwLNsrfVhct5dhCK2D3fa6O1WHOI= cache.ssrcdevops.tii.ae:oOrzj9iCppf+me5/3sN/BxEkp5SaFkHfKTPPZ97xXQk=
