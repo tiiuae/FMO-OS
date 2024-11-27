@@ -45,15 +45,15 @@ trap do_exit INT
 PIN=""
 
 # Adapter files
+DEFAULT_IMAGE="ghcr.io/tiiuae/tii-fmo-adapter-files"
 TAG=""
 COMPOSE_IMAGE=""
-DEFAULT_IMAGE="ghcr.io/tiiuae/tii-fmo-adapter-files"
 
 # Components
 COMPONENT_FILE=""
 MANIFEST_FILE=""
-REGISTRATION_IMAGE=""
 PROVISIONING_IMAGE=""
+REGISTRATION_IMAGE=""
 
 DRONES=()
 
@@ -129,9 +129,16 @@ start_provisioning_server() {
         do_exit
     fi
 
+    local ENGINE=$(find /run/current-system/sw/lib/ -name "libpkcs11.so" | grep "engine" | head -1)
+    if [ ! -f ${ENGINE} ]; then
+        echo 'Could not locate PKCS#11 engine, exiting'
+        do_exit
+    fi
+
     sed -i "s|xyzPATHxyz|${WORKDIR}|g" ${WORKDIR}/.env
     sed -i "s|xyzPKCS11xyz|${PKCS11_MODULE}|g" ${WORKDIR}/.env
     sed -i "s|xyzPINxyz|${PIN}|g" ${WORKDIR}/.env
+    sed -i "s|xyzENGINExyz|${ENGINE}|g" ${WORKDIR}/.env
 
     ${WORKDIR}/provisioning-server &
     PROVISIONING_PID=$!
@@ -175,13 +182,18 @@ prepare_drones() {
         # Start device's pkcs11-proxy instance
         # docker compose -f ${device_dir}/proxy-compose.yaml up -d
 
-        docker run --network host --rm --name registration-agent \
+        local ret=$(docker run --network host --rm --name registration-agent \
             --env-file ${device_dir}/register-env.list --volume ${device_dir}:/data \
-            --user $(id -u ${USER}):$(id -g ${USER}) ${REGISTRATION_IMAGE} provision
+            --user $(id -u ${USER}):$(id -g ${USER}) ${REGISTRATION_IMAGE} provision)
+        if (( ${ret} != 0 )); then
+            echo "Provisioning device \"${device_alias}\" failed."
+            do_exit
+        fi
 
-        docker run --network host --rm --name registration-agent \
-            --env-file ${device_dir}/register-env.list --volume ${device_dir}:/data \
-            --user $(id -u ${USER}):$(id -g ${USER}) ${REGISTRATION_IMAGE} register
+        # Registering to be implemented in a later phase
+        # docker run --network host --rm --name registration-agent \
+        #     --env-file ${device_dir}/register-env.list --volume ${device_dir}:/data \
+        #     --user $(id -u ${USER}):$(id -g ${USER}) ${REGISTRATION_IMAGE} register
 
         if [ ! -f ${device_dir}/device-registered.txt ]; then
             echo "Provisioning device \"${device_alias}\" failed."
@@ -193,6 +205,21 @@ prepare_drones() {
         sed -i "s/xyzXYZxyz/${drone_device_id}/g" ${device_dir}/docker-compose.yaml
     done
 }
+
+start_drones() {
+    for drone in $DRONES; do
+        local reply=""
+        read -p "Do you want to start adapter drone ${drone} to adapter [Y/n]: " reply
+        if [ "${reply^^}" == "N" ]; then
+            continue
+        fi
+
+        docker compose -f devices/${drone}/docker-compose.yaml up -d
+    done
+}
+
+echo "Current date and time is: $(date)"
+read -p "Please correct if needed before continuing, press <Enter> to continue"
 
 read -p "Enter working folder [${PWD}]: " WORKDIR
 WORKDIR=${WORKDIR:-${PWD}}
@@ -216,6 +243,7 @@ get_compose_image
 prepare_components
 start_provisioning_server
 prepare_drones
+start_drones
 
 RET=0
 do_exit

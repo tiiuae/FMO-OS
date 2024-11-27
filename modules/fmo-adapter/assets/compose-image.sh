@@ -16,8 +16,6 @@ for i in {1..3}; do
         COMPOSE_IMAGE="${COMPOSE_IMAGE}:${TAG}"
     fi
 
-    docker pull ${COMPOSE_IMAGE}
-
     if (( $? == 0 )); then
         container_id=$(docker create ${COMPOSE_IMAGE})
 
