@@ -178,6 +178,7 @@ prepare_drones() {
         mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/certificate-setup.template >${device_dir}/certificate-setup.json
         mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/proxy.template >${device_dir}/proxy-compose.yaml
         mustache ${cfg_file} ${WORKDIR}/templates/nats-server-conf.template >${device_dir}/cfg/nats-server.conf
+        mustache ${cfg_file} ${WORKDIR}/templates/config-fmo-mavlink.template >${device_dir}/cfg/sec-udp/config-fmo-mavlink.yaml
 
         # Start device's pkcs11-proxy instance
         # docker compose -f ${device_dir}/proxy-compose.yaml up -d
