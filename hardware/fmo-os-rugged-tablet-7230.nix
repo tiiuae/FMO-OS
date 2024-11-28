@@ -96,7 +96,7 @@
               ];
             };
           }; # networking
-          systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
+          systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1372";
 
           services = {
             udev = {
@@ -251,7 +251,7 @@
         extraModules = [
         {
           users.users."ghaf".extraGroups = ["docker" "dialout"];
-          systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1460";
+          systemd.network.links."10-ethint0".extraConfig = "MTUBytes=1372";
           microvm = {
             mem = 4096;
             vcpu = 2;
