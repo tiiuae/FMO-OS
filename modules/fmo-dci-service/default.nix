@@ -69,6 +69,9 @@ in {
 
             # Backup the original file if it exists
             if [ -e "$DCPATH" ]; then
+                echo "Stop docker-compose"
+                ${pkgs.docker-compose}/bin/docker-compose -f $DCPATH down
+
                 echo "Backing up the original file"
                 mv "$DCPATH" "$BCPPATH"
             else
