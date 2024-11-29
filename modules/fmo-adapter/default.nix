@@ -1,14 +1,10 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
-{ pkgs, ... }:
+{ lib, pkgs, config, ... }:
+with lib;
 let
   orchestrate-src = builtins.readFile ./assets/orchestrate.sh;
   orchestrate = (pkgs.writeScriptBin "orchestrate.sh" orchestrate-src).overrideAttrs(old: {
-    buildCommand = "${old.buildCommand}\n patchShebangs $out";
-  });
-
-  trigger_orchestrate-src = builtins.readFile ./assets/trigger_orchestrate.sh;
-  trigger_orchestrate = (pkgs.writeScriptBin "trigger_orchestrate.sh" trigger_orchestrate-src).overrideAttrs(old: {
     buildCommand = "${old.buildCommand}\n patchShebangs $out";
   });
 
@@ -21,6 +17,25 @@ let
   compose-image = (pkgs.writeScriptBin "compose-image.sh" compose-image-src).overrideAttrs(old: {
     buildCommand = "${old.buildCommand}\n patchShebangs $out";
   });
+
+  onYubikeyHotplug-src = builtins.readFile ./assets/on-yubikey-hotplug.sh;
+  onYubikeyHotplug = (pkgs.writeShellScript "on-yubikey-hotplug.sh" onYubikeyHotplug-src).overrideAttrs(old: {
+    buildCommand = "${old.buildCommand}\n patchShebangs $out";
+  });
+
+  cfg = config.services.fmo-adapter-yubikey-hotplug-service;
 in {
-  environment.systemPackages = [ orchestrate trigger_orchestrate docker-login compose-image ];
+  options.services.fmo-adapter-yubikey-hotplug-service = {
+    enable = mkEnableOption "FMO adapter orchestration trigger service";
+  };
+
+  config = mkIf cfg.enable {
+    environment.systemPackages = [ orchestrate docker-login compose-image ];
+
+    services.udev.extraRules = ''
+      # FMO adapter orchestration triggering
+      ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1050", ATTRS{idProduct}=="0407", ENV{DISPLAY}=":0.0", RUN+="${onYubikeyHotplug} add $attr{busnum} $attr{devnum}"
+      ACTION=="remove", SUBSYSTEM=="usb", ATTRS{idVendor}=="1050", ATTRS{idProduct}=="0407", ENV{DISPLAY}=":0.0", RUN+="${onYubikeyHotplug} remove"
+    '';
+  };
 }

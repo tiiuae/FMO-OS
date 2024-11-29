@@ -418,10 +418,11 @@
               extraRules = ''
                 # Add usb to kvm group
                 SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", MODE="0666"
-                # Plugging in a Yubikey to trigger orchestration
-                ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1050", ENV{DISPLAY}=":0.0", ATTRS{idProduct}=="0407", RUN+="/run/current-system/sw/bin/trigger_orchestrate.sh"
               '';
             }; # services.udev
+            fmo-adapter-yubikey-hotplug-service = {
+              enable = true;
+            }; # services.fmo-adapter-yubikey-hotplug-service
             fmo-hostname-service = {
               enable = true;
               hostname-override = "adaptervm";
