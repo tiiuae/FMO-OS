@@ -3,12 +3,16 @@
 set -euo pipefail
 
 CWD=${PWD}
+RUNNING=${CWD}/.orchestrate_running
+PROVISIONED=${CWD}/.provisioned_drones
+STARTED=${CWD}/.started_drones
 
-if [ -f ${CWD}/.orchestrate_running ]; then
+if [ -f ${RUNNING} ]; then
     exit 0
 fi
 
-touch ${CWD}/.orchestrate_running
+touch ${RUNNING}
+rm -f ${PROVISIONED}
 
 RET=2
 WORKDIR=""
@@ -55,8 +59,6 @@ MANIFEST_FILE=""
 PROVISIONING_IMAGE=""
 REGISTRATION_IMAGE=""
 
-DRONES=()
-
 docker_login() {
     docker-login.sh
     if (( $? != 0 )); then
@@ -76,6 +78,8 @@ start_pcscd() {
 }
 
 read_pin() {
+    read -p "Please plug in Yubikey before continuing, press <Enter> to continue"
+
     for i in {1..3}; do
         read -p "Enter secure store PIN: " PIN
         yubico-piv-tool --action verify-pin --pin ${PIN}
@@ -112,6 +116,10 @@ prepare_components() {
     PROVISIONING_IMAGE=$(grep "provisioning-server" ${COMPONENT_FILE} | awk '{print $2}' | tr -d '",')
 }
 
+# Using local provisioning server instance for convenience because
+# 1. using an official provisioning server requires waking up internal wifi adapter
+#    and some forwarding rules in place
+# 2. official provisioning server is not always in your reach
 start_provisioning_server() {
     local container_id=$(docker create ${PROVISIONING_IMAGE})
     docker cp $container_id:/app/provisioning-server ${WORKDIR}
@@ -156,8 +164,6 @@ prepare_drones() {
 
         local device_alias=$(grep "device_alias" ${cfg_file} | awk '{print $2}' | tr -d '",')
         local device_dir="${WORKDIR}/devices/${device_alias}"
-
-        DRONES+=("${device_alias}")
 
         mkdir -p ${device_dir}
         mkdir -p ${device_dir}/cfg
@@ -204,23 +210,103 @@ prepare_drones() {
         local drone_device_id=$(grep "\"id\":" ${device_dir}/device-registered.txt | awk '{print $2}' | tr -d '",')
 
         sed -i "s/xyzXYZxyz/${drone_device_id}/g" ${device_dir}/docker-compose.yaml
+
+        echo "${device_alias}" >>${PROVISIONED}
     done
+
+    read -p "Drones provisioned, Yubikey may be removed, press <Enter> to continue"
 }
 
 start_drones() {
-    for drone in $DRONES; do
+    local provisioned=$(cat ${PROVISIONED} | sort -u)
+    local started=$(cat ${STARTED})
+
+    for drone in ${provisioned[@]}; do
+        local is_started="n"
+        for already in ${started[@]}; do
+            if [ "${drone}x" == "${already}x"]; then
+                is_started="y"
+                break
+            fi
+        done
+
+        if [ "${is_started}" == "n" ]; then
+            local reply=""
+            read -p "Do you want to start adapter drone ${drone} [Y/n]: " reply
+            if [ "${reply^^}" == "N" ]; then
+                continue
+            fi
+
+            docker compose -f devices/${drone}/docker-compose.yaml up -d
+
+            echo "${drone}" >>${STARTED}
+        fi
+    done
+}
+
+stop_drones() {
+    local started=$(cat ${STARTED})
+    local stopped=()
+
+    for drone in ${started[@]}; do
         local reply=""
-        read -p "Do you want to start adapter drone ${drone} to adapter [Y/n]: " reply
+        read -p "Do you want to stop adapter drone ${drone} [Y/n]: " reply
         if [ "${reply^^}" == "N" ]; then
             continue
         fi
 
-        docker compose -f devices/${drone}/docker-compose.yaml up -d
+        docker compose -f devices/${drone}/docker-compose.yaml down
+
+        stopped+=("${drone}")
+    done
+
+    rm -f ${STARTED}
+
+    for started_drone in ${started[@]}; do
+        local found="n"
+        for stopped_drone in ${stopped[@]}; do
+            if [ "${started_drone}x" == "${stopped_drone}x" ]; then
+                found="y"
+                break
+            fi
+        done
+
+        if [ "${found}" == "n" ]; then
+            echo "${started_drone}" >>${STARTED}
+        fi
     done
 }
 
-echo "Current date and time is: $(date)"
-read -p "Please correct if needed before continuing, press <Enter> to continue"
+choices() {
+    for (( ; ; )); do
+        local reply=""
+        echo "Choose:"
+        echo "  1 - Prepare and provision drones"
+        echo "  2 - Start drones"
+        echo "  3 - Stop drones"
+        echo "  0 - Exit (any started drone will remain started)"
+        read -p "Your choice: " reply
+
+        case ${reply} in
+            1)
+                prepare_drones
+                ;;
+            2)
+                start_drones
+                ;;
+            3)
+                stop_drones
+                ;;
+            0)
+                RET=0
+                do_exit
+                ;;
+            *)
+                echo "Not a valid option"
+                ;;
+        esac
+    done
+}
 
 read -p "Enter working folder [${PWD}]: " WORKDIR
 WORKDIR=${WORKDIR:-${PWD}}
@@ -243,8 +329,5 @@ read_pin
 get_compose_image
 prepare_components
 start_provisioning_server
-prepare_drones
-start_drones
 
-RET=0
-do_exit
+choices
