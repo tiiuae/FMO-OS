@@ -369,7 +369,6 @@
           "pkcs11-provider"
           "p11-kit"
           "tcpdump"
-          "terminator"
           "vim"
           "yubico-piv-tool"
         ]; # systemPackages
@@ -440,9 +439,6 @@
                 SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", MODE="0666"
               '';
             }; # services.udev
-            fmo-adapter-yubikey-hotplug-service = {
-              enable = true;
-            }; # services.fmo-adapter-yubikey-hotplug-service
             fmo-hostname-service = {
               enable = true;
               hostname-override = "adaptervm";
