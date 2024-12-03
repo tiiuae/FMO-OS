@@ -30,6 +30,10 @@
         app = "nmLauncher";
         extraArgs = "192.168.101.1 ghaf";
       }
+      {
+        app = "orchestrator";
+        extraArgs = "192.168.101.12 ghaf";
+      }
     ]; # launchers;
 
     extraModules = [

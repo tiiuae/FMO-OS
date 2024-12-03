@@ -18,5 +18,6 @@ _: {
     (import ./terminator)
     (import ./vhotplug)
     (import ./pkcs11-provider)
+    (import ./orchestrator)
   ];
 }

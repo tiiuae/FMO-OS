@@ -28,6 +28,12 @@
           icon = "${pkgs.terminator}/share/icons/hicolor/48x48/apps/terminator.png";
           package = [pkgs.terminator];
         };
+        orchestrator = {
+          name = "Orchestrator";
+          path = "${pkgs.orchestrator}/bin/orchestrator ${extraArgs}";
+          icon = "${pkgs.terminator}/share/icons/hicolor/48x48/apps/terminator-custom-commands.png";
+          package = [pkgs.orchestrator];
+        };
         nmLauncher = {
           name = "nmLauncher";
           path = "${pkgs.nmLauncher}/bin/nmLauncher ${extraArgs}";
