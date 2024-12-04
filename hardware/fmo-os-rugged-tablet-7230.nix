@@ -353,6 +353,15 @@
           };# microvm
           fileSystems."/run/ssh-public-key".options = ["ro"];
           services = {
+            fmo-monitor-service = {
+              enable = true;
+              nats-ip = "192.168.101.111";
+              ca-crt-path = "/var/lib/nats/ca/ca.crt";
+              client-key-path = "/var/lib/nats/certs/client.key";
+              client-crt-path = "/var/lib/nats/certs/client.crt";
+              services = ["fmo-dci.service"];
+              topics = ["dockervm/logs/fmo-dci"];
+            };
             fmo-hostname-service = {
               enable = true;
               hostname-path = "/var/lib/fogdata/hostname";
