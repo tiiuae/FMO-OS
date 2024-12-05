@@ -3,11 +3,12 @@
 set -euo pipefail
 
 CWD=${PWD}
-RUNNING=${CWD}/.orchestrate_running
-PROVISIONED=${CWD}/.provisioned_drones
-STARTED=${CWD}/.started_drones
+RUNNING=/tmp/orchestrate_running
+PROVISIONED=/tmp/provisioned_drones
+STARTED=/tmp/started_drones
 
 if [ -f ${RUNNING} ]; then
+    echo "File ${RUNNING} already exists for some reason, please remove it first."
     exit 0
 fi
 
@@ -15,30 +16,33 @@ touch ${RUNNING}
 rm -f ${PROVISIONED}
 
 RET=2
-WORKDIR=""
-PROVISIONING_PID=""
+DEFAULT_DIR="/var/lib/fogdata/adapter"
+WORK_DIR=""
 PCSCD_PID=""
 
 do_exit() {
-    rm -f ${CWD}/.orchestrate_running
+    rm -f ${RUNNING}
 
     if (( ${RET} == 2 )); then
         local reply=""
         read -p "Failed to orchestate adapter drones; remove generated configuration [Y/n]: " reply
         if [ ! "${reply^^}" == "N" ]; then
-            sudo rm -rf ${WORKDIR}/devices
+            sudo rm -rf ${WORK_DIR}/devices
         fi
     fi
 
-    if [ "${PROVISIONING_PID}x" != "x" ]; then
+    local prov_pid=$(ps f -u ${USER} | grep "provisioning-server" | grep -v grep | awk '{print $1}')
+    if [ "${prov_pid}x" != "x" ]; then
         echo "Stopping provisioning-server..."
-        kill ${PROVISIONING_PID}
+        kill ${prov_pid}
     fi
 
     if [ "${PCSCD_PID}x" != "x" ]; then
         echo "Stopping pcscd..."
         kill ${PCSCD_PID}
     fi
+
+    cd ${CWD}
 
     exit ${RET}
 }
@@ -92,11 +96,18 @@ read_pin() {
     do_exit
 }
 
-get_compose_image() {
-    compose-image.sh
-    if (( $? != 0 )); then
-        echo "Compose image retrieval failed, exiting."
-        do_exit
+get_compose_data() {
+    local reply=""
+    read -p "Do you want to use a Docker image for compose data [Y/n]: " reply
+    if [ "${reply^^}" != "N" ]; then
+        compose-image.sh
+        if (( $? != 0 )); then
+            echo "Compose image retrieval failed, exiting."
+            do_exit
+        fi
+    else
+        echo "Make sure, you have ${WORK_DIR}/data and ${WORK_DIR}/templates in place."
+        read -p "Press <Enter> when done copying compose data."
     fi
 }
 
@@ -122,14 +133,14 @@ prepare_components() {
 # 2. official provisioning server is not always in your reach
 start_provisioning_server() {
     local container_id=$(docker create ${PROVISIONING_IMAGE})
-    docker cp $container_id:/app/provisioning-server ${WORKDIR}
+    docker cp $container_id:/app/provisioning-server ${WORK_DIR}
     docker rm $container_id
 
     local cfg_file=$(find ./data -name "*_cfg.json" | head -1)
 
     echo "Using ${cfg_file} for provisioning server configuration"
 
-    mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/provisioning-server-env.template >${WORKDIR}/.env
+    mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORK_DIR}/templates/provisioning-server-env.template >${WORK_DIR}/.env
 
     local PKCS11_MODULE=/run/current-system/sw/lib/libykcs11.so
     if [ ! -f ${PKCS11_MODULE} ]; then
@@ -143,19 +154,18 @@ start_provisioning_server() {
         do_exit
     fi
 
-    sed -i "s|xyzPATHxyz|${WORKDIR}|g" ${WORKDIR}/.env
-    sed -i "s|xyzPKCS11xyz|${PKCS11_MODULE}|g" ${WORKDIR}/.env
-    sed -i "s|xyzPINxyz|${PIN}|g" ${WORKDIR}/.env
-    sed -i "s|xyzENGINExyz|${ENGINE}|g" ${WORKDIR}/.env
+    sed -i "s|xyzPATHxyz|${WORK_DIR}|g" ${WORK_DIR}/.env
+    sed -i "s|xyzPKCS11xyz|${PKCS11_MODULE}|g" ${WORK_DIR}/.env
+    sed -i "s|xyzPINxyz|${PIN}|g" ${WORK_DIR}/.env
+    sed -i "s|xyzENGINExyz|${ENGINE}|g" ${WORK_DIR}/.env
 
-    ${WORKDIR}/provisioning-server &
-    PROVISIONING_PID=$!
-
+    ${WORK_DIR}/provisioning-server &
+    sleep 1
     echo "Provisioning server started..."
 }
 
 prepare_drones() {
-    for cfg_file in $WORKDIR/data/*_cfg.json; do
+    for cfg_file in ${WORK_DIR}/data/*_cfg.json; do
         local reply=""
         read -p "Do you want to add device configuration $(basename ${cfg_file}) to adapter [Y/n]: " reply
         if [ "${reply^^}" == "N" ]; then
@@ -163,10 +173,11 @@ prepare_drones() {
         fi
 
         local device_alias=$(grep "device_alias" ${cfg_file} | awk '{print $2}' | tr -d '",')
-        local device_dir="${WORKDIR}/devices/${device_alias}"
+        local device_dir="${WORK_DIR}/devices/${device_alias}"
 
         mkdir -p ${device_dir}
         mkdir -p ${device_dir}/cfg
+        mkdir -p ${device_dir}/cfg/sec-udp
         mkdir -p ${device_dir}/cert
         mkdir -p ${device_dir}/mount
         mkdir -p ${device_dir}/enclave/nats
@@ -175,41 +186,58 @@ prepare_drones() {
         mkdir -p ${device_dir}/softhsm/swarm
         mkdir -p ${device_dir}/softhsm/tokens
 
-        cp ${WORKDIR}/data/DEFAULT_FASTRTPS_PROFILES_1.xml ${device_dir}/mount
+        cp ${WORK_DIR}/data/DEFAULT_FASTRTPS_PROFILES_1.xml ${device_dir}/mount
 
         grep "provisioning_nats_url" ${cfg_file} | awk '{print $2}' | tr -d '",' >${device_dir}/cfg/service_nats_url.txt
 
-        mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/register-env.template >${device_dir}/register-env.list
-        mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/compose.template >${device_dir}/docker-compose.yaml
-        mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/certificate-setup.template >${device_dir}/certificate-setup.json
-        mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORKDIR}/templates/proxy.template >${device_dir}/proxy-compose.yaml
-        mustache ${cfg_file} ${WORKDIR}/templates/nats-server-conf.template >${device_dir}/cfg/nats-server.conf
-        mustache ${cfg_file} ${WORKDIR}/templates/config-fmo-mavlink.template >${device_dir}/cfg/sec-udp/config-fmo-mavlink.yaml
+        mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORK_DIR}/templates/register-env.template >${device_dir}/register-env.list
+        mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORK_DIR}/templates/compose.template >${device_dir}/docker-compose.yaml
+        mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORK_DIR}/templates/certificate-setup.template >${device_dir}/certificate-setup.json
+        mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORK_DIR}/templates/proxy.template >${device_dir}/proxy-compose.yaml
+        mustache ${cfg_file} ${WORK_DIR}/templates/nats-server-conf.template >${device_dir}/cfg/nats-server.conf
+        mustache ${cfg_file} ${WORK_DIR}/templates/config-fmo-mavlink.template >${device_dir}/cfg/sec-udp/config-fmo-mavlink.yaml
+        mustache ${cfg_file} ${WORK_DIR}/templates/serial-number.template >${device_dir}/serial-number.txt
 
         # Start device's pkcs11-proxy instance
         # docker compose -f ${device_dir}/proxy-compose.yaml up -d
 
-        local ret=$(docker run --network host --rm --name registration-agent \
+        docker run --network host --rm --name registration-agent \
             --env-file ${device_dir}/register-env.list --volume ${device_dir}:/data \
-            --user $(id -u ${USER}):$(id -g ${USER}) ${REGISTRATION_IMAGE} provision)
-        if (( ${ret} != 0 )); then
+            --user $(id -u ${USER}):$(id -g ${USER}) ${REGISTRATION_IMAGE} provision
+        if (( $? != 0 )); then
             echo "Provisioning device \"${device_alias}\" failed."
-            do_exit
+            reply=""
+            read -p "Do you want to check configuration and retry provisioning [Y/n]" reply
+            if [ "${reply^^}" == "N" ]; then
+                continue
+            fi
+
+            read -p "Press <Enter> when ready to retry"
+            docker run --network host --rm --name registration-agent \
+                --env-file ${device_dir}/register-env.list --volume ${device_dir}:/data \
+                --user $(id -u ${USER}):$(id -g ${USER}) ${REGISTRATION_IMAGE} provision
+            if (( $? != 0 )); then
+                echo "Provisioning device \"${device_alias}\" failed again, skipping it."
+                continue
+            fi
         fi
+
+        mustache ${cfg_file} ${WORK_DIR}/templates/device-registered.template >${device_dir}/device-registered.txt
 
         # Registering to be implemented in a later phase
         # docker run --network host --rm --name registration-agent \
         #     --env-file ${device_dir}/register-env.list --volume ${device_dir}:/data \
         #     --user $(id -u ${USER}):$(id -g ${USER}) ${REGISTRATION_IMAGE} register
 
-        if [ ! -f ${device_dir}/device-registered.txt ]; then
-            echo "Provisioning device \"${device_alias}\" failed."
-            do_exit
-        fi
+        # if [ ! -f ${device_dir}/device-registered.txt ]; then
+        #     echo "Provisioning device \"${device_alias}\" failed."
+        #     do_exit
+        # fi
 
-        local drone_device_id=$(grep "\"id\":" ${device_dir}/device-registered.txt | awk '{print $2}' | tr -d '",')
+        local drone_device_id=$(openssl x509 -in ${device_dir}/cert/client-certificate.pem -text | grep "Subject: CN" | awk '{split($0,a,"/"); print a[4]}')
 
         sed -i "s/xyzXYZxyz/${drone_device_id}/g" ${device_dir}/docker-compose.yaml
+        sed -i "s/xyzXYZxyz/${drone_device_id}/g" ${device_dir}/device-registered.txt
 
         echo "${device_alias}" >>${PROVISIONED}
     done
@@ -308,26 +336,35 @@ choices() {
     done
 }
 
-read -p "Enter working folder [${PWD}]: " WORKDIR
-WORKDIR=${WORKDIR:-${PWD}}
-COMPONENT_FILE="${WORKDIR}/data/components.json"
-MANIFEST_FILE="${WORKDIR}/data/manifest.json"
+read -p "Enter working folder [${DEFAULT_DIR}]: " WORK_DIR
+WORK_DIR=${WORK_DIR:-${DEFAULT_DIR}}
+COMPONENT_FILE="${WORK_DIR}/data/components.json"
+MANIFEST_FILE="${WORK_DIR}/data/manifest.json"
 
-if [ ! -d ${WORKDIR} ]; then
-    mkdir -p ${WORKDIR}
+if [ ! -d ${WORK_DIR} ]; then
+    sudo mkdir -p ${WORK_DIR}
+    sudo chown -R ghaf:ghaf ${WORKDIR}
 fi
 
-mkdir -p ${WORKDIR}/data
-mkdir -p ${WORKDIR}/scripts
-mkdir -p ${WORKDIR}/templates
-mkdir -p ${WORKDIR}/devices
-mkdir -p ${WORKDIR}/devices/common
+cd ${WORK_DIR}
 
+mkdir -p ${WORK_DIR}/data
+mkdir -p ${WORK_DIR}/scripts
+mkdir -p ${WORK_DIR}/templates
+mkdir -p ${WORK_DIR}/devices
+mkdir -p ${WORK_DIR}/devices/common
+
+echo "Logging in ghcr.io"
 docker_login
+echo "Starting Smart Card daemon if needed"
 start_pcscd
+echo "Checking Yubikey accessibility"
 read_pin
-get_compose_image
+echo "Acquiring adapter configuration and data"
+get_compose_data
+echo "Preparing needed components"
 prepare_components
+echo "Starting local provisioning server instance"
 start_provisioning_server
 
 choices
