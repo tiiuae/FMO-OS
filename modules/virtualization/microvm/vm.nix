@@ -59,10 +59,7 @@
             mountPoint = "/nix/.ro-store";
          }
         ]; # microvm.shares
-        microvm.qemu.extraArgs = [
-          "-device"
-          "qemu-xhci"
-        ];
+
         microvm.writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
         networking.nat = {
@@ -104,9 +101,25 @@
     ];
   };
   cfg = config.ghaf.virtualization.microvm.${vmconf.name};
+
+  fmo-qemu  = pkgs.callPackage ../../packages/fmo-qemu {
+                inherit pkgs ghafOS;
+                inherit (config.microvm.vms."${vmconf.name}".config.config.system.build) toplevel;
+                microvmConfig = {
+                  inherit (cfg) pciConfigPath;
+                  inherit (config.microvm.vms."${vmconf.name}".config.config.networking) hostName;
+                  hypervisor="qemu";
+                }
+                // config.microvm.vms."${vmconf.name}".config.config.microvm;};
 in {
   options.ghaf.virtualization.microvm.${vmconf.name} = {
     enable = lib.mkEnableOption "${vmconf.name}";
+
+    pciConfigPath = lib.mkOption {
+      type = lib.types.str;
+      description = "Path to pci-device-path file";
+      default = "/etc/pciDevices/${vmconf.name}";
+    };
 
     extraModules = lib.mkOption {
       description = ''
@@ -126,8 +139,13 @@ in {
           imports =
             vmBaseConfiguration.imports
             ++ cfg.extraModules;
+          config.microvm.declaredRunner =  (lib.mkForce fmo-qemu);
         };
       specialArgs = {inherit lib;};
     };
+
+    # Generate pci device information for passthrough
+    environment.etc."pciDevices/${vmconf.name}".text =
+      lib.concatMapStringsSep "\n" (device: "${device.path}") vmconf.pciDevices;
   };
 }

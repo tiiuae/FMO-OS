@@ -82,6 +82,11 @@
           "vim"
           "tcpdump"
         ]; # systemPackages
+        pciDevices = [
+          {
+            path = "0000:00:14.3";
+          }
+        ]; # pciDevices
         extraModules = [
         {
           users.users."ghaf".extraGroups = ["networkmanager"];
@@ -178,17 +183,6 @@
           }; # services
 
           microvm = {
-            devices = [
-              {
-                bus = "pci";
-                path = "0000:00:14.3";
-              }
-              {
-                bus = "usb";
-                path = "vendorid=0x0525,productid=0xa4a2";
-              }
-            ]; # microvm.devices
-
             volumes = [
               {
                 image = "/var/tmp/netvm_internal.img";
@@ -246,6 +240,7 @@
           "tcpdump"
           "gpsd"
         ]; # systemPackages
+        pciDevices = [];
         extraModules = [
         {
           users.users."ghaf".extraGroups = ["docker" "dialout"];
@@ -253,12 +248,6 @@
           microvm = {
             mem = 4096;
             vcpu = 2;
-            devices = [
-              {
-                bus = "usb";
-                path = "vendorid=0x1546,productid=0x01a9";
-              }
-            ]; # microvm.devices
             volumes = [
               {
                 image = "/var/tmp/dockervm_internal.img";
