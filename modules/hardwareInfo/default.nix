@@ -11,6 +11,16 @@ in {
       description = "Device Config in JSON format";
       default = "";
     };
+    systemConfig = mkOption {
+      type = types.str;
+      description = "Folder contains system config in nix format";
+      default = "/var/host/FMO-OS";
+    };
+    systemConfigSymlink = mkOption {
+      type = types.str;
+      description = "Folder contains system config in nix format";
+      default = "/home/ghaf/.sysconf";
+    };
     skuFile = mkOption {
       type = types.str;
       description = "File contains SKU information generated at runtime";
@@ -30,6 +40,15 @@ in {
           mkdir -p $(dirname ${cfg.skuFile})
           echo $system_sku > ${cfg.skuFile}
           chmod 444 ${cfg.skuFile}
+
+          if [ -d "'${cfg.systemConfig}" ]; then
+            echo "FMO-OS config exists"
+          else
+            mkdir -p ${cfg.systemConfig}
+            cp -R ${../../.}/* ${cfg.systemConfig}/
+          fi
+          chmod 666 ${cfg.systemConfig}/hardware/fmo-os-x86_64.nix
+          ln -sf ${cfg.systemConfig}/hardware/fmo-os-x86_64.nix ${cfg.systemConfigSymlink}
       '';
 
       wantedBy = ["multi-user.target"];

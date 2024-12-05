@@ -17,6 +17,7 @@
       "vim"
       "tcpdump"
       "gpsd"
+      "fmo-ota"
     ]; # systemPackages
 
     launchers = [

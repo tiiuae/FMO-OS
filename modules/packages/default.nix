@@ -5,6 +5,7 @@
 #
 _: {
   nixpkgs.overlays = [
+    (import ./fmo-ota)
     (import ./fmo-tool)
     (import ./lisgd)
     (import ./nmLauncher)
