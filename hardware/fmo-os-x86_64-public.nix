@@ -4,8 +4,8 @@
 # fmo-os-disabled-for-public -target
 {
   sysconf = {
-    extend = "./fmo-os-rugged-tablet-7230.nix";
-    name = "fmo-os-rugged-tablet-7230-public";
+    extend = "./fmo-os-x86_64.nix";
+    name = "fmo-os-x86_64-public";
     extraModules = [
     {
       services = {

@@ -19,6 +19,7 @@
       ./fmo-services/host-services.nix
       ./profiles/x86.nix
       ./desktop
+      ./hardwareInfo
     ];
 
     # fmo services/ultilities that runs only on VMs

@@ -8,6 +8,8 @@
   addSystemPackages = (packages: [({pkgs, ...}:{environment.systemPackages = map (app: pkgs.${app}) packages;})]);
 
   addCustomLaunchers =  (launchers: [{ghaf.graphics.app-launchers.enabled-launchers = launchers;}]);
+  
+  addHardwareInfo = (deviceFile: [{device.hardwareInfo.configJson = builtins.toJSON (import ../hardware/${deviceFile});}]);
 
   importvm = (vms: (map (vm: (import ../modules/virtualization/microvm/vm.nix {inherit ghafOS self; vmconf=vms.${vm};}) ) (builtins.attrNames vms)));
 
