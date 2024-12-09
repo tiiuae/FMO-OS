@@ -35,10 +35,8 @@
     });
 
     hwConfigs = [
-      (import ./hardware/fmo-os-rugged-laptop-7330.nix)
-      (import ./hardware/fmo-os-rugged-laptop-7330-public.nix)
-      (import ./hardware/fmo-os-rugged-tablet-7230.nix)
-      (import ./hardware/fmo-os-rugged-tablet-7230-public.nix)
+      (import ./hardware/fmo-os-x86_64.nix)
+      (import ./hardware/fmo-os-x86_64-public.nix)
     ];
     instConfigs = [
       (import ./installers/fmo-os-installer.nix)
