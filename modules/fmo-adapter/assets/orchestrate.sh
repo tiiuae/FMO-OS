@@ -12,6 +12,7 @@ if [ -f ${RUNNING} ]; then
     exit 0
 fi
 
+touch ${STARTED}
 touch ${RUNNING}
 rm -f ${PROVISIONED}
 
@@ -96,6 +97,19 @@ read_pin() {
     do_exit
 }
 
+create_pkcs11_network() {
+    docker network inspect foglan_pkcs11
+    if (( $? == 0 )); then
+        # already exists
+        return
+    fi
+
+    docker network create --driver bridge \
+        --opt com.docker.network.driver.mtu=1460 \
+        --subnet=172.172.0.0/24 \
+        foglan_pkcs11
+}
+
 get_compose_data() {
     local reply=""
     read -p "Do you want to use a Docker image for compose data [Y/n]: " reply
@@ -160,6 +174,7 @@ start_provisioning_server() {
     sed -i "s|xyzENGINExyz|${ENGINE}|g" ${WORK_DIR}/.env
 
     ${WORK_DIR}/provisioning-server &
+    # A nap to get output synced
     sleep 1
     echo "Provisioning server started..."
 }
@@ -179,6 +194,7 @@ prepare_drones() {
         mkdir -p ${device_dir}/cfg
         mkdir -p ${device_dir}/cfg/sec-udp
         mkdir -p ${device_dir}/cert
+        mkdir -p ${device_dir}/component-data
         mkdir -p ${device_dir}/mount
         mkdir -p ${device_dir}/enclave/nats
         mkdir -p ${device_dir}/softhsm/pins
@@ -187,6 +203,7 @@ prepare_drones() {
         mkdir -p ${device_dir}/softhsm/tokens
 
         cp ${WORK_DIR}/data/DEFAULT_FASTRTPS_PROFILES_1.xml ${device_dir}/mount
+        cp ${WORK_DIR}/templates/softhsm2.conf ${device_dir}/softhsm
 
         grep "provisioning_nats_url" ${cfg_file} | awk '{print $2}' | tr -d '",' >${device_dir}/cfg/service_nats_url.txt
 
@@ -196,10 +213,6 @@ prepare_drones() {
         mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORK_DIR}/templates/proxy.template >${device_dir}/proxy-compose.yaml
         mustache ${cfg_file} ${WORK_DIR}/templates/nats-server-conf.template >${device_dir}/cfg/nats-server.conf
         mustache ${cfg_file} ${WORK_DIR}/templates/config-fmo-mavlink.template >${device_dir}/cfg/sec-udp/config-fmo-mavlink.yaml
-        mustache ${cfg_file} ${WORK_DIR}/templates/serial-number.template >${device_dir}/serial-number.txt
-
-        # Start device's pkcs11-proxy instance
-        # docker compose -f ${device_dir}/proxy-compose.yaml up -d
 
         docker run --network host --rm --name registration-agent \
             --env-file ${device_dir}/register-env.list --volume ${device_dir}:/data \
@@ -222,7 +235,8 @@ prepare_drones() {
             fi
         fi
 
-        mustache ${cfg_file} ${WORK_DIR}/templates/device-registered.template >${device_dir}/device-registered.txt
+        mustache ${cfg_file} ${WORK_DIR}/templates/serial-number.template >${device_dir}/cfg/serial-number.txt
+        mustache ${cfg_file} ${WORK_DIR}/templates/device-registered.template >${device_dir}/cfg/device-registered.txt
 
         # Registering to be implemented in a later phase
         # docker run --network host --rm --name registration-agent \
@@ -235,9 +249,19 @@ prepare_drones() {
         # fi
 
         local drone_device_id=$(openssl x509 -in ${device_dir}/cert/client-certificate.pem -text | grep "Subject: CN" | awk '{split($0,a,"/"); print a[4]}')
+        local swarm_id=$(cat ${device_dir}/cfg/device-registered.txt | grep "\"swarm\"" | awk '{print $2}' | tr -d '",')
 
         sed -i "s/xyzXYZxyz/${drone_device_id}/g" ${device_dir}/docker-compose.yaml
-        sed -i "s/xyzXYZxyz/${drone_device_id}/g" ${device_dir}/device-registered.txt
+        sed -i "s/xyzXYZxyz/${drone_device_id}/g" ${device_dir}/cfg/device-registered.txt
+        sed -i "s/xyzSWARMxyz/${swarm_id}/g" ${device_dir}/certificate-setup.json
+        sed -i "s/xyzXYZxyz/${drone_device_id}/g" ${device_dir}/certificate-setup.json
+
+        setup_certificates ${device_alias} ${cfg_file}
+
+        local profiles=$(grep "\"profiles\"" ${cfg_file} | awk '{print $2}' | tr -d '"')
+        if [ "${profiles}x" != "x" ]; then
+            device_alias="${device_alias},${profiles}"
+        fi
 
         echo "${device_alias}" >>${PROVISIONED}
     done
@@ -245,14 +269,31 @@ prepare_drones() {
     read -p "Drones provisioned, Yubikey may be removed, press <Enter> to continue"
 }
 
+setup_certificates() {
+    local device_alias=$1
+    local cfg_file=$2
+    local device_dir="${WORK_DIR}/devices/${device_alias}"
+
+    mustache --override ${COMPONENT_FILE} ${cfg_file} ${WORK_DIR}/templates/setup-certificates.template >${device_dir}/setup-certificates.sh
+    chmod +x ${device_dir}/setup-certificates.sh
+
+    # Start device's pkcs11-proxy instance
+    docker compose -f ${device_dir}/proxy-compose.yaml up -d
+
+    ${device_dir}/setup-certificates.sh ${device_alias} ${WORK_DIR}
+}
+
 start_drones() {
     local provisioned=$(cat ${PROVISIONED} | sort -u)
     local started=$(cat ${STARTED})
 
     for drone in ${provisioned[@]}; do
+        local split=(${drone//,/ })
+        local device_alias=${split[0]}
+
         local is_started="n"
         for already in ${started[@]}; do
-            if [ "${drone}x" == "${already}x"]; then
+            if [ "${device_alias}x" == "${already}x"]; then
                 is_started="y"
                 break
             fi
@@ -260,14 +301,24 @@ start_drones() {
 
         if [ "${is_started}" == "n" ]; then
             local reply=""
-            read -p "Do you want to start adapter drone ${drone} [Y/n]: " reply
+            read -p "Do you want to start adapter drone ${device_alias} into FMO [Y/n]: " reply
             if [ "${reply^^}" == "N" ]; then
                 continue
             fi
 
-            docker compose -f devices/${drone}/docker-compose.yaml up -d
+            local profiles=""
+            for i in {1..5}; do
+                local profile=${split[$i]}
+                if [ "${profile}x" == "x" ]; then
+                    break
+                fi
 
-            echo "${drone}" >>${STARTED}
+                profiles="${profiles} --profile ${profile}"
+            done
+
+            docker compose -f devices/${device_alias}/docker-compose.yaml ${profiles} up -d
+
+            echo "${device_alias}" >>${STARTED}
         fi
     done
 }
@@ -338,12 +389,10 @@ choices() {
 
 read -p "Enter working folder [${DEFAULT_DIR}]: " WORK_DIR
 WORK_DIR=${WORK_DIR:-${DEFAULT_DIR}}
-COMPONENT_FILE="${WORK_DIR}/data/components.json"
-MANIFEST_FILE="${WORK_DIR}/data/manifest.json"
 
 if [ ! -d ${WORK_DIR} ]; then
     sudo mkdir -p ${WORK_DIR}
-    sudo chown -R ghaf:ghaf ${WORKDIR}
+    sudo chown -R ${USER}:${USER} ${WORKDIR}
 fi
 
 cd ${WORK_DIR}
@@ -354,8 +403,11 @@ mkdir -p ${WORK_DIR}/templates
 mkdir -p ${WORK_DIR}/devices
 mkdir -p ${WORK_DIR}/devices/common
 
-echo "Logging in ghcr.io"
-docker_login
+COMPONENT_FILE="${WORK_DIR}/data/components.json"
+MANIFEST_FILE="${WORK_DIR}/data/manifest.json"
+
+# echo "Logging in ghcr.io"
+# docker_login
 echo "Starting Smart Card daemon if needed"
 start_pcscd
 echo "Checking Yubikey accessibility"
@@ -366,5 +418,7 @@ echo "Preparing needed components"
 prepare_components
 echo "Starting local provisioning server instance"
 start_provisioning_server
+
+create_pkcs11_network
 
 choices
