@@ -7,6 +7,17 @@
   ...
 }: let
   cfg = config.ghaf.graphics.sway;
+  map-touch-devices = pkgs.writeShellScriptBin "map-touch-devices" ''
+    #${pkgs.bash}/bin/bash
+    while [ ! -f ${config.device.hardwareInfo.skuFile} ]; do
+      :
+    done
+    system_sku=$(cat ${config.device.hardwareInfo.skuFile})
+    devices=$(echo '${config.device.hardwareInfo.configJson}' | ${pkgs.jq}/bin/jq -r --arg sku "$system_sku" '.[$sku].touchDevices.[]')
+    for device in $devices; do
+      swaymsg "input $device map_to_output eDP-1"
+    done
+  '';
 
   swayConfig = pkgs.writeTextFile {
     name = "generated-sway-config";
@@ -18,6 +29,7 @@
       output * bg ${../assets/wallpaper.jpg} fill
 
       ${builtins.readFile ./config}
+      exec ${map-touch-devices}/bin/map-touch-devices
     '';
   };
 in {

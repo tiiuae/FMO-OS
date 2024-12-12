@@ -1,10 +1,10 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 #
-# fmo-os-rugged-laptop-7330 computer -target
+# fmo-os-rugged-devices computer -target
 {
   sysconf = {
-    name = "fmo-os-rugged-laptop-7330";
+    name = "fmo-os-rugged-devices";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
     release = "v1.1.0a";
@@ -12,6 +12,8 @@
     fmo-system = {
       RAversion = "v0.8.4";
     };
+
+    device-info = ./device-info/rugged-devices.nix;
 
     systemPackages = [
       "vim"
@@ -41,7 +43,7 @@
         services = {
           fmo-psk-distribution-service-host = {
             enable = true;
-          }; # fmo-psk-distribution-service-host
+          }; # services.fmo-psk-distribution-service-host
           fmo-dynamic-portforwarding-service-host = {
             enable = true;
             config-paths = {
@@ -65,10 +67,6 @@
             '';
           }; # services.udev
         }; # services
-        ghaf.graphics.sway.extraConfig = ''
-          # Map touch screen input to internal display
-          input "3823:49155:CUST0000:00_0EEF:C003" map_to_output "eDP-1"
-        ''; # graphics.sway
       }
     ]; # extraModules;
 
@@ -82,26 +80,6 @@
           "vim"
           "tcpdump"
         ]; # systemPackages
-        pciDevices = [
-          {
-            path = "0000:72:00.0";
-          }
-          {
-            path = "0000:00:1f.0";
-          }
-          {
-            path = "0000:00:1f.3";
-          }
-          {
-            path = "0000:00:1f.4";
-          }
-          {
-            path = "0000:00:1f.5";
-          }
-          {
-            path = "0000:00:1f.6";
-          }
-        ]; # pciDevices
         extraModules = [
         {
           users.users."ghaf".extraGroups = ["networkmanager"];
@@ -194,7 +172,7 @@
                   proto = "tcp";
                 }
               ];
-            }; # services.dynamic-portforwarding-service
+            }; # services.portforwarding-service;
           }; # services
 
           microvm = {
@@ -255,7 +233,6 @@
           "tcpdump"
           "gpsd"
         ]; # systemPackages
-        pciDevices = [];
         extraModules = [
         {
           users.users."ghaf".extraGroups = ["docker" "dialout"];
@@ -279,6 +256,7 @@
                 fsType = "ext4";
               }
             ];# microvm.volumes
+
             shares = [
               {
                 source = "/var/vms_shares/common";

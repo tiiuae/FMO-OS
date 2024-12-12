@@ -8,7 +8,7 @@
 }: sysconf:
 let
   inherit (import ./utils {inherit lib self ghafOS;}) 
-      updateAttrs updateHostConfig addCustomLaunchers addSystemPackages importvm generateFMOToolConfig;
+      updateAttrs updateHostConfig addHardwareInfo addCustomLaunchers addSystemPackages importvm generateFMOToolConfig;
 
   targetconf = sysconf;
   name = targetconf.name;
@@ -48,6 +48,7 @@ let
         ++ (importvm              targetconf.vms)
         ++ (updateHostConfig      targetconf)
         ++ (generateFMOToolConfig targetconf)
+        ++ (if lib.hasAttr "device-info" targetconf then addHardwareInfo (import targetconf.device-info) else [])
         ++ (if lib.hasAttr "extraModules" targetconf then targetconf.extraModules else []);
     };
   in {

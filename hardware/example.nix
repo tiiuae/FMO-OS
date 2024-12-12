@@ -13,6 +13,10 @@
       "tcpdump"
     ]; # systemPackages
 
+    # Optional
+    # File containing information about VMs and pci-devices passed through
+    #  device-info = ./device-info/rugged-devices.nix;
+
     # VMs description
     vms = {
       # NetVM -- the network VM

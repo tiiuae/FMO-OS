@@ -118,7 +118,7 @@ in {
     pciConfigPath = lib.mkOption {
       type = lib.types.str;
       description = "Path to pci-device-path file";
-      default = "/etc/pciDevices/${vmconf.name}";
+      default = "/var/host/pciDevices/${vmconf.name}";
     };
 
     extraModules = lib.mkOption {
@@ -144,8 +144,40 @@ in {
       specialArgs = {inherit lib;};
     };
 
-    # Generate pci device information for passthrough
-    environment.etc."pciDevices/${vmconf.name}".text =
-      lib.concatMapStringsSep "\n" (device: "${device.path}") vmconf.pciDevices;
+    # Write all pci device information for passthrough
+    systemd.services."microvm-pci-declaration@${vmconf.name}" = {
+      description = "Declare MicroVM '${vmconf.name}' pci devices";
+      before = [
+        "install-microvm-${vmconf.name}.service"
+        "microvm@${vmconf.name}.service"
+        "microvm-tap-interfaces@${vmconf.name}.service"
+        "microvm-pci-devices@${vmconf.name}.service"
+        "microvm-virtiofsd@${vmconf.name}.service"
+      ];
+      partOf = [ "microvm@${vmconf.name}.service" ];
+      wantedBy = [ "microvms.target" ];
+      # Read create source for symlink file that contains information about
+      # pci devices
+      serviceConfig.Type = "oneshot";
+      script = ''
+        system_product_name=$(${pkgs.dmidecode}/bin/dmidecode -s system-product-name)
+        system_sku_number=$(${pkgs.dmidecode}/bin/dmidecode -s system-sku-number)
+        system_sku="$system_sku_number $system_product_name"
+
+        mkdir -p $(dirname ${cfg.pciConfigPath})
+
+        devices=$(echo '${config.device.hardwareInfo.configJson}' | ${pkgs.jq}/bin/jq -r --arg sku "$system_sku" '.[$sku].pciDevices.${vmconf.name}.[]')
+        for device in $devices; do
+          if [ -f ${cfg.pciConfigPath} ]; then
+            assigned_devices=$(cat ${cfg.pciConfigPath})
+            if [[ $assigned_devices == *$device* ]]; then
+              continue
+            fi
+          fi
+          echo "$device" >> ${cfg.pciConfigPath}
+        done
+      '';
+      serviceConfig.SyslogIdentifier = "microvm-pci-declaration-${vmconf.name}";
+    };
   };
 }

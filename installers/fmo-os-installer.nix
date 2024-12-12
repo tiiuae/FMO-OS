@@ -1,13 +1,13 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 #
-# FMO-OS general installer includes images for Rugged tablet and laptop
+# FMO-OS general installer includes images for FMO-OS x86_64 devices
 #
 {
   # system and host description
   sysconf = {
     name = "fmo-os-installer";
-    description = "FMO-OS general installer includes images for Rugged tablet and laptop";
+    description = "FMO-OS general installer includes images for FMO-OS x86_64 devices";
     systemPackages = [
       "vim"
     ]; # systemPackages
@@ -60,8 +60,7 @@
 
     # OS to include
     oss = [
-      "fmo-os-rugged-laptop-7330"
-      "fmo-os-rugged-tablet-7230"
+      "fmo-os-rugged-devices"
     ]; # oss
   }; # system
 }
