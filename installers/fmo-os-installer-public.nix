@@ -1,7 +1,7 @@
 # Copyright 2022-2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 #
-# FMO-OS general installer includes images for Rugged tablet and laptop without registration agent
+# FMO-OS general installer includes images for FMO-OS x86_64 devices without registration agent
 #
 {
   # system and host description
@@ -30,8 +30,7 @@
 
     # OS to include
     oss = [
-      "fmo-os-rugged-laptop-7330-public"
-      "fmo-os-rugged-tablet-7230-public"
+      "fmo-os-rugged-devices-public"
     ]; # oss
   }; # system
 }

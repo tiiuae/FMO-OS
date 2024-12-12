@@ -9,6 +9,8 @@
 
   addCustomLaunchers =  (launchers: [{ghaf.graphics.app-launchers.enabled-launchers = launchers;}]);
 
+  addHardwareInfo = (deviceInfo: [{device.hardwareInfo.configJson = builtins.toJSON deviceInfo;}]);
+
   importvm = (vms: (map (vm: (import ../modules/virtualization/microvm/vm.nix {inherit ghafOS self; vmconf=vms.${vm};}) ) (builtins.attrNames vms)));
 
   generateFMOToolConfig = (import ./fmo-tools/fmo-hyper-module-list.nix);
