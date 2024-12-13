@@ -85,6 +85,7 @@ in
               source = pkgs.writeTextDir ".env" ''
                 AUTOMATIC_PROVISIONING=false
                 TLS=true
+                ENCRYPTED_SECRETS=false
                 PROVISIONING_URL=
                 DEVICE_ALIAS=
                 DEVICE_IDENTITY_FILE=${cfg.certs_path}/identity.txt
