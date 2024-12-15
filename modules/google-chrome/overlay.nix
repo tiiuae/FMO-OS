@@ -3,7 +3,7 @@ self: super:
   google-chrome = super.google-chrome.overrideAttrs (oldAttrs: rec {
     src = super.fetchurl {
       url = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb";
-      sha256 = "sha256-Cn0fg6WI1kFdk8s0LCksMCMLSDkPImXBDNK+hNMlMpQ=";
+      sha256 = "sha256-JEJnOawnz6BIXm+pbjz0u1BQOUwm+2hBCMh5NnN2aII=";
     };
         installPhase = ''
       runHook preInstall
