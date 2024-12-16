@@ -377,6 +377,15 @@
                   vendorid = "1546";
                   productid = "01a9";
                 }
+                # Passthrough yubikeys
+                {bus = "usb"; vendorid = "1050"; productid = "0401"; }
+                {bus = "usb"; vendorid = "1050"; productid = "0402"; }
+                {bus = "usb"; vendorid = "1050"; productid = "0403"; }
+                {bus = "usb"; vendorid = "1050"; productid = "0404"; }
+                {bus = "usb"; vendorid = "1050"; productid = "0405"; }
+                {bus = "usb"; vendorid = "1050"; productid = "0406"; }
+                {bus = "usb"; vendorid = "1050"; productid = "0407"; }
+                {bus = "usb"; vendorid = "1050"; productid = "0116"; }
               ];
             }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
