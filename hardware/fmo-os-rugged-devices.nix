@@ -2,12 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # fmo-os-rugged-devices computer -target
-{
+let 
+  buildVersion = builtins.getEnv("FMO_BUILD_VERSION");
+in {
   sysconf = {
     name = "fmo-os-rugged-devices";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
-    release = "v1.1.0a";
+    release = if buildVersion != ""
+              then buildVersion
+              else "v1.1.0a";
 
     fmo-system = {
       RAversion = "v0.8.4";
