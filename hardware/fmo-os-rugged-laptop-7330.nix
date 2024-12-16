@@ -397,6 +397,7 @@
                   vendorid = "1546";
                   productid = "01a9";
                 }
+                # Passthrough Yubikeys
                 {
                   bus = "usb";
                   vendorid = "1050";
@@ -414,6 +415,11 @@
               docker-url = "cr.airoplatform.com";
               docker-url-path = "/var/lib/fogdata/cr.url";
             }; # services.fmo-dci
+            fmo-dci-passthrough = {
+              enable = true;
+              container-name = "swarm-server-pmc01-swarm-server-1";
+              vendor-id = "1050";
+            };
             avahi = {
               enable = true;
               nssmdns = true;
