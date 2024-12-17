@@ -20,7 +20,18 @@ in {
     ];
 
     dockerDevPassScript = pkgs.writeShellScriptBin "docker-dev-pass" ''
-
+      CONTAINERNAME=swarm-server-pmc01-swarm-server-1 if [ -n "$(docker ps --quiet --filter name=$CONTAINERNAME)" ] && [ -n "$2" ] && [[ "$5" == 1050/* ]]; then
+      if [ "$1" == "plugged" ]; then
+        echo "$1 $2 $3 $4 $5" >> /tmp/opkey.log
+        docker exec --user root $CONTAINERNAME mkdir -p $(dirname $2)
+        docker exec --user root $CONTAINERNAME mknod $2 c $3 $4
+        docker exec --user root $CONTAINERNAME chmod --recursive 777 $2
+        docker exec --user root $CONTAINERNAME service pcscd restart
+      else
+        echo "$1 $2 $3 $4 $5" >> /tmp/opkey.log
+        docker exec --user root $CONTAINERNAME rm -f $2
+       fi
+     fi
     '';
 
     udev = {
