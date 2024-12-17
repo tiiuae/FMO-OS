@@ -1,0 +1,13 @@
+diff --git a/vhotplug/config.py b/vhotplug/config.py
+index 689d243..c1e7300 100644
+--- a/vhotplug/config.py
++++ b/vhotplug/config.py
+@@ -32,7 +32,7 @@ class Config:
+                     logger.debug(f"Rule {usb_description}")
+                     logger.debug(f"Checking {vid}:{pid} against {usb_vid}:{usb_pid}")
+                     vidMatch = usb_vid and vid.casefold() == usb_vid.casefold()
+-                    pidMatch = usb_pid and pid.casefold() == usb_pid.casefold()
++                    pidMatch = (usb_pid and pid.casefold() == usb_pid.casefold()) or re.match(usb_pid, pid, re.IGNORECASE)
+                     if vidMatch and pidMatch:
+                         logger.info(f"Found VM {vm_name} by vendor id / product id, description: {usb_description}")
+                         matches = True
