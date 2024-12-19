@@ -418,6 +418,9 @@
               docker-url = "cr.airoplatform.com";
               docker-url-path = "/var/lib/fogdata/cr.url";
             }; # services.fmo-dci
+            fmo-dci-passthrough = {
+              enable = true;
+            };
             avahi = {
               enable = true;
               nssmdns = true;

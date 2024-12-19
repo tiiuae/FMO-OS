@@ -25,4 +25,5 @@
   ./dynamic-device-passthrough-services-host
   ./fmo-certs-distribution-host
   ./fmo-monitoring
+  ./fmo-dci-passthrough
 ]
