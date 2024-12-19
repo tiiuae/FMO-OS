@@ -38,9 +38,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    
-    environment.systemPackages = [ dockerDevPassScript ];
-    
     services.udev = {
       extraRules = ''
         ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1050", RUN+="${dockerDevPassScript}/bin/docker-dev-pass 'plugged' '%E{DEVNAME}' '%M' '%m' '%E{PRODUCT}'"
