@@ -38,7 +38,7 @@ let
               };
             };
             boot.kernelParams = [
-              "intel_iommu=on,igx_off,sm_on"
+              "intel_iommu=on,igfx_off,sm_on"
               "iommu=pt"
             ];
           }
