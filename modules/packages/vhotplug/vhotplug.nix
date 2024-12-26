@@ -19,6 +19,8 @@ in
 
     doCheck = false;
 
+    patches = [ ./vendorid.patch ];
+
     src = fetchFromGitHub {
       owner = "tiiuae";
       repo = "vhotplug";

@@ -303,6 +303,11 @@
                   vendorid = "1546";
                   productid = "01a9";
                 }
+                {
+                  bus = "usb";
+                  vendorid = "1050";
+                  productid = ".*";
+                }
               ];
             }; # services.fmo-dynamic-device-passthrough
             fmo-dci = {
