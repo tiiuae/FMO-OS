@@ -28,6 +28,9 @@ in
 
       profiles.applications.enable = true;
 
+      # TODO: Hardened greetd disabled sudo, should be fixed when implement guivm
+      systemd.excludedHardenedConfigs = [ "greetd.service"];
+
       virtualization= {
         microvm-host.enable = true;
         microvm-host.networkSupport = true;

@@ -56,6 +56,9 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    ghaf.users.admin = {
+      createHome = lib.mkForce true;
+    };
 
     xdg.icons.enable = true;
 

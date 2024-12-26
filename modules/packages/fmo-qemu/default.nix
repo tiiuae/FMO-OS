@@ -7,7 +7,7 @@
 let
   inherit (pkgs) lib;
 
-  inherit (import "${ghafOS.inputs.microvm}/lib" { nixpkgs-lib = lib; }) createVolumesScript makeMacvtap;
+  inherit (import "${ghafOS.inputs.microvm}/lib" { inherit lib; }) createVolumesScript makeMacvtap;
   inherit (makeMacvtap {
     inherit microvmConfig hypervisorConfig;
   }) openMacvtapFds macvtapFds;
