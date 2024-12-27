@@ -36,7 +36,7 @@ pkgs.python310Packages.buildPythonApplication {
 
   src = builtins.fetchGit {
     url = "https://github.com/tiiuae/fmo-tool.git";
-    rev = "4cdb772a104893ecf2d15333bad0f335040c3be9";
+    rev = "ed1ba0debd766a07efb14b59401d9ae8b2c5093e";
     ref = "refs/heads/main";
   };
 }
