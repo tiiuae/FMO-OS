@@ -51,13 +51,13 @@ in {
         config-folder = {
           des-path = "${config.users.users.ghaf.home}/.config";
           write-once = true;
-          owner = config.ghaf.users.accounts.user;
+          owner = config.ghaf.users.admin.name;
         };
         sway-config = {
           source = "${swayConfig}/config";
           des-path = "${config.users.users.ghaf.home}/.config/sway";
           write-once = true;
-          owner = config.ghaf.users.accounts.user;
+          owner = config.ghaf.users.admin.name;
           permission = "664";
         };
       };

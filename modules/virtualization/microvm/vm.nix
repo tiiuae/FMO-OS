@@ -16,7 +16,8 @@
     imports = [
       ({lib, ...}: {
         ghaf = {
-          users.accounts.enable = lib.mkDefault configHost.ghaf.users.accounts.enable;
+          # TODO: Ghaf implement different types of users. Currently use admin user for all VMs
+          users.admin.enable = lib.mkDefault configHost.ghaf.users.admin.enable;
           development = {
             ssh.daemon.enable = lib.mkDefault configHost.ghaf.development.ssh.daemon.enable;
             debug.tools.enable = lib.mkDefault configHost.ghaf.development.debug.tools.enable;
