@@ -400,6 +400,8 @@
             }; # services.fmo-dci
             fmo-dci-passthrough = {
               enable = true;
+              container-name = "swarm-server-pmc01-swarm-server-1";
+              vendor-id = "1050";
             };
             avahi = {
               enable = true;

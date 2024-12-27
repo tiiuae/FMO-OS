@@ -6,11 +6,15 @@ let
   cfg = config.services.fmo-dci-passthrough;
 
     dockerDevPassScript = pkgs.writeShellScriptBin "docker-dev-pass" ''
-      CONTAINERNAME=swarm-server-pmc01-swarm-server-1
+      CONTAINERNAME="${cfg.container-name}"
 
-      echo "\n\n\nDevice connection rule has been triggered" >> /tmp/opkey.log
+      set -x
 
-      if [ -n "$(${pkgs.docker}/bin/docker ps --quiet --filter name=$CONTAINERNAME)" ] && [ -n "$2" ] && [[ "$5" == 1050/* ]]; then
+      echo ""
+      echo ""
+      echo "Device connection rule has been triggered" >> /tmp/opkey.log
+
+      if [ -n "$(${pkgs.docker}/bin/docker ps --quiet --filter name=$CONTAINERNAME)" ] && [ -n "$2" ] && [[ "$5" == ${cfg.vendor-id}/* ]]; then
         echo "Container $CONTAINERNAME has been found" >> /tmp/opkey.log
         if [ "$1" == "plugged" ]; then
           echo "Device plugged $1 $2 $3 $4 $5" >> /tmp/opkey.log
@@ -21,9 +25,10 @@ let
         else
           echo "Device unplugged $1 $2 $3 $4 $5" >> /tmp/opkey.log
           ${pkgs.docker}/bin/docke exec --user root $CONTAINERNAME rm -f $2
+          ${pkgs.docker}/bin/docker exec --user root $CONTAINERNAME service pcscd restart
          fi
       else
-        echo "Container $CONTAINERNAME has not been found" >> /tmp/opkey.log
+        echo "Container $CONTAINERNAME has not been found or wrong device" >> /tmp/opkey.log
         echo "Unknown error $1 $2 $3 $4 $5" >> /tmp/opkey.log
       fi
     '';
@@ -34,6 +39,16 @@ in {
     compose-path = mkOption {
       type = types.str;
       description = "Path to docker-compose's .yml file";
+    };
+
+    container-name = mkOption {
+      type = types.str;
+      description = "Container name to inject a usb device";
+    };
+
+    vendor-id = mkOption {
+      type = types.str;
+      description = "Vendor id to passthrough";
     };
   };
 
