@@ -7,7 +7,7 @@
     name = "fmo-os-rugged-laptop-7330";
     ipaddr = "192.168.101.2";
     defaultgw = "192.168.101.1";
-    release = "v1.1.0a";
+    release = "v1.1.1a";
 
     fmo-system = {
       RAversion = "v0.8.4";
