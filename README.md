@@ -220,6 +220,19 @@ extraModules = [];
 The Ghaf Framework documentation site is located at [link](https://tiiuae.github.io/ghaf/)
 
 # Release notes
+v1.1.1a
+* oras: /fmo/pmc-installer:v1.1.1a
+```
+- Registration Agent version: v0.8.4
+- Yubikey passthrough to docekrvm -> docker container
+- fmo-tool updates: passthrough usb devices with wildcard syntax: 1050:.*
+- docker-compose OTA udpates
+- Persistence storages for VMs, and file transfer
+- Dedicated messageVM with NATS server on it
+- NATs serts distribution system, new serts generate on every boot
+- systemd logs collection subsystem
+- Systemd logs collection subsystem: collect logs and send them through NATs
+```
 v1.1.0a
 * oras: /fmo/pmc-installer:v1.1.0a
 ```
