@@ -64,9 +64,7 @@ in {
   flake = {
     nixosConfigurations =
       builtins.listToAttrs (map (t: lib.nameValuePair t.name t.hostConfiguration) targets);
-    packages = {
-      x86_64-linux =
-        builtins.listToAttrs (map (t: lib.nameValuePair t.name t.package) targets);
-    };
+    packages.${system} =
+      builtins.listToAttrs (map (t: lib.nameValuePair t.name t.package) targets);
   };
 }
